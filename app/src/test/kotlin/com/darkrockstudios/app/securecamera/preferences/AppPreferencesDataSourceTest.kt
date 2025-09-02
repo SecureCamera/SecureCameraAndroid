@@ -42,14 +42,6 @@ class AppPreferencesDataSourceTest {
 	}
 
 	@Test
-	fun `isProdReady defaults false, markProdReady true`() = runTest {
-		val sut = newSut()
-		assertEquals(false, sut.isProdReady.first())
-		sut.markProdReady()
-		assertEquals(true, sut.isProdReady.first())
-	}
-
-	@Test
 	fun `sanitize flags default to true and are settable`() = runTest {
 		val sut = newSut()
 		assertEquals(true, sut.sanitizeFileName.first())
@@ -140,7 +132,6 @@ class AppPreferencesDataSourceTest {
 
 		// Verify defaults/cleared
 		assertEquals(false, sut.hasCompletedIntro.first())
-		assertEquals(true, sut.isProdReady.first())
 		assertEquals(true, sut.sanitizeFileName.first())
 		assertEquals(true, sut.sanitizeMetadata.first())
 		assertEquals(0, sut.getFailedPinAttempts())

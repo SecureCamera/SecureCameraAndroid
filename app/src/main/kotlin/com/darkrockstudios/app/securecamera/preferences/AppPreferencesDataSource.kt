@@ -7,8 +7,7 @@ interface AppPreferencesDataSource {
 	/**
 	 * Check if the user has completed the introduction
 	 */
-	val hasCompletedIntro: Flow<Boolean?> // DELETE ME after beta migration is over
-	val isProdReady: Flow<Boolean?>
+	val hasCompletedIntro: Flow<Boolean?>
 
 	/**
 	 * Get the sanitized file name preference
@@ -29,9 +28,6 @@ interface AppPreferencesDataSource {
 
 	suspend fun getCipherKey(): String
 	suspend fun getCipheredPin(): String?
-
-	// DELETE ME after beta migration is over
-	suspend fun markProdReady()
 
 	/**
 	 * Set the introduction completion status
