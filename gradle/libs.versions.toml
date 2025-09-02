@@ -7,7 +7,7 @@ compileSdk = "36"
 minSdk = "29"
 
 javaVersion = "17"
-agp = "8.12.1"
+agp = "8.11.1"
 workManager = "2.10.3"
 argon2kt = "1.6.0"
 bcrypt = "0.10.2"
@@ -16,8 +16,8 @@ kotlinxCoroutinesTest = "1.10.2"
 rules = "1.7.0"
 accompanistPermissions = "0.37.3"
 coreSplashscreen = "1.0.1"
-lifecycleRuntimeCompose = "2.9.2"
-lifecycleViewModel = "2.9.2"
+lifecycleRuntimeCompose = "2.9.3"
+lifecycleViewModel = "2.9.3"
 materialIconsExtended = "1.7.8"
 mockk = "1.14.5"
 kim = "0.26.2"
@@ -28,10 +28,10 @@ coreKtx = "1.17.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 activityCompose = "1.10.1"
-composeBom = "2025.08.00"
-navigation3 = "1.0.0-alpha07"
+composeBom = "2025.08.01"
+navigation3 = "1.0.0-alpha08"
 nav3Material = "1.0.0-SNAPSHOT"
-lifecycleViewmodel = "1.0.0-alpha04"
+lifecycleViewmodelNav3 = "1.0.0-alpha04"
 koin-bom = "4.1.0"
 cryptographyBom = "0.5.0"
 datastorePreferences = "1.1.7"
@@ -94,7 +94,7 @@ ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
 ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 zoomable = { module = "net.engawapg.lib:zoomable", version.ref = "zoomable" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workManager" }
-androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodel" }
+androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNav3" }
 androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "navigation3" }
 androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "navigation3" }
 androidx-material3-navigation3 = { group = "androidx.compose.material3.adaptive", name = "adaptive-navigation3", version.ref = "nav3Material" }
