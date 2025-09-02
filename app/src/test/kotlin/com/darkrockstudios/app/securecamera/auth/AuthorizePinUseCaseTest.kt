@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import com.darkrockstudios.app.securecamera.TestClock
 import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSource
+import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSourceImpl
 import com.darkrockstudios.app.securecamera.preferences.HashedPin
 import com.darkrockstudios.app.securecamera.security.SoftwareSchemeConfig
 import com.darkrockstudios.app.securecamera.security.pin.PinRepository
@@ -18,11 +19,7 @@ import io.mockk.spyk
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import testutil.FakeDataStore
@@ -47,7 +44,7 @@ class AuthorizePinUseCaseTest {
 	fun setup() {
 		context = mockk(relaxed = true)
 		dataStore = FakeDataStore(emptyPreferences())
-		preferencesManager = spyk(AppPreferencesDataSource(context, dataStore))
+		preferencesManager = spyk(AppPreferencesDataSourceImpl(context, dataStore))
 		encryptionManager = mockk(relaxed = true)
 		pinRepository = mockk()
 		clock = TestClock(Instant.fromEpochSeconds(1))

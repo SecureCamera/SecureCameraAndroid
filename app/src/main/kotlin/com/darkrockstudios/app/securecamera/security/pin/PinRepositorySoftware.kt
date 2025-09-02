@@ -2,9 +2,9 @@ package com.darkrockstudios.app.securecamera.security.pin
 
 import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSource
 import com.darkrockstudios.app.securecamera.preferences.HashedPin
-import com.darkrockstudios.app.securecamera.preferences.XorCipher
 import com.darkrockstudios.app.securecamera.security.DeviceInfoDataSource
 import com.darkrockstudios.app.securecamera.security.SchemeConfig
+import com.darkrockstudios.app.securecamera.security.XorCipher
 import kotlinx.serialization.json.Json
 import kotlin.io.encoding.ExperimentalEncodingApi
 

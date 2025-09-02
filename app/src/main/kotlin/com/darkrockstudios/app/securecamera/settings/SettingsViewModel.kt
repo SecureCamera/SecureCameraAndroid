@@ -7,7 +7,7 @@ import com.darkrockstudios.app.securecamera.LocationPermissionStatus
 import com.darkrockstudios.app.securecamera.LocationRepository
 import com.darkrockstudios.app.securecamera.R
 import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSource
-import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSource.Companion.SESSION_TIMEOUT_DEFAULT
+import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSourceImpl.Companion.SESSION_TIMEOUT_DEFAULT
 import com.darkrockstudios.app.securecamera.security.SecurityLevel
 import com.darkrockstudios.app.securecamera.security.SecurityLevelDetector
 import com.darkrockstudios.app.securecamera.security.pin.PinRepository

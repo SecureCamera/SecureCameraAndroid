@@ -1,22 +1,21 @@
-package com.darkrockstudios.app.securecamera.preferences
+package com.darkrockstudios.app.securecamera.security
 
 import java.nio.charset.StandardCharsets
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
-
 
 object XorCipher {
 	@OptIn(ExperimentalEncodingApi::class)
 	fun encrypt(plaintext: String, key: String): String {
 		if (key.isBlank()) error("Key must not be empty!")
 		val obfuscated = xor(plaintext.toByteArray(StandardCharsets.UTF_8), key)
-		return String(Base64.encodeToByteArray(obfuscated))
+		return String(Base64.Default.encodeToByteArray(obfuscated))
 	}
 
 	@OptIn(ExperimentalEncodingApi::class)
 	fun decrypt(ciphertextB64: String, key: String): String {
 		if (key.isBlank()) error("Key must not be empty!")
-		val decoded: ByteArray = Base64.decode(ciphertextB64)
+		val decoded: ByteArray = Base64.Default.decode(ciphertextB64)
 		return String(xor(decoded, key), StandardCharsets.UTF_8)
 	}
 

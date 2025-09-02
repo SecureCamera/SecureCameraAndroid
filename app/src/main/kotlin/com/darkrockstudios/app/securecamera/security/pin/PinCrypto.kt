@@ -1,8 +1,8 @@
 package com.darkrockstudios.app.securecamera.security.pin
 
 import com.darkrockstudios.app.securecamera.preferences.HashedPin
-import com.darkrockstudios.app.securecamera.preferences.base64DecodeUrlSafe
-import com.darkrockstudios.app.securecamera.preferences.base64EncodeUrlSafe
+import com.darkrockstudios.app.securecamera.utils.base64DecodeUrlSafe
+import com.darkrockstudios.app.securecamera.utils.base64EncodeUrlSafe
 import com.lambdapioneer.argon2kt.Argon2Kt
 import com.lambdapioneer.argon2kt.Argon2KtResult
 import com.lambdapioneer.argon2kt.Argon2Mode

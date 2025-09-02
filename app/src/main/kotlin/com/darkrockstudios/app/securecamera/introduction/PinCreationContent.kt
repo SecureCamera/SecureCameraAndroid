@@ -17,6 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -141,7 +142,9 @@ fun PinCreationContent(
 					text = errorMessage,
 					color = MaterialTheme.colorScheme.error,
 					style = MaterialTheme.typography.bodyMedium,
-					modifier = Modifier.padding(bottom = 16.dp)
+					modifier = Modifier
+						.padding(bottom = 16.dp)
+						.testTag("pin-error")
 				)
 			}
 

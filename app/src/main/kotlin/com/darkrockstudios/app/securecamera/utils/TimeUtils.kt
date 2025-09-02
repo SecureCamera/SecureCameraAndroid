@@ -1,4 +1,4 @@
-package com.darkrockstudios.app.securecamera
+package com.darkrockstudios.app.securecamera.utils
 
 import timber.log.Timber
 

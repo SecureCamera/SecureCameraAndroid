@@ -2,11 +2,11 @@ package com.darkrockstudios.app.securecamera.security.pin
 
 import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSource
 import com.darkrockstudios.app.securecamera.preferences.HashedPin
-import com.darkrockstudios.app.securecamera.preferences.base64Decode
-import com.darkrockstudios.app.securecamera.preferences.base64Encode
 import com.darkrockstudios.app.securecamera.security.DeviceInfoDataSource
 import com.darkrockstudios.app.securecamera.security.SchemeConfig
 import com.darkrockstudios.app.securecamera.security.schemes.EncryptionScheme
+import com.darkrockstudios.app.securecamera.utils.base64Decode
+import com.darkrockstudios.app.securecamera.utils.base64Encode
 import kotlinx.serialization.json.Json
 
 class PinRepositoryHardware(

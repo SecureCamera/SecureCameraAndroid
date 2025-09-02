@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import com.darkrockstudios.app.securecamera.TestClock
 import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSource
+import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSourceImpl
 import com.darkrockstudios.app.securecamera.preferences.HashedPin
 import com.darkrockstudios.app.securecamera.security.SoftwareSchemeConfig
 import com.darkrockstudios.app.securecamera.security.pin.PinRepository
@@ -46,7 +47,7 @@ class AuthorizationManagerTest {
 	fun setup() {
 		context = mockk(relaxed = true)
 		dataStore = FakeDataStore(emptyPreferences())
-		preferencesManager = spyk(AppPreferencesDataSource(context, dataStore))
+		preferencesManager = spyk(AppPreferencesDataSourceImpl(context, dataStore))
 		encryptionManager = mockk(relaxed = true)
 		clock = TestClock(Instant.fromEpochSeconds(1))
 

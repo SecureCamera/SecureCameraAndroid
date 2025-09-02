@@ -2,21 +2,17 @@ package com.darkrockstudios.app.securecamera.security.pin
 
 import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSource
 import com.darkrockstudios.app.securecamera.preferences.HashedPin
-import com.darkrockstudios.app.securecamera.preferences.XorCipher
 import com.darkrockstudios.app.securecamera.security.DeviceInfoDataSource
 import com.darkrockstudios.app.securecamera.security.SchemeConfig
 import com.darkrockstudios.app.securecamera.security.SoftwareSchemeConfig
+import com.darkrockstudios.app.securecamera.security.XorCipher
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 
