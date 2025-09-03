@@ -8,7 +8,7 @@ import com.darkrockstudios.app.securecamera.BaseViewModel
 import com.darkrockstudios.app.securecamera.R
 import com.darkrockstudios.app.securecamera.camera.PhotoDef
 import com.darkrockstudios.app.securecamera.camera.SecureImageRepository
-import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSource
+import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
 import com.darkrockstudios.app.securecamera.security.pin.PinRepository
 import com.darkrockstudios.app.securecamera.share.sharePhotoWithProvider
 import com.darkrockstudios.app.securecamera.usecases.AddDecoyPhotoUseCase
@@ -18,12 +18,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class ViewPhotoViewModel(
-	private val appContext: Context,
-	private val imageManager: SecureImageRepository,
-	private val preferencesManager: AppPreferencesDataSource,
-	private val pinRepository: PinRepository,
-	private val addDecoyPhotoUseCase: AddDecoyPhotoUseCase,
-	private val initialPhotoName: String,
+    private val appContext: Context,
+    private val imageManager: SecureImageRepository,
+    private val preferencesManager: AppSettingsDataSource,
+    private val pinRepository: PinRepository,
+    private val addDecoyPhotoUseCase: AddDecoyPhotoUseCase,
+    private val initialPhotoName: String,
 ) : BaseViewModel<ViewPhotoUiState>() {
 
 	private var currentIndex: Int

@@ -1,6 +1,6 @@
 package com.darkrockstudios.app.securecamera.security.pin
 
-import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSource
+import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
 import com.darkrockstudios.app.securecamera.preferences.HashedPin
 import com.darkrockstudios.app.securecamera.security.DeviceInfoDataSource
 import com.darkrockstudios.app.securecamera.security.SchemeConfig
@@ -18,7 +18,7 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PinRepositorySoftwareTest {
-	private lateinit var dataSource: AppPreferencesDataSource
+	private lateinit var dataSource: AppSettingsDataSource
 	private lateinit var deviceInfo: DeviceInfoDataSource
 	private lateinit var pinCrypto: PinCrypto
 	private lateinit var repo: PinRepositorySoftware

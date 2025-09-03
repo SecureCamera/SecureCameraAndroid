@@ -8,7 +8,7 @@ import android.security.keystore.KeyProperties.KEY_ALGORITHM_AES
 import android.security.keystore.KeyProperties.PURPOSE_DECRYPT
 import android.security.keystore.KeyProperties.PURPOSE_ENCRYPT
 import android.security.keystore.StrongBoxUnavailableException
-import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSource
+import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
 import com.darkrockstudios.app.securecamera.preferences.HashedPin
 import com.darkrockstudios.app.securecamera.security.DeviceInfoDataSource
 import com.darkrockstudios.app.securecamera.security.HardwareSchemeConfig
@@ -30,9 +30,9 @@ import kotlin.time.Duration.Companion.minutes
 
 
 class HardwareBackedEncryptionScheme(
-	private val appContext: Context,
-	deviceInfo: DeviceInfoDataSource,
-	private val appPreferencesDataSource: AppPreferencesDataSource,
+    private val appContext: Context,
+    deviceInfo: DeviceInfoDataSource,
+    private val appSettingsDataSource: AppSettingsDataSource,
 ) : SoftwareEncryptionScheme(deviceInfo) {
 	private val provider = CryptographyProvider.Default
 	private val ks: KeyStore = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
@@ -42,7 +42,7 @@ class HardwareBackedEncryptionScheme(
 		plainPin: String,
 		hashedPin: HashedPin,
 	): ByteArray {
-		val config = appPreferencesDataSource.getSchemeConfig() as HardwareSchemeConfig
+		val config = appSettingsDataSource.getSchemeConfig() as HardwareSchemeConfig
 		return if (config.ephemeralKey) {
 			deriveEphemeralKey(plainPin, hashedPin)
 		} else {
@@ -98,7 +98,7 @@ class HardwareBackedEncryptionScheme(
 	 * then stores it to disk.
 	 */
 	override suspend fun createKey(plainPin: String, hashedPin: HashedPin) {
-		val config = appPreferencesDataSource.getSchemeConfig() as HardwareSchemeConfig
+		val config = appSettingsDataSource.getSchemeConfig() as HardwareSchemeConfig
 
 		keyMutex.withLock {
 			// Create hardware backed KEK if it doesn't exist

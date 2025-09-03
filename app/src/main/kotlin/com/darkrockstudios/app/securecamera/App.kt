@@ -12,7 +12,7 @@ import com.darkrockstudios.app.securecamera.auth.AuthorizationRepository
 import com.darkrockstudios.app.securecamera.navigation.AppNavHost
 import com.darkrockstudios.app.securecamera.navigation.NavController
 import com.darkrockstudios.app.securecamera.navigation.enforceAuth
-import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSource
+import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
 import com.darkrockstudios.app.securecamera.ui.theme.SecureCameraTheme
 import org.koin.compose.KoinContext
 import org.koin.compose.koinInject
@@ -26,7 +26,7 @@ fun App(
 	KoinContext {
 		SecureCameraTheme {
 			val snackbarHostState = remember { SnackbarHostState() }
-			val preferencesManager = koinInject<AppPreferencesDataSource>()
+			val preferencesManager = koinInject<AppSettingsDataSource>()
 			val authorizationRepository = koinInject<AuthorizationRepository>()
 
 			val hasCompletedIntro by preferencesManager.hasCompletedIntro.collectAsState(initial = null)

@@ -6,8 +6,8 @@ import com.darkrockstudios.app.securecamera.BaseViewModel
 import com.darkrockstudios.app.securecamera.LocationPermissionStatus
 import com.darkrockstudios.app.securecamera.LocationRepository
 import com.darkrockstudios.app.securecamera.R
-import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSource
-import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSourceImpl.Companion.SESSION_TIMEOUT_DEFAULT
+import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
+import com.darkrockstudios.app.securecamera.preferences.PreferencesAppSettingsDataSource.Companion.SESSION_TIMEOUT_DEFAULT
 import com.darkrockstudios.app.securecamera.security.SecurityLevel
 import com.darkrockstudios.app.securecamera.security.SecurityLevelDetector
 import com.darkrockstudios.app.securecamera.security.pin.PinRepository
@@ -19,15 +19,15 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(
-	private val appContext: Context,
-	private val preferences: AppPreferencesDataSource,
-	private val pinRepository: PinRepository,
-	private val locationRepository: LocationRepository,
-	private val securityResetUseCase: SecurityResetUseCase,
-	private val pinStrengthCheck: PinStrengthCheckUseCase,
-	private val pinSizeUseCase: PinSizeUseCase,
-	private val removePoisonPillIUseCase: RemovePoisonPillIUseCase,
-	private val securityLevelDetector: SecurityLevelDetector
+    private val appContext: Context,
+    private val preferences: AppSettingsDataSource,
+    private val pinRepository: PinRepository,
+    private val locationRepository: LocationRepository,
+    private val securityResetUseCase: SecurityResetUseCase,
+    private val pinStrengthCheck: PinStrengthCheckUseCase,
+    private val pinSizeUseCase: PinSizeUseCase,
+    private val removePoisonPillIUseCase: RemovePoisonPillIUseCase,
+    private val securityLevelDetector: SecurityLevelDetector
 ) : BaseViewModel<SettingsUiState>() {
 
 	override fun createState() = SettingsUiState(

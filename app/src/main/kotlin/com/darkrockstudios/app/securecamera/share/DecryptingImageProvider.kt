@@ -15,7 +15,7 @@ import android.os.storage.StorageManager
 import android.provider.OpenableColumns
 import com.darkrockstudios.app.securecamera.camera.PhotoDef
 import com.darkrockstudios.app.securecamera.camera.SecureImageRepository
-import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSource
+import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.koin.core.component.KoinComponent
@@ -33,7 +33,7 @@ import kotlin.uuid.Uuid
 class DecryptingImageProvider : ContentProvider(), KoinComponent {
 
 	private val imageManager: SecureImageRepository by inject()
-	private val preferencesManager: AppPreferencesDataSource by inject()
+	private val preferencesManager: AppSettingsDataSource by inject()
 
 	@OptIn(ExperimentalUuidApi::class)
 	private val uuid = Uuid.random()

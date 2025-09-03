@@ -14,10 +14,10 @@ import org.junit.Test
 import testutil.FakeDataStore
 
 class AppPreferencesDataSourceTest {
-	private fun newSut(): AppPreferencesDataSource {
+	private fun newSut(): AppSettingsDataSource {
 		val context = mockk<Context>(relaxed = true)
 		val dataStore = FakeDataStore<Preferences>(emptyPreferences())
-		return AppPreferencesDataSourceImpl(context = context, dataStore = dataStore)
+		return PreferencesAppSettingsDataSource(context = context, dataStore = dataStore)
 	}
 
 	@Test
@@ -55,9 +55,9 @@ class AppPreferencesDataSourceTest {
 	@Test
 	fun `session timeout default and set-get`() = runTest {
 		val sut = newSut()
-		assertEquals(AppPreferencesDataSourceImpl.SESSION_TIMEOUT_DEFAULT, sut.sessionTimeout.first())
-		assertEquals(AppPreferencesDataSourceImpl.SESSION_TIMEOUT_DEFAULT, sut.getSessionTimeout())
-		val newTimeout = AppPreferencesDataSourceImpl.SESSION_TIMEOUT_1_MIN
+		assertEquals(PreferencesAppSettingsDataSource.SESSION_TIMEOUT_DEFAULT, sut.sessionTimeout.first())
+		assertEquals(PreferencesAppSettingsDataSource.SESSION_TIMEOUT_DEFAULT, sut.getSessionTimeout())
+		val newTimeout = PreferencesAppSettingsDataSource.SESSION_TIMEOUT_1_MIN
 		sut.setSessionTimeout(newTimeout)
 		assertEquals(newTimeout, sut.sessionTimeout.first())
 		assertEquals(newTimeout, sut.getSessionTimeout())
@@ -122,7 +122,7 @@ class AppPreferencesDataSourceTest {
 		sut.setSanitizeMetadata(false)
 		sut.setFailedPinAttempts(7)
 		sut.setLastFailedAttemptTimestamp(55L)
-		sut.setSessionTimeout(AppPreferencesDataSourceImpl.SESSION_TIMEOUT_10_MIN)
+		sut.setSessionTimeout(PreferencesAppSettingsDataSource.SESSION_TIMEOUT_10_MIN)
 		val schemeJson = Json.encodeToString(SchemeConfig.serializer(), SoftwareSchemeConfig)
 		sut.setAppPin("pinX", schemeJson)
 		sut.setPoisonPillPin("h", "p")
@@ -136,7 +136,7 @@ class AppPreferencesDataSourceTest {
 		assertEquals(true, sut.sanitizeMetadata.first())
 		assertEquals(0, sut.getFailedPinAttempts())
 		assertEquals(0L, sut.getLastFailedAttemptTimestamp())
-		assertEquals(AppPreferencesDataSourceImpl.SESSION_TIMEOUT_DEFAULT, sut.sessionTimeout.first())
+		assertEquals(PreferencesAppSettingsDataSource.SESSION_TIMEOUT_DEFAULT, sut.sessionTimeout.first())
 		assertNull(sut.getCipheredPin())
 		assertFalse(sut.isPinCiphered())
 		assertNull(sut.getPlainPoisonPillPin())

@@ -18,7 +18,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import com.darkrockstudios.app.securecamera.auth.AuthorizationRepository
 import com.darkrockstudios.app.securecamera.navigation.*
 import com.darkrockstudios.app.securecamera.navigation.Camera
-import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSource
+import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.isActive
@@ -31,7 +31,7 @@ import kotlin.time.Duration.Companion.seconds
 class MainActivity : ComponentActivity() {
 	private var capturePhoto = mutableStateOf<Boolean?>(null)
 	private val locationRepository: LocationRepository by inject()
-	private val preferences: AppPreferencesDataSource by inject()
+	private val preferences: AppSettingsDataSource by inject()
 	private val authorizationRepository: AuthorizationRepository by inject()
 	lateinit var navController: NavController
 

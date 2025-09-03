@@ -9,8 +9,8 @@ import com.darkrockstudios.app.securecamera.gallery.GalleryViewModel
 import com.darkrockstudios.app.securecamera.import.ImportPhotosViewModel
 import com.darkrockstudios.app.securecamera.introduction.IntroductionViewModel
 import com.darkrockstudios.app.securecamera.obfuscation.ObfuscatePhotoViewModel
-import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSource
-import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSourceImpl
+import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
+import com.darkrockstudios.app.securecamera.preferences.PreferencesAppSettingsDataSource
 import com.darkrockstudios.app.securecamera.security.DeviceInfoDataSource
 import com.darkrockstudios.app.securecamera.security.SecurityLevel
 import com.darkrockstudios.app.securecamera.security.SecurityLevelDetector
@@ -33,9 +33,11 @@ import kotlin.time.Clock
 
 val appModule = module {
 
-	single { Clock.System } bind Clock::class
-	singleOf(::SecureImageRepository)
-	single<AppPreferencesDataSource> { AppPreferencesDataSourceImpl(context = get()) }
+	factory { Clock.System } bind Clock::class
+	factory<AppSettingsDataSource> { PreferencesAppSettingsDataSource(context = get()) }
+    factoryOf(::DeviceInfoDataSource)
+
+    singleOf(::SecureImageRepository)
 	single {
 		AuthorizationRepository(
 			preferences = get(),
@@ -70,8 +72,6 @@ val appModule = module {
 	single<PinCrypto> { PinCrypto() }
 
 	single { WorkManager.getInstance(get()) }
-
-	factoryOf(::DeviceInfoDataSource)
 
 	factoryOf(::ThumbnailCache)
 	factoryOf(::SecurityResetUseCase)

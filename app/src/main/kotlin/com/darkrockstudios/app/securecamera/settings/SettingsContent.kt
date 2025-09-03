@@ -25,9 +25,9 @@ import com.darkrockstudios.app.securecamera.navigation.About
 import com.darkrockstudios.app.securecamera.navigation.Introduction
 import com.darkrockstudios.app.securecamera.navigation.NavController
 import com.darkrockstudios.app.securecamera.navigation.navigateClearingBackStack
-import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSourceImpl.Companion.SESSION_TIMEOUT_10_MIN
-import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSourceImpl.Companion.SESSION_TIMEOUT_1_MIN
-import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSourceImpl.Companion.SESSION_TIMEOUT_5_MIN
+import com.darkrockstudios.app.securecamera.preferences.PreferencesAppSettingsDataSource.Companion.SESSION_TIMEOUT_10_MIN
+import com.darkrockstudios.app.securecamera.preferences.PreferencesAppSettingsDataSource.Companion.SESSION_TIMEOUT_1_MIN
+import com.darkrockstudios.app.securecamera.preferences.PreferencesAppSettingsDataSource.Companion.SESSION_TIMEOUT_5_MIN
 import com.darkrockstudios.app.securecamera.security.SecurityLevel
 import com.darkrockstudios.app.securecamera.ui.HandleUiEvents
 import kotlinx.coroutines.launch

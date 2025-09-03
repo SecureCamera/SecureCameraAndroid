@@ -21,12 +21,12 @@ import kotlin.time.Duration.Companion.minutes
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "app_preferences")
 
 /**
- * Manages app preferences using DataStore
+ * Manages app settings using DataStore
  */
-class AppPreferencesDataSourceImpl(
+class PreferencesAppSettingsDataSource(
 	private val context: Context,
 	private val dataStore: DataStore<Preferences> = context.dataStore,
-) : AppPreferencesDataSource {
+) : AppSettingsDataSource {
 	companion object {
 		private val HAS_COMPLETED_INTRO = booleanPreferencesKey("has_completed_intro")
 		private val APP_PIN = stringPreferencesKey("app_pin")

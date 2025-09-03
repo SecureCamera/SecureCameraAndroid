@@ -1,17 +1,17 @@
 package com.darkrockstudios.app.securecamera.usecases
 
 import com.darkrockstudios.app.securecamera.auth.AuthorizationRepository
-import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSource
+import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
 import com.darkrockstudios.app.securecamera.security.SchemeConfig
 import com.darkrockstudios.app.securecamera.security.pin.PinRepository
 import com.darkrockstudios.app.securecamera.security.schemes.EncryptionScheme
 
 class CreatePinUseCase(
-	private val authorizationRepository: AuthorizationRepository,
-	private val encryptionScheme: EncryptionScheme,
-	private val pinRepository: PinRepository,
-	private val preferencesDataSource: AppPreferencesDataSource,
-	private val authorizePinUseCase: AuthorizePinUseCase
+    private val authorizationRepository: AuthorizationRepository,
+    private val encryptionScheme: EncryptionScheme,
+    private val pinRepository: PinRepository,
+    private val preferencesDataSource: AppSettingsDataSource,
+    private val authorizePinUseCase: AuthorizePinUseCase
 ) {
 	suspend fun createPin(pin: String, schemeConfig: SchemeConfig): Boolean {
 		pinRepository.setAppPin(pin, schemeConfig)

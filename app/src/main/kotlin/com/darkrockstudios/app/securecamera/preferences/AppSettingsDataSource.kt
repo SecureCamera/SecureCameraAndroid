@@ -3,7 +3,7 @@ package com.darkrockstudios.app.securecamera.preferences
 import com.darkrockstudios.app.securecamera.security.SchemeConfig
 import kotlinx.coroutines.flow.Flow
 
-interface AppPreferencesDataSource {
+interface AppSettingsDataSource {
 	/**
 	 * Check if the user has completed the introduction
 	 */

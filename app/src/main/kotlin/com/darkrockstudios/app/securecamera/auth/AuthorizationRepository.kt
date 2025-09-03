@@ -1,7 +1,7 @@
 package com.darkrockstudios.app.securecamera.auth
 
 import android.content.Context
-import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSource
+import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
 import com.darkrockstudios.app.securecamera.preferences.HashedPin
 import com.darkrockstudios.app.securecamera.security.schemes.EncryptionScheme
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,10 +17,10 @@ import kotlin.time.Instant
  * Manages user authorization state, including PIN verification and session expiration.
  */
 class AuthorizationRepository(
-	private val preferences: AppPreferencesDataSource,
-	private val encryptionScheme: EncryptionScheme,
-	private val context: Context,
-	private val clock: Clock,
+    private val preferences: AppSettingsDataSource,
+    private val encryptionScheme: EncryptionScheme,
+    private val context: Context,
+    private val clock: Clock,
 ) {
 	companion object {
 		const val MAX_FAILED_ATTEMPTS = 10

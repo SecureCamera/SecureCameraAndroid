@@ -5,8 +5,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import com.darkrockstudios.app.securecamera.TestClock
-import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSource
-import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSourceImpl
+import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
+import com.darkrockstudios.app.securecamera.preferences.PreferencesAppSettingsDataSource
 import com.darkrockstudios.app.securecamera.preferences.HashedPin
 import com.darkrockstudios.app.securecamera.security.SoftwareSchemeConfig
 import com.darkrockstudios.app.securecamera.security.pin.PinRepository
@@ -30,7 +30,7 @@ import kotlin.time.Instant
 class AuthorizePinUseCaseTest {
 
 	private lateinit var context: Context
-	private lateinit var preferencesManager: AppPreferencesDataSource
+	private lateinit var preferencesManager: AppSettingsDataSource
 	private lateinit var authorizePinUseCase: AuthorizePinUseCase
 	private lateinit var dataStore: DataStore<Preferences>
 	private lateinit var encryptionManager: EncryptionScheme
@@ -44,7 +44,7 @@ class AuthorizePinUseCaseTest {
 	fun setup() {
 		context = mockk(relaxed = true)
 		dataStore = FakeDataStore(emptyPreferences())
-		preferencesManager = spyk(AppPreferencesDataSourceImpl(context, dataStore))
+		preferencesManager = spyk(PreferencesAppSettingsDataSource(context, dataStore))
 		encryptionManager = mockk(relaxed = true)
 		pinRepository = mockk()
 		clock = TestClock(Instant.fromEpochSeconds(1))

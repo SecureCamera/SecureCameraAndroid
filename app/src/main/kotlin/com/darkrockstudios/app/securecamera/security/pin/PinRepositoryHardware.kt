@@ -1,6 +1,6 @@
 package com.darkrockstudios.app.securecamera.security.pin
 
-import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSource
+import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
 import com.darkrockstudios.app.securecamera.preferences.HashedPin
 import com.darkrockstudios.app.securecamera.security.DeviceInfoDataSource
 import com.darkrockstudios.app.securecamera.security.SchemeConfig
@@ -10,10 +10,10 @@ import com.darkrockstudios.app.securecamera.utils.base64Encode
 import kotlinx.serialization.json.Json
 
 class PinRepositoryHardware(
-	private val dataSource: AppPreferencesDataSource,
-	private val encryptionScheme: EncryptionScheme,
-	private val deviceInfo: DeviceInfoDataSource,
-	private val pinCrypto: PinCrypto,
+    private val dataSource: AppSettingsDataSource,
+    private val encryptionScheme: EncryptionScheme,
+    private val deviceInfo: DeviceInfoDataSource,
+    private val pinCrypto: PinCrypto,
 ) : PinRepository {
 
 	override suspend fun setAppPin(
