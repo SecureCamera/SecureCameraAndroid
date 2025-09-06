@@ -30,7 +30,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
 @ExperimentalCoroutinesApi
-class AuthorizationManagerTest {
+class AuthorizationRepositoryTest {
 
 	private lateinit var context: Context
 	private lateinit var preferencesManager: AppSettingsDataSource

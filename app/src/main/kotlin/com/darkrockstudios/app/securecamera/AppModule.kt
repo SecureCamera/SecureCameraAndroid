@@ -81,7 +81,6 @@ val appModule = module {
 	factoryOf(::CreatePinUseCase)
 	factoryOf(::PinSizeUseCase)
 	factoryOf(::RemovePoisonPillIUseCase)
-	factoryOf(::MigratePinHash)
 	factoryOf(::InvalidateSessionUseCase)
 	factoryOf(::AddDecoyPhotoUseCase)
 

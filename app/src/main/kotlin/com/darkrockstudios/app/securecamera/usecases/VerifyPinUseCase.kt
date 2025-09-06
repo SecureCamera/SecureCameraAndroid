@@ -10,12 +10,9 @@ class VerifyPinUseCase(
 	private val imageManager: SecureImageRepository,
 	private val pinRepository: PinRepository,
 	private val encryptionScheme: EncryptionScheme,
-	private val migratePinHash: MigratePinHash,
 	private val authorizePinUseCase: AuthorizePinUseCase,
 ) {
 	suspend fun verifyPin(pin: String): Boolean {
-		migratePinHash.runMigration(pin)
-
 		if (pinRepository.hasPoisonPillPin() && pinRepository.verifyPoisonPillPin(pin)) {
 			encryptionScheme.activatePoisonPill(oldPin = pinRepository.getHashedPin())
 			imageManager.activatePoisonPill()

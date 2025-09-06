@@ -20,7 +20,6 @@ class VerifyPinUseCaseTest {
 	private lateinit var pinRepository: PinRepository
 	private lateinit var verifyPinUseCase: VerifyPinUseCase
 	private lateinit var encryptionScheme: EncryptionScheme
-	private lateinit var migratePinHash: MigratePinHash
 	private lateinit var authorizePinUseCase: AuthorizePinUseCase
 
 	@Before
@@ -28,7 +27,6 @@ class VerifyPinUseCaseTest {
 		authManager = mockk()
 		imageManager = mockk()
 		pinRepository = mockk()
-		migratePinHash = mockk()
 		authorizePinUseCase = mockk()
 		encryptionScheme = mockk(relaxed = true)
 		verifyPinUseCase = VerifyPinUseCase(
@@ -36,11 +34,8 @@ class VerifyPinUseCaseTest {
 			imageManager = imageManager,
 			pinRepository = pinRepository,
 			encryptionScheme = encryptionScheme,
-			migratePinHash = migratePinHash,
 			authorizePinUseCase = authorizePinUseCase,
 		)
-
-		coEvery { migratePinHash.runMigration(any()) } just Runs
 	}
 
 	@Test
