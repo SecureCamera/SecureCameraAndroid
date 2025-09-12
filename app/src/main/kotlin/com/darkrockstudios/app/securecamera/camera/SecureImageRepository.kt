@@ -468,18 +468,17 @@ class SecureImageRepository(
 		const val DECOYS_DIR = "decoys"
 		const val THUMBNAILS_DIR = ".thumbnails"
 		const val MAX_DECOY_PHOTOS = 10
-	}
-}
 
-
-internal fun generateCopyName(dir: File, originalName: String): String {
-	val base = originalName.substringBeforeLast(".")
-	val ext = originalName.substringAfterLast('.', "jpg")
-	var candidate = "${base}_cp.${ext}"
-	var i = 1
-	while (File(dir, candidate).exists()) {
-		candidate = "${base}_cp${i}.${ext}"
-		i++
+        internal fun generateCopyName(dir: File, originalName: String): String {
+            val base = originalName.substringBeforeLast(".")
+            val ext = originalName.substringAfterLast('.', "jpg")
+            var candidate = "${base}_cp.${ext}"
+            var i = 1
+            while (File(dir, candidate).exists()) {
+                candidate = "${base}_cp${i}.${ext}"
+                i++
+            }
+            return candidate
+        }
 	}
-	return candidate
 }

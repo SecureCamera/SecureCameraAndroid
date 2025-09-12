@@ -8,7 +8,7 @@ class GenerateCopyNameTest {
 	@Test
 	fun returnsCpWhenNoneExist() {
 		val dir = createTempDir(prefix = "genCopyNone").apply { deleteOnExit() }
-		val result = generateCopyName(dir, "photo_123.jpg")
+		val result = SecureImageRepository.generateCopyName(dir, "photo_123.jpg")
 		assertEquals("photo_123_cp.jpg", result)
 	}
 
@@ -16,7 +16,7 @@ class GenerateCopyNameTest {
 	fun returnsCp1WhenCpExists() {
 		val dir = createTempDir(prefix = "genCopyOne").apply { deleteOnExit() }
 		File(dir, "photo_123_cp.jpg").createNewFile()
-		val result = generateCopyName(dir, "photo_123.jpg")
+		val result = SecureImageRepository.generateCopyName(dir, "photo_123.jpg")
 		assertEquals("photo_123_cp1.jpg", result)
 	}
 
@@ -26,14 +26,14 @@ class GenerateCopyNameTest {
 		File(dir, "photo_123_cp.jpg").createNewFile()
 		File(dir, "photo_123_cp1.jpg").createNewFile()
 		File(dir, "photo_123_cp2.jpg").createNewFile()
-		val result = generateCopyName(dir, "photo_123.jpg")
+		val result = SecureImageRepository.generateCopyName(dir, "photo_123.jpg")
 		assertEquals("photo_123_cp3.jpg", result)
 	}
 
 	@Test
 	fun preservesBaseWithDots() {
 		val dir = createTempDir(prefix = "genCopyDots").apply { deleteOnExit() }
-		val result = generateCopyName(dir, "my.photo.001.jpg")
+		val result = SecureImageRepository.generateCopyName(dir, "my.photo.001.jpg")
 		assertEquals("my.photo.001_cp.jpg", result)
 	}
 }

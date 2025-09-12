@@ -34,9 +34,4 @@ interface PinRepository {
 		val storedHashedPin = getHashedPoisonPillPin() ?: return false
 		return verifyPin(pin, storedHashedPin)
 	}
-
-	companion object {
-		const val ARGON_ITERATIONS = 5
-		const val ARGON_COST = 65536
-	}
 }
