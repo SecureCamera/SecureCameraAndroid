@@ -362,7 +362,7 @@
 
     <!-- Additional PIN Verification Strings -->
     <string name="pin_verification_all_data_deleted">ALL DATA DELETED</string>
-    <string name="pin_verification_remaining_attempts">Remaining attempts: %1$d/%2$d</string>
+    <string name="pin_verification_remaining_attempts">Attempts: %1$d/%2$d</string>
     <string name="pin_verification_verify_with_countdown">Verify (%1$d)</string>
     <string name="pin_verification_verify_or_wipe">Verify OR Wipe All Data</string>
     <string name="pin_verification_wipe_warning">%1$d failed attempts will result in a full data wipe.\nALL PHOTOS WILL
