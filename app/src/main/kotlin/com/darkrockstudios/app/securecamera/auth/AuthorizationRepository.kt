@@ -81,7 +81,7 @@ class AuthorizationRepository(
 	 */
 	suspend fun calculateRemainingBackoffSeconds(): Int {
 		val failedAttempts = getFailedAttempts()
-		if (failedAttempts <= 0) {
+		if (failedAttempts <= 1) {
 			return 0
 		}
 
