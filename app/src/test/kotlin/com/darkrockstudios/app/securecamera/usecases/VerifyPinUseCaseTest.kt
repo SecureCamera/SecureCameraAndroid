@@ -30,8 +30,8 @@ class VerifyPinUseCaseTest {
 		authorizePinUseCase = mockk()
 		encryptionScheme = mockk(relaxed = true)
 		verifyPinUseCase = VerifyPinUseCase(
-			authManager = authManager,
-			imageManager = imageManager,
+			authRepository = authManager,
+			imageRepository = imageManager,
 			pinRepository = pinRepository,
 			encryptionScheme = encryptionScheme,
 			authorizePinUseCase = authorizePinUseCase,
