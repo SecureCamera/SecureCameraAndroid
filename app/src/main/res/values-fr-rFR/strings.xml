@@ -34,7 +34,7 @@
     <string name="obscure_toast_overwrite_success">Photo remplacée</string>
     <string name="obscure_toast_copy_success">Copie de photo enregistrée</string>
     <string name="obscure_toast_faces_found">%1$d faces found</string>
-    <string name="obscure_toast_faces_obscured">%1$d faces obscured</string>
+    <string name="obscure_toast_faces_obscured">%1$d visages obstrués</string>
     <string name="obscure_toast_faces_cleared">Annulation des obfuscations</string>
     <string name="discard_changes_dialog_title">Ignorer les modifications</string>
     <string name="discard_changes_dialog_message">Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir les supprimer ?
