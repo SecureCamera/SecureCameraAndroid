@@ -62,6 +62,7 @@ class VerifyPinUseCaseTest {
 		val pin = "1234"
 		coEvery { pinRepository.hasPoisonPillPin() } returns false
 		coEvery { authorizePinUseCase.authorizePin(pin) } returns null
+		coEvery { authManager.incrementFailedAttempts() } returns 1
 
 		// When
 		val result = verifyPinUseCase.verifyPin(pin)
@@ -83,6 +84,7 @@ class VerifyPinUseCaseTest {
 		coEvery { pinRepository.activatePoisonPill() } returns Unit
 		coEvery { imageManager.activatePoisonPill() } returns Unit
 		coEvery { authorizePinUseCase.authorizePin(pin) } returns null // Even if PIN verification fails, poison pill should activate
+		coEvery { authManager.incrementFailedAttempts() } returns 1
 
 		// When
 		val result = verifyPinUseCase.verifyPin(pin)
@@ -118,6 +120,7 @@ class VerifyPinUseCaseTest {
 		val pin = ""
 		coEvery { pinRepository.hasPoisonPillPin() } returns false
 		coEvery { authorizePinUseCase.authorizePin(pin) } returns null
+		coEvery { authManager.incrementFailedAttempts() } returns 1
 
 		// When
 		val result = verifyPinUseCase.verifyPin(pin)
