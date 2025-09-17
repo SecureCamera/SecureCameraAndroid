@@ -3,6 +3,7 @@
 
 _Available on:_
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/9f4cfddc69f64f199777062499319714)](https://app.codacy.com/gh/SecureCamera/SecureCameraAndroid?utm_source=github.com&utm_medium=referral&utm_content=SecureCamera/SecureCameraAndroid&utm_campaign=Badge_Grade)
 [![Google Play](https://img.shields.io/endpoint?color=green&logo=google-play&logoColor=green&url=https%3A%2F%2Fplay.cuzi.workers.dev%2Fplay%3Fi%3Dcom.darkrockstudios.app.securecamera%26l%3DGoogle%2520Play%26m%3D%24version)](https://play.google.com/store/apps/details?id=com.darkrockstudios.app.securecamera)
 [![F-Droid](https://img.shields.io/f-droid/v/com.darkrockstudios.app.securecamera?logo=FDROID)](https://f-droid.org/en/packages/com.darkrockstudios.app.securecamera/)
 [![GitHub](https://img.shields.io/github/v/release/SecureCamera/SecureCameraAndroid?include_prereleases&logo=github)](https://github.com/SecureCamera/SecureCameraAndroid/releases/latest)
