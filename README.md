@@ -11,7 +11,7 @@ _Available on:_
 
 [![featureGraphic.png](fastlane/metadata/android/en-US/images/featureGraphic.png)](http://www.snapsafe.org)
 
-[![codebeat badge](https://codebeat.co/badges/1d47f0fa-2155-4e63-85ba-aafd01812d8c)](https://codebeat.co/projects/github-com-securecamera-securecameraandroid-main)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/8fc95b1f8c134ddfae9547226c753402)](https://app.codacy.com/gh/SecureCamera/SecureCameraAndroid/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
 ----
 
