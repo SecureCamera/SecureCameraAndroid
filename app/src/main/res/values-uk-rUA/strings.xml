@@ -1,279 +1,279 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">SnapSafe</string>
+    <string name="app_name">Снаперф</string>
     <!-- Delete Photo Dialog -->
-    <string name="delete_photo_title_singular">Delete Photo</string>
-    <string name="delete_photo_title_plural">Delete Photos</string>
-    <string name="delete_photo_message_singular">Are you sure you want to delete this photo?</string>
-    <string name="delete_photo_message_plural">Are you sure you want to delete these %1$d photos?</string>
-    <string name="delete_button">Delete</string>
-    <string name="cancel_button">Cancel</string>
-    <string name="info_button">Info</string>
-    <string name="info_dialog_title">Photo Info</string>
-    <string name="photo_name_label">Photo Name:</string>
-    <string name="photo_date_label">Date Taken:</string>
-    <string name="photo_location_label">Location:</string>
-    <string name="photo_orientation_label">Orientation:</string>
-    <string name="photo_resolution_label">Resolution:</string>
-    <string name="photo_no_data">[no data]</string>
-    <string name="ok_button">OK</string>
+    <string name="delete_photo_title_singular">Видалити</string>
+    <string name="delete_photo_title_plural">Видалити фото</string>
+    <string name="delete_photo_message_singular">Ви впевнені, що бажаєте видалити це фото?</string>
+    <string name="delete_photo_message_plural">Ви впевнені, що бажаєте видалити ці фото %1$d?</string>
+    <string name="delete_button">Видалити</string>
+    <string name="cancel_button">Скасувати</string>
+    <string name="info_button">Інформація</string>
+    <string name="info_dialog_title">Інформація про фото</string>
+    <string name="photo_name_label">Назва фотографії:</string>
+    <string name="photo_date_label">Дата зйомки:</string>
+    <string name="photo_location_label">Розташування:</string>
+    <string name="photo_orientation_label">Орієнтація:</string>
+    <string name="photo_resolution_label">Роздільна здатність:</string>
+    <string name="photo_no_data">[без даних]</string>
+    <string name="ok_button">Гаразд</string>
     <!-- Obscure Photo Screen -->
-    <string name="obfuscate_photo_button">Obfuscate Photo</string>
-    <string name="obscure_action_button_obfuscate">Obscure</string>
-    <string name="obscure_action_button_clear">Clear</string>
-    <string name="obscure_action_button_save">Save</string>
-    <string name="obscure_action_button_add_region">Add Region</string>
-    <string name="obscure_action_button_finish_region">Finish Region</string>
-    <string name="obscure_action_button_cancel_region">Cancel</string>
-    <string name="save_photo_dialog_title">Save Photo</string>
-    <string name="save_photo_dialog_message">Do you want to overwrite the original photo or save a new copy?</string>
-    <string name="overwrite_button">Overwrite</string>
-    <string name="save_copy_button">Save Copy</string>
-    <string name="obscure_toast_face_error">Automatic face finder failed</string>
-    <string name="obscure_toast_save_error">Failed to save photo</string>
-    <string name="obscure_toast_overwrite_success">Photo overwritten</string>
-    <string name="obscure_toast_copy_success">Photo copy saved</string>
-    <string name="obscure_toast_faces_found">%1$d faces found</string>
-    <string name="obscure_toast_faces_obscured">%1$d faces obscured</string>
-    <string name="obscure_toast_faces_cleared">Reverted obfuscations</string>
-    <string name="discard_changes_dialog_title">Discard Changes</string>
+    <string name="obfuscate_photo_button">Обфускате фото</string>
+    <string name="obscure_action_button_obfuscate">Обскюр</string>
+    <string name="obscure_action_button_clear">Очистити</string>
+    <string name="obscure_action_button_save">Зберегти</string>
+    <string name="obscure_action_button_add_region">Додати регіон</string>
+    <string name="obscure_action_button_finish_region">Закінчити регіон</string>
+    <string name="obscure_action_button_cancel_region">Скасувати</string>
+    <string name="save_photo_dialog_title">Зберегти</string>
+    <string name="save_photo_dialog_message">Хочете перезаписати оригінальну фотографію чи зберегти нову копію?</string>
+    <string name="overwrite_button">Перезаписати</string>
+    <string name="save_copy_button">Зберегти копію</string>
+    <string name="obscure_toast_face_error">Збій пошуку обличчя</string>
+    <string name="obscure_toast_save_error">Не вдалося зберегти фото</string>
+    <string name="obscure_toast_overwrite_success">Світлину перезаписано</string>
+    <string name="obscure_toast_copy_success">Фотокопія збережена</string>
+    <string name="obscure_toast_faces_found">Знайдені обличчя %1$d</string>
+    <string name="obscure_toast_faces_obscured">%1$d обличчя закриті</string>
+    <string name="obscure_toast_faces_cleared">Відновлені недоліки</string>
+    <string name="discard_changes_dialog_title">Скасувати зміни</string>
     <string name="discard_changes_dialog_message">You have unsaved changes. Are you sure you want to discard them?
     </string>
-    <string name="discard_button">Discard</string>
+    <string name="discard_button">Відкинути</string>
     <!-- View Photo Screen -->
-    <string name="photo_title">Photo</string>
-    <string name="photo_not_found">Photo not found</string>
-    <string name="photo_content_description">Photo</string>
-    <string name="photo_content_loading">Loading…</string>
-    <string name="close_photo_content_description">Close Photo</string>
-    <string name="share_photo_content_description">Share Photos</string>
-    <string name="delete_photo_content_description">Delete Photos</string>
-    <string name="photo_content_none_selected">No photo selected</string>
-    <string name="unauthorized">Unauthorized</string>
-    <string name="mark_as_decoy">Mark as Decoy</string>
-    <string name="unmark_as_decoy">Unmark as Decoy</string>
-    <string name="decoy_photo_set_menu_item">Set as Decoy</string>
-    <string name="decoy_photo_remove_menu_item">Remove Decoy</string>
-    <string name="decoy_limit_reached">Decoy limit reached: %1$d</string>
-    <string name="decoy_added">Decoy added</string>
-    <string name="decoy_removed">Decoy removed</string>
+    <string name="photo_title">Фотографія</string>
+    <string name="photo_not_found">Фотографію не знайдено</string>
+    <string name="photo_content_description">Фотографія</string>
+    <string name="photo_content_loading">Завантаження…</string>
+    <string name="close_photo_content_description">Закрити фото</string>
+    <string name="share_photo_content_description">Поділитися фотографіями</string>
+    <string name="delete_photo_content_description">Видалити фото</string>
+    <string name="photo_content_none_selected">Фото не обрано</string>
+    <string name="unauthorized">Неавторизовано</string>
+    <string name="mark_as_decoy">Позначити як обману</string>
+    <string name="unmark_as_decoy">Зняти позначку як обману</string>
+    <string name="decoy_photo_set_menu_item">Встановити як обману</string>
+    <string name="decoy_photo_remove_menu_item">Видалити декорацію</string>
+    <string name="decoy_limit_reached">Досягнуто ліміт групи: %1$d</string>
+    <string name="decoy_added">Декою додано</string>
+    <string name="decoy_removed">Декою видалено</string>
     <!-- Import Photos Screen -->
-    <string name="import_photos_title">Import Photos</string>
-    <string name="close_import_photos_content_description">Close Import</string>
-    <string name="import_photos_progress_label">Importing photos: %1$d / %2$d</string>
-    <string name="import_photos_failed_label">Failed: %1$d</string>
-    <string name="import_photos_done_label">Import Complete!</string>
-    <string name="import_photos_done_summary">%1$d successful, %2$d failed</string>
-    <string name="import_photos_done_button">Go to Gallery</string>
-    <string name="import_photos_current_photo_description">Current photo being imported</string>
-    <string name="import_chooser_intent_title">Select Photos to Import</string>
-    <string name="import_error_no_photos">Error: no photos to import</string>
+    <string name="import_photos_title">Імпорт фотографій</string>
+    <string name="close_import_photos_content_description">Закрити імпорт</string>
+    <string name="import_photos_progress_label">Імпорт фотографій: %1$d / %2$d</string>
+    <string name="import_photos_failed_label">Не вдалося: %1$d</string>
+    <string name="import_photos_done_label">Імпорт завершено!</string>
+    <string name="import_photos_done_summary">%1$d успішний, %2$d не вдалося</string>
+    <string name="import_photos_done_button">Перейти до галереї</string>
+    <string name="import_photos_current_photo_description">Поточні фото імпортуються</string>
+    <string name="import_chooser_intent_title">Виберіть фото для імпортування</string>
+    <string name="import_error_no_photos">Помилка: немає фотографій для імпорту</string>
     <!-- Notification Permission -->
-    <string name="notification_permission_dialog_title">Allow Notifications</string>
-    <string name="notification_permission_dialog_message">SnapSafe needs notification permission to show progress when
-        importing photos in the background.
+    <string name="notification_permission_dialog_title">Дозволити сповіщення</string>
+    <string name="notification_permission_dialog_message">SnapSafe потребує дозволу сповіщення, щоб показувати прогрес, коли
+        імпорт фотографій у фоновому режимі.
     </string>
-    <string name="notification_permission_button">Allow</string>
+    <string name="notification_permission_button">Дозволити</string>
     <!-- Import Worker -->
-    <string name="import_worker_notification_title">Importing Photos</string>
-    <string name="import_worker_notification_content">Importing photo %1$d of %2$d</string>
-    <string name="import_worker_channel_name">Photo Import</string>
-    <string name="import_worker_channel_description">Shows progress of photo import</string>
+    <string name="import_worker_notification_title">Імпорт фотографій</string>
+    <string name="import_worker_notification_content">Імпорт фотографії %1$d від %2$d</string>
+    <string name="import_worker_channel_name">Імпорт фото</string>
+    <string name="import_worker_channel_description">Показувати прогрес імпорту фотографій</string>
     <!-- Session Worker -->
     <string name="session_worker_notification_title">SnapSafe Active</string>
-    <string name="session_worker_notification_content">SnapSafe is open</string>
-    <string name="session_worker_channel_name">Session Status</string>
-    <string name="session_worker_channel_description">Shows when SnapSafe is active</string>
-    <string name="session_worker_notification_close">Close</string>
+    <string name="session_worker_notification_content">SnapSafe відкрите</string>
+    <string name="session_worker_channel_name">Статус сесії</string>
+    <string name="session_worker_channel_description">Показувати, коли SnapSafe активний</string>
+    <string name="session_worker_notification_close">Закрити</string>
     <!-- Gallery Screen -->
-    <string name="gallery_title">Gallery</string>
+    <string name="gallery_title">Галерея</string>
     <string name="gallery_selected_count">%1$d Selected</string>
-    <string name="gallery_loading">Loading photos…</string>
-    <string name="gallery_empty">No photos yet</string>
+    <string name="gallery_loading">Завантаження фотографій…</string>
+    <string name="gallery_empty">Фотографій ще немає</string>
     <string name="gallery_photo_content_description">Photo %1$s</string>
-    <string name="gallery_close_content_description">Close Gallery</string>
-    <string name="gallery_cancel_selection_content_description">Cancel Selection</string>
-    <string name="gallery_delete_selected_content_description">Delete Selected</string>
-    <string name="gallery_share_selected_content_description">Share Selected</string>
-    <string name="gallery_select_all_content_description">Select All</string>
-    <string name="gallery_decoy_indicator">Is Decoy Photo</string>
+    <string name="gallery_close_content_description">Закрити галерею</string>
+    <string name="gallery_cancel_selection_content_description">Скасувати вибір</string>
+    <string name="gallery_delete_selected_content_description">Видалити вибране</string>
+    <string name="gallery_share_selected_content_description">Поділитися вибраним</string>
+    <string name="gallery_select_all_content_description">Виділити все</string>
+    <string name="gallery_decoy_indicator">Є фотографією для обмани</string>
     <!-- Camera Screen -->
-    <string name="camera_more_options_content_description">More Options</string>
-    <string name="camera_settings_button">Settings</string>
-    <string name="camera_toggle_content_description">Toggle Camera</string>
-    <string name="camera_close_controls_content_description">Close Controls</string>
-    <string name="camera_flash_text">Flash</string>
-    <string name="camera_capture_content_description">Capture</string>
-    <string name="camera_gallery_content_description">Gallery</string>
-    <string name="camera_captured_image_content_description">Captured Image</string>
-    <string name="camera_settings_content_description">Settings</string>
-    <string name="camera_permissions_required">Camera permissions are required.</string>
-    <string name="camera_open_settings">Open Settings</string>
-    <string name="camera_shutter_button_desc">Take Photo</string>
+    <string name="camera_more_options_content_description">Інші налаштування</string>
+    <string name="camera_settings_button">Налаштування</string>
+    <string name="camera_toggle_content_description">Перемкнути камеру</string>
+    <string name="camera_close_controls_content_description">Закрити керування</string>
+    <string name="camera_flash_text">Флеш</string>
+    <string name="camera_capture_content_description">Захоплення</string>
+    <string name="camera_gallery_content_description">Галерея</string>
+    <string name="camera_captured_image_content_description">Захоплене зображення</string>
+    <string name="camera_settings_content_description">Налаштування</string>
+    <string name="camera_permissions_required">Потрібні дозволи камери.</string>
+    <string name="camera_open_settings">Відкрити налаштування</string>
+    <string name="camera_shutter_button_desc">Зробити фото</string>
     <!-- Settings Screen -->
-    <string name="settings_title">Settings</string>
-    <string name="settings_back_description">Back</string>
-    <string name="settings_sharing_section">Sharing</string>
-    <string name="settings_sanitize_filename">Sanitize file name</string>
-    <string name="settings_sanitize_filename_description">Remove identifying information from file names when sharing
-        photos
+    <string name="settings_title">Налаштування</string>
+    <string name="settings_back_description">Відмінити</string>
+    <string name="settings_sharing_section">Спільне використання</string>
+    <string name="settings_sanitize_filename">Ім\'я файла Санатицизувати</string>
+    <string name="settings_sanitize_filename_description">Вилучення інформації з імен файлів при спільному використанні
+        фотографій
     </string>
-    <string name="settings_sanitize_metadata">Sanitize metadata</string>
+    <string name="settings_sanitize_metadata">Сантизувати метадані</string>
     <string name="settings_sanitize_metadata_description">Strip metadata (location, device info, etc.) when sharing
         photos
     </string>
     <!-- Location Settings -->
-    <string name="settings_location_section">Location</string>
-    <string name="settings_location_status">Location Permission Status</string>
-    <string name="settings_location_status_denied">Denied</string>
-    <string name="settings_location_status_coarse">Approximate</string>
-    <string name="settings_location_status_fine">Precise</string>
-    <string name="settings_location_description">Current location access</string>
+    <string name="settings_location_section">Місцезнаходження</string>
+    <string name="settings_location_status">Статус дозволу на доступ до місцезнаходження</string>
+    <string name="settings_location_status_denied">Відмовлено</string>
+    <string name="settings_location_status_coarse">Апроксимація</string>
+    <string name="settings_location_status_fine">Точне</string>
+    <string name="settings_location_description">Поточний доступ до місцезнаходження</string>
     <!-- Security Settings -->
-    <string name="settings_security_section">Security</string>
-    <string name="settings_security_status">Security Status</string>
-    <string name="settings_security_status_description">The level of hardware security available on your device</string>
-    <string name="settings_session_timeout">Session Timeout</string>
-    <string name="settings_session_timeout_description">Time before requiring PIN re-entry</string>
-    <string name="settings_session_timeout_1_min">1 Minute</string>
-    <string name="settings_session_timeout_5_min">5 Minutes</string>
-    <string name="settings_session_timeout_10_min">10 Minutes</string>
+    <string name="settings_security_section">Безпека</string>
+    <string name="settings_security_status">Стан безпеки</string>
+    <string name="settings_security_status_description">Рівень апаратного захисту наявного на пристрої</string>
+    <string name="settings_session_timeout">Таймаут сеансу</string>
+    <string name="settings_session_timeout_description">Час до необхідного введення PIN-коду</string>
+    <string name="settings_session_timeout_1_min">1 хвилина</string>
+    <string name="settings_session_timeout_5_min">5 хвилин</string>
+    <string name="settings_session_timeout_10_min">10 хвилин</string>
     <!-- Security Reset -->
-    <string name="settings_security_reset">Security Reset</string>
-    <string name="settings_security_reset_description">Wipe all data and create a new PIN</string>
-    <string name="security_reset_dialog_title">Security Reset</string>
+    <string name="settings_security_reset">Скидання Безпеки</string>
+    <string name="settings_security_reset_description">Стерти всі дані та створити новий PIN-код</string>
+    <string name="security_reset_dialog_title">Скидання Безпеки</string>
     <string name="security_reset_dialog_message">This will wipe all data and require you to create a new PIN.\n\nAll
         photos will be permanently deleted and cannot be recovered.
     </string>
-    <string name="security_reset_understand">I Understand</string>
-    <string name="security_reset_destroy_button">Destroy All Data</string>
-    <string name="security_reset_complete_toast">Security Reset complete.</string>
+    <string name="security_reset_understand">Я розумію</string>
+    <string name="security_reset_destroy_button">Знищити всі дані</string>
+    <string name="security_reset_complete_toast">Скидання безпеки завершено.</string>
     <!-- Poison Pill -->
-    <string name="settings_poison_pill">Set-up Poison Pill</string>
-    <string name="settings_poison_pill_description">This is an advanced security feature for high threat models</string>
-    <string name="settings_remove_poison_pill">Remove Poison Pill</string>
-    <string name="settings_remove_poison_pill_description">Remove the emergency security feature</string>
-    <string name="poison_pill_dialog_title">Poison Pill Setup</string>
+    <string name="settings_poison_pill">Налаштувати Отруйний Пілл</string>
+    <string name="settings_poison_pill_description">Це передова функція безпеки для високих моделей загрози</string>
+    <string name="settings_remove_poison_pill">Видалити отруйну піллю</string>
+    <string name="settings_remove_poison_pill_description">Видалити функцію аварійного захисту</string>
+    <string name="poison_pill_dialog_title">Налаштування Отруйної Пілі</string>
     <string name="poison_pill_dialog_message">Poison Pill will create a second PIN that if entered, will wipe all of
         your data, and replace your current real PIN, with the Poison Pill PIN. It will look as if you just entered your
         normal PIN, and you will be logged in, but all photos and settings will be gone.\n\nAfter using the Poison Pill
         PIN, it is now your real PIN. It is recommended to do a Security Reset of the app once the situation that forced
         you to use the Pill is over.
     </string>
-    <string name="poison_pill_continue_button">Continue Setup</string>
-    <string name="poison_pill_cancel_button">Cancel</string>
-    <string name="poison_pill_creation_title">Create Poison Pill PIN</string>
-    <string name="poison_pill_creation_description">Create a PIN different from your current PIN</string>
-    <string name="poison_pill_creation_error">PIN cannot be the same as your current PIN</string>
-    <string name="poison_pill_setup_complete">Poison Pill setup complete</string>
-    <string name="remove_poison_pill_dialog_title">Remove Poison Pill</string>
-    <string name="remove_poison_pill_dialog_message">Are you sure you want to remove the Poison Pill? This will delete
-        the emergency PIN.
+    <string name="poison_pill_continue_button">Продовжити налаштування</string>
+    <string name="poison_pill_cancel_button">Скасувати</string>
+    <string name="poison_pill_creation_title">Створити PIN-код отруйного пілла</string>
+    <string name="poison_pill_creation_description">Створити PIN-код, який відрізняється від вашого поточного PIN-коду</string>
+    <string name="poison_pill_creation_error">PIN-код не може збігатися з вашим поточним PIN-кодом</string>
+    <string name="poison_pill_setup_complete">Налаштування отруйного пілля завершено</string>
+    <string name="remove_poison_pill_dialog_title">Видалити отруйну піллю</string>
+    <string name="remove_poison_pill_dialog_message">Ви дійсно бажаєте видалити Пізон отрути? Це призведе до видалення
+        аварійного PIN-коду
     </string>
-    <string name="remove_poison_pill_confirm_button">Remove</string>
-    <string name="remove_poison_pill_complete">Poison Pill removed</string>
+    <string name="remove_poison_pill_confirm_button">Видалити</string>
+    <string name="remove_poison_pill_complete">Отруйна пігулка видалена</string>
     <!-- Decoy Photo Explanation Dialog -->
-    <string name="decoy_explanation_dialog_title">Decoy Photos System</string>
+    <string name="decoy_explanation_dialog_title">Солодкі фотографії</string>
     <string name="decoy_explanation_dialog_message">In the case where you are coerced for your PIN, and you give over
         your Poison Pill PIN instead, it might be suspicious that there are no photos whatsoever in the Gallery.\n\nTo
         solve this it is recommended you take several photos of various innocuous things, and then go into those photos
         in the Gallery, and mark them as \"Decoy\" photos.\n\nWhen your Poison Pill is activated, all photos EXCEPT for
         your Decoys will be deleted, leaving a less suspicious situation.
     </string>
-    <string name="decoy_explanation_dialog_ok_button">Okay</string>
+    <string name="decoy_explanation_dialog_ok_button">Добре</string>
     <!-- About Screen -->
-    <string name="settings_about_button">About SnapSafe</string>
-    <string name="about_title">About SnapSafe</string>
-    <string name="about_description">SnapSafe is a privacy-focused camera app designed to protect your sensitive photos
-        with strong encryption and secure storage.
+    <string name="settings_about_button">Про SnapSafe</string>
+    <string name="about_title">Про SnapSafe</string>
+    <string name="about_description">SnapSafe це додаток для використання приватної камери, розроблений для захисту ваших конфіденційних фотографій
+        за допомогою міцного шифрування і безпечного сховища.
     </string>
-    <string name="about_version">Version</string>
-    <string name="about_back_description">Back</string>
-    <string name="about_open_source">Open Source</string>
+    <string name="about_version">Версія</string>
+    <string name="about_back_description">Відмінити</string>
+    <string name="about_open_source">Відкритий вихідний код</string>
     <string name="about_open_source_description">SnapSafe is an open source project. View the source code on GitHub:
     </string>
-    <string name="about_privacy_policy">Privacy Policy</string>
-    <string name="about_privacy_policy_description">Read our privacy policy:</string>
-    <string name="about_report_bugs">Report Bugs</string>
-    <string name="about_report_bugs_description">Found a bug? Report it on GitHub:</string>
+    <string name="about_privacy_policy">Політика конфіденційності</string>
+    <string name="about_privacy_policy_description">Прочитайте нашу політику конфіденційності:</string>
+    <string name="about_report_bugs">Повідомити про помилку</string>
+    <string name="about_report_bugs_description">Знайшли помилку? Доповісти про це на GitHub:</string>
     <!-- Location Dialog -->
-    <string name="location_dialog_title_denied">Request Location Permission</string>
-    <string name="location_dialog_title_coarse">Request Precise Location</string>
-    <string name="location_dialog_title_fine">Remove Location Permission</string>
-    <string name="location_dialog_message_denied">Allow the app to access your location?</string>
-    <string name="location_dialog_message_coarse">Allow the app to access your precise location?</string>
+    <string name="location_dialog_title_denied">Запитувати дозвіл розташування</string>
+    <string name="location_dialog_title_coarse">Запит точного розташування</string>
+    <string name="location_dialog_title_fine">Видалити дозвіл місцезнаходження</string>
+    <string name="location_dialog_message_denied">Дозволити додатку доступ до вашого розташування?</string>
+    <string name="location_dialog_message_coarse">Надати програмі доступ до вашого точного розташування?</string>
     <string name="location_dialog_message_fine">Remove location permission for this app? You\'ll need to go to system
         settings.
     </string>
-    <string name="location_dialog_change_settings">Change in Settings</string>
+    <string name="location_dialog_change_settings">Зміна налаштувань</string>
     <!-- Introduction Screen -->
-    <string name="intro_title">Welcome to SnapSafe!</string>
-    <string name="intro_next">Next</string>
-    <string name="intro_skip">Skip</string>
-    <string name="intro_finish">Finish</string>
+    <string name="intro_title">Ласкаво просимо до SnapSafe!</string>
+    <string name="intro_next">Уперед</string>
+    <string name="intro_skip">Пропустити</string>
+    <string name="intro_finish">Закінчити</string>
     <!-- Introduction Slides -->
-    <string name="intro_slide_icon">Slide Icon</string>
-    <string name="intro_slide0_title">SnapSafe</string>
+    <string name="intro_slide_icon">Ковзання значка</string>
+    <string name="intro_slide0_title">Снаперф</string>
     <string name="intro_slide0_description">Welcome to SnapSafe! A free and open source app designed to protect
         your privacy.\n\nAlong with strong encryption, every measure is taken to safeguard your photos from prying eyes
         even if your phone is confiscated and searched.
     </string>
-    <string name="intro_slide1_title">Privacy Focused</string>
+    <string name="intro_slide1_title">Конфіденційність фокусується</string>
     <string name="intro_slide1_description">Your PIN is required to take and view the photos, keeping them safe from
         unauthorized access even if the rest of your device is
         unlocked.\n\nAfter a few minutes you will be required to enter your PIN again to verify it is still you.
     </string>
-    <string name="intro_slide2_title">Secure Storage</string>
+    <string name="intro_slide2_title">Безпечне сховище</string>
     <string name="intro_slide2_description">Your photos are stored in app-private, encrypted storage. The encryption key
         is derived from your PIN and is never stored on disk.\n\nNo data, including photos, is ever uploaded or backed
         up anywhere.
     </string>
-    <string name="intro_slide3_title">Still Shareable</string>
+    <string name="intro_slide3_title">Все ще можна торгувати</string>
     <string name="intro_slide3_description">Most times we still need to be able to move our sensitive photos out and
         share them to another app or person. SnapSafe still allows you to do so safely.\n\nOnce the photo leaves
         SnapSafe, its privacy is up to you.
     </string>
-    <string name="intro_slide4_title">Meta Data</string>
+    <string name="intro_slide4_title">Мета дані</string>
     <string name="intro_slide4_description">You choose what to do about your photo\'s metadata based on your threat
         model.\n\nInternally your photos are stored with some basic metadata. Based on your settings, we can
         automatically strip this data when
         sharing a photo outside the app.
     </string>
-    <string name="intro_slide5_title">Location Data</string>
+    <string name="intro_slide5_title">Дані про місцезнаходження</string>
     <string name="intro_slide5_description">If you grant Location permissions, we\'ll store location in your photos, if
         you don\'t, we won\'t. It\'s that simple. This metadata will still be stripped out when sharing photos outside
         the app based on your settings.\n\nIf you only grant \"coarse\" location, then we\'ll store an obfuscated location
         with each photo.
     </string>
     <!-- PIN Creation -->
-    <string name="pin_creation_title">Create Your PIN</string>
-    <string name="pin_creation_description">Create a PIN at least 4-digits long to secure your photos</string>
+    <string name="pin_creation_title">Створити свій PIN-код</string>
+    <string name="pin_creation_description">Створіть PIN-код принаймні з 4 цифр, щоб захистити свої фотографії</string>
     <string name="pin_creation_warning">Do not use the same PIN as your device.\n\nIf you forget this PIN there is no
         way to recover it, all of your photos will be lost.
     </string>
-    <string name="pin_creation_hint">Enter PIN</string>
-    <string name="pin_creation_confirm_hint">Confirm PIN</string>
-    <string name="pin_creation_error">PINs do not match. Please try again.</string>
-    <string name="pin_creation_error_weak_pin">PIN is too weak, Please pick another.</string>
-    <string name="pin_creation_success">PIN created successfully!</string>
-    <string name="pin_creation_button">Create PIN</string>
-    <string name="pin_creating_vault">Creating photo vault…</string>
-    <string name="pin_show_description">Show PIN</string>
-    <string name="pin_hide_description">Hide PIN</string>
-    <string name="pin_create_notification_rationale_title">Allow Notifications</string>
+    <string name="pin_creation_hint">Введіть PIN-код</string>
+    <string name="pin_creation_confirm_hint">Підтвердити PIN-код</string>
+    <string name="pin_creation_error">PIN-коди не збігаються. Будь ласка, спробуйте ще раз.</string>
+    <string name="pin_creation_error_weak_pin">PIN-код занадто слабкий. Будь ласка, виберіть інший.</string>
+    <string name="pin_creation_success">PIN-код успішно створено!</string>
+    <string name="pin_creation_button">Створити PIN-код</string>
+    <string name="pin_creating_vault">Створення сховища фотографій…</string>
+    <string name="pin_show_description">Показати PIN-код</string>
+    <string name="pin_hide_description">Сховати PIN-код</string>
+    <string name="pin_create_notification_rationale_title">Дозволити сповіщення</string>
     <string name="pin_create_notification_rationale_text">SnapSafe only uses notifications to keep you in control of
         work it may be doing in the background, or to inform you of the current security status. It is strongly
         recommended that you allow notifications, but it is not required.
     </string>
     <!-- Security Introduction -->
-    <string name="security_intro_icon">Security Selection</string>
-    <string name="security_intro_supported_security_label">Your Security Is:</string>
-    <string name="security_intro_security_level_strong">Strong</string>
+    <string name="security_intro_icon">Вибір безпеки</string>
+    <string name="security_intro_supported_security_label">Ваша Безпека з:</string>
+    <string name="security_intro_security_level_strong">Сильний</string>
     <string name="security_intro_security_level_strong_explainer">Your encryption keys are stored in a Secure Element on
         this device. This is the highest level of protection possible. It is resistant to all forms of attack, even the
         most determined and well resourced.
     </string>
-    <string name="security_intro_string_biometric_label">Require Biometrics?</string>
+    <string name="security_intro_string_biometric_label">Вимагати біометрику?</string>
     <string name="security_intro_string_biometric_explainer">Because your device has a Secure Element (SE), we can offer
         a further level of protection.
         \n\n
@@ -283,7 +283,7 @@
         This is generally not required for most users, but is an optional level of security if your threat model demands
         it.
     </string>
-    <string name="security_intro_string_ephemeral_label">Ephemeral Encryption Key</string>
+    <string name="security_intro_string_ephemeral_label">Ключ шифрування Ephemeral</string>
     <string name="security_intro_string_ephemeral_explainer">As an optional layer of security, we can offer you an
         ephemeral Key.
         \n\n
@@ -296,16 +296,16 @@
         This is generally not required for most users, but is an optional layer of security if your threat model demands
         it.
     </string>
-    <string name="security_intro_string_biometric_checkbox">Require Biometrics + PIN</string>
-    <string name="security_intro_advanced_section">Advanced</string>
-    <string name="security_intro_expand">Expand advanced options</string>
-    <string name="security_intro_collapse">Collapse advanced options</string>
-    <string name="security_intro_security_level_normal">Normal</string>
+    <string name="security_intro_string_biometric_checkbox">Вимагати біометрики + PIN-код</string>
+    <string name="security_intro_advanced_section">Додатково</string>
+    <string name="security_intro_expand">Розгорнути додаткові параметри</string>
+    <string name="security_intro_collapse">Згорнути додаткові параметри</string>
+    <string name="security_intro_security_level_normal">Нормальний</string>
     <string name="security_intro_security_level_normal_explainer">Your encryption keys are stored in your chips Trusted
         Execution Environment on this device. This is the reasonable level of security for all but the highest risk
         threat models.
     </string>
-    <string name="security_intro_security_level_weak">Weak</string>
+    <string name="security_intro_security_level_weak">Слабкий</string>
     <string name="security_intro_security_level_weak_explainer">Your device lacks any hardware-backed key storage. While
         we can still provide you with a reasonable level of security, you will be vulnerable to offline attacks. This
         would be where
@@ -314,17 +314,17 @@
         If you believe yourself to have a high-risk threat model, you should consider upgrading to a newer device.
     </string>
     <!-- PIN Verification -->
-    <string name="pin_verification_icon">Create Pin Icon</string>
-    <string name="pin_verification_title">Enter your PIN</string>
-    <string name="pin_verification_label">PIN</string>
-    <string name="pin_verification_empty_error">PIN cannot be empty</string>
-    <string name="pin_verification_invalid_error">Invalid PIN. Please try again.</string>
-    <string name="pin_verification_button">Verify</string>
+    <string name="pin_verification_icon">Створити ПІН-значок</string>
+    <string name="pin_verification_title">Введіть PIN-код</string>
+    <string name="pin_verification_label">PIN-код</string>
+    <string name="pin_verification_empty_error">PIN-код не може бути порожнім</string>
+    <string name="pin_verification_invalid_error">Невірний PIN-код. Спробуйте ще раз.</string>
+    <string name="pin_verification_button">Перевірити</string>
     <!-- Additional PIN Verification Strings -->
-    <string name="pin_verification_all_data_deleted">ALL DATA DELETED</string>
+    <string name="pin_verification_all_data_deleted">ВСІ ДАНИХ ВИДАЛЕНО</string>
     <string name="pin_verification_remaining_attempts">Attempts: %1$d/%2$d</string>
-    <string name="pin_verification_verify_with_countdown">Verify (%1$d)</string>
-    <string name="pin_verification_verify_or_wipe">Verify OR Wipe All Data</string>
+    <string name="pin_verification_verify_with_countdown">Перевірка (%1$d)</string>
+    <string name="pin_verification_verify_or_wipe">Перевірити АБО Стерти всі дані</string>
     <string name="pin_verification_wipe_warning">%1$d failed attempts will result in a full data wipe.\nALL PHOTOS WILL
         BE LOST!
     </string>
