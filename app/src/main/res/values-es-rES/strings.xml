@@ -1,279 +1,279 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">SnapSafe</string>
+    <string name="app_name">Ajuste seguro</string>
     <!-- Delete Photo Dialog -->
-    <string name="delete_photo_title_singular">Delete Photo</string>
-    <string name="delete_photo_title_plural">Delete Photos</string>
-    <string name="delete_photo_message_singular">Are you sure you want to delete this photo?</string>
-    <string name="delete_photo_message_plural">Are you sure you want to delete these %1$d photos?</string>
-    <string name="delete_button">Delete</string>
-    <string name="cancel_button">Cancel</string>
+    <string name="delete_photo_title_singular">Eliminar foto</string>
+    <string name="delete_photo_title_plural">Eliminar fotos</string>
+    <string name="delete_photo_message_singular">¿Está seguro que desea eliminar esta foto?</string>
+    <string name="delete_photo_message_plural">¿Estás seguro de que quieres eliminar estas fotos %1$d?</string>
+    <string name="delete_button">Eliminar</string>
+    <string name="cancel_button">Cancelar</string>
     <string name="info_button">Info</string>
-    <string name="info_dialog_title">Photo Info</string>
-    <string name="photo_name_label">Photo Name:</string>
-    <string name="photo_date_label">Date Taken:</string>
-    <string name="photo_location_label">Location:</string>
-    <string name="photo_orientation_label">Orientation:</string>
-    <string name="photo_resolution_label">Resolution:</string>
-    <string name="photo_no_data">[no data]</string>
-    <string name="ok_button">OK</string>
+    <string name="info_dialog_title">Foto Info</string>
+    <string name="photo_name_label">Nombre de la foto:</string>
+    <string name="photo_date_label">Fecha de toma de datos:</string>
+    <string name="photo_location_label">Ubicación:</string>
+    <string name="photo_orientation_label">Orientación:</string>
+    <string name="photo_resolution_label">Resolución:</string>
+    <string name="photo_no_data">[sin datos]</string>
+    <string name="ok_button">Ok</string>
     <!-- Obscure Photo Screen -->
-    <string name="obfuscate_photo_button">Obfuscate Photo</string>
-    <string name="obscure_action_button_obfuscate">Obscure</string>
-    <string name="obscure_action_button_clear">Clear</string>
-    <string name="obscure_action_button_save">Save</string>
-    <string name="obscure_action_button_add_region">Add Region</string>
-    <string name="obscure_action_button_finish_region">Finish Region</string>
-    <string name="obscure_action_button_cancel_region">Cancel</string>
-    <string name="save_photo_dialog_title">Save Photo</string>
-    <string name="save_photo_dialog_message">Do you want to overwrite the original photo or save a new copy?</string>
-    <string name="overwrite_button">Overwrite</string>
-    <string name="save_copy_button">Save Copy</string>
-    <string name="obscure_toast_face_error">Automatic face finder failed</string>
-    <string name="obscure_toast_save_error">Failed to save photo</string>
-    <string name="obscure_toast_overwrite_success">Photo overwritten</string>
-    <string name="obscure_toast_copy_success">Photo copy saved</string>
-    <string name="obscure_toast_faces_found">%1$d faces found</string>
-    <string name="obscure_toast_faces_obscured">%1$d faces obscured</string>
-    <string name="obscure_toast_faces_cleared">Reverted obfuscations</string>
-    <string name="discard_changes_dialog_title">Discard Changes</string>
-    <string name="discard_changes_dialog_message">You have unsaved changes. Are you sure you want to discard them?
+    <string name="obfuscate_photo_button">Obtener foto</string>
+    <string name="obscure_action_button_obfuscate">Obscuro</string>
+    <string name="obscure_action_button_clear">Claro</string>
+    <string name="obscure_action_button_save">Guardar</string>
+    <string name="obscure_action_button_add_region">Añadir región</string>
+    <string name="obscure_action_button_finish_region">Finalizar región</string>
+    <string name="obscure_action_button_cancel_region">Cancelar</string>
+    <string name="save_photo_dialog_title">Guardar foto</string>
+    <string name="save_photo_dialog_message">¿Quiere sobrescribir la foto original o guardar una copia nueva?</string>
+    <string name="overwrite_button">Sobrescribir</string>
+    <string name="save_copy_button">Guardar copia</string>
+    <string name="obscure_toast_face_error">Buscador de caras automático fallido</string>
+    <string name="obscure_toast_save_error">Error al guardar la foto</string>
+    <string name="obscure_toast_overwrite_success">Foto sobrescrita</string>
+    <string name="obscure_toast_copy_success">Copia de foto guardada</string>
+    <string name="obscure_toast_faces_found">%1$d caras encontradas</string>
+    <string name="obscure_toast_faces_obscured">%1$d caras oscurecidas</string>
+    <string name="obscure_toast_faces_cleared">Ofusiones revertidas</string>
+    <string name="discard_changes_dialog_title">Descartar cambios</string>
+    <string name="discard_changes_dialog_message">Tienes cambios sin guardar. ¿Estás seguro de que quieres descartarlos?
     </string>
-    <string name="discard_button">Discard</string>
+    <string name="discard_button">Descartar</string>
     <!-- View Photo Screen -->
-    <string name="photo_title">Photo</string>
-    <string name="photo_not_found">Photo not found</string>
-    <string name="photo_content_description">Photo</string>
-    <string name="photo_content_loading">Loading…</string>
-    <string name="close_photo_content_description">Close Photo</string>
-    <string name="share_photo_content_description">Share Photos</string>
-    <string name="delete_photo_content_description">Delete Photos</string>
-    <string name="photo_content_none_selected">No photo selected</string>
-    <string name="unauthorized">Unauthorized</string>
-    <string name="mark_as_decoy">Mark as Decoy</string>
-    <string name="unmark_as_decoy">Unmark as Decoy</string>
-    <string name="decoy_photo_set_menu_item">Set as Decoy</string>
-    <string name="decoy_photo_remove_menu_item">Remove Decoy</string>
-    <string name="decoy_limit_reached">Decoy limit reached: %1$d</string>
-    <string name="decoy_added">Decoy added</string>
-    <string name="decoy_removed">Decoy removed</string>
+    <string name="photo_title">Foto</string>
+    <string name="photo_not_found">Foto no encontrada</string>
+    <string name="photo_content_description">Foto</string>
+    <string name="photo_content_loading">Cargando…</string>
+    <string name="close_photo_content_description">Cerrar foto</string>
+    <string name="share_photo_content_description">Compartir fotos</string>
+    <string name="delete_photo_content_description">Eliminar fotos</string>
+    <string name="photo_content_none_selected">Ninguna foto seleccionada</string>
+    <string name="unauthorized">No autorizado</string>
+    <string name="mark_as_decoy">Marcar como señuelo</string>
+    <string name="unmark_as_decoy">Desmarcar como señuelo</string>
+    <string name="decoy_photo_set_menu_item">Establecer como señuelo</string>
+    <string name="decoy_photo_remove_menu_item">Quitar señuelo</string>
+    <string name="decoy_limit_reached">Límite señuelo alcanzado: %1$d</string>
+    <string name="decoy_added">Señuelo añadido</string>
+    <string name="decoy_removed">Señuelo eliminado</string>
     <!-- Import Photos Screen -->
-    <string name="import_photos_title">Import Photos</string>
-    <string name="close_import_photos_content_description">Close Import</string>
-    <string name="import_photos_progress_label">Importing photos: %1$d / %2$d</string>
-    <string name="import_photos_failed_label">Failed: %1$d</string>
-    <string name="import_photos_done_label">Import Complete!</string>
-    <string name="import_photos_done_summary">%1$d successful, %2$d failed</string>
-    <string name="import_photos_done_button">Go to Gallery</string>
-    <string name="import_photos_current_photo_description">Current photo being imported</string>
-    <string name="import_chooser_intent_title">Select Photos to Import</string>
-    <string name="import_error_no_photos">Error: no photos to import</string>
+    <string name="import_photos_title">Importar fotos</string>
+    <string name="close_import_photos_content_description">Cerrar importación</string>
+    <string name="import_photos_progress_label">Importando fotos: %1$d / %2$d</string>
+    <string name="import_photos_failed_label">Error: %1$d</string>
+    <string name="import_photos_done_label">¡Importación completada!</string>
+    <string name="import_photos_done_summary">%1$d con éxito, %2$d ha fallado</string>
+    <string name="import_photos_done_button">Ir a la galería</string>
+    <string name="import_photos_current_photo_description">Foto actual importada</string>
+    <string name="import_chooser_intent_title">Seleccionar fotos a importar</string>
+    <string name="import_error_no_photos">Error: no hay fotos para importar</string>
     <!-- Notification Permission -->
-    <string name="notification_permission_dialog_title">Allow Notifications</string>
+    <string name="notification_permission_dialog_title">Permitir notificaciones</string>
     <string name="notification_permission_dialog_message">SnapSafe needs notification permission to show progress when
         importing photos in the background.
     </string>
-    <string name="notification_permission_button">Allow</string>
+    <string name="notification_permission_button">Permitir</string>
     <!-- Import Worker -->
-    <string name="import_worker_notification_title">Importing Photos</string>
-    <string name="import_worker_notification_content">Importing photo %1$d of %2$d</string>
-    <string name="import_worker_channel_name">Photo Import</string>
-    <string name="import_worker_channel_description">Shows progress of photo import</string>
+    <string name="import_worker_notification_title">Importando fotos</string>
+    <string name="import_worker_notification_content">Importando foto %1$d de %2$d</string>
+    <string name="import_worker_channel_name">Importar fotos</string>
+    <string name="import_worker_channel_description">Muestra el progreso de la importación de fotos</string>
     <!-- Session Worker -->
-    <string name="session_worker_notification_title">SnapSafe Active</string>
-    <string name="session_worker_notification_content">SnapSafe is open</string>
-    <string name="session_worker_channel_name">Session Status</string>
-    <string name="session_worker_channel_description">Shows when SnapSafe is active</string>
-    <string name="session_worker_notification_close">Close</string>
+    <string name="session_worker_notification_title">SnapSafe Activo</string>
+    <string name="session_worker_notification_content">SnapSafe está abierto</string>
+    <string name="session_worker_channel_name">Estado de la sesión</string>
+    <string name="session_worker_channel_description">Muestra cuando SnapSafe está activo</string>
+    <string name="session_worker_notification_close">Cerrar</string>
     <!-- Gallery Screen -->
-    <string name="gallery_title">Gallery</string>
-    <string name="gallery_selected_count">%1$d Selected</string>
-    <string name="gallery_loading">Loading photos…</string>
-    <string name="gallery_empty">No photos yet</string>
-    <string name="gallery_photo_content_description">Photo %1$s</string>
-    <string name="gallery_close_content_description">Close Gallery</string>
-    <string name="gallery_cancel_selection_content_description">Cancel Selection</string>
-    <string name="gallery_delete_selected_content_description">Delete Selected</string>
-    <string name="gallery_share_selected_content_description">Share Selected</string>
-    <string name="gallery_select_all_content_description">Select All</string>
-    <string name="gallery_decoy_indicator">Is Decoy Photo</string>
+    <string name="gallery_title">Galería</string>
+    <string name="gallery_selected_count">%1$d seleccionados</string>
+    <string name="gallery_loading">Cargando fotos…</string>
+    <string name="gallery_empty">Aún no hay fotos</string>
+    <string name="gallery_photo_content_description">Foto %1$s</string>
+    <string name="gallery_close_content_description">Cerrar galería</string>
+    <string name="gallery_cancel_selection_content_description">Cancelar selección</string>
+    <string name="gallery_delete_selected_content_description">Eliminar seleccionados</string>
+    <string name="gallery_share_selected_content_description">Compartir seleccionados</string>
+    <string name="gallery_select_all_content_description">Seleccionar todo</string>
+    <string name="gallery_decoy_indicator">Es Foto señuelo</string>
     <!-- Camera Screen -->
-    <string name="camera_more_options_content_description">More Options</string>
-    <string name="camera_settings_button">Settings</string>
-    <string name="camera_toggle_content_description">Toggle Camera</string>
-    <string name="camera_close_controls_content_description">Close Controls</string>
-    <string name="camera_flash_text">Flash</string>
-    <string name="camera_capture_content_description">Capture</string>
-    <string name="camera_gallery_content_description">Gallery</string>
-    <string name="camera_captured_image_content_description">Captured Image</string>
-    <string name="camera_settings_content_description">Settings</string>
-    <string name="camera_permissions_required">Camera permissions are required.</string>
-    <string name="camera_open_settings">Open Settings</string>
-    <string name="camera_shutter_button_desc">Take Photo</string>
+    <string name="camera_more_options_content_description">Más opciones</string>
+    <string name="camera_settings_button">Ajustes</string>
+    <string name="camera_toggle_content_description">Cambiar cámara</string>
+    <string name="camera_close_controls_content_description">Cerrar controles</string>
+    <string name="camera_flash_text">Flashear</string>
+    <string name="camera_capture_content_description">Captura</string>
+    <string name="camera_gallery_content_description">Galería</string>
+    <string name="camera_captured_image_content_description">Imagen capturada</string>
+    <string name="camera_settings_content_description">Ajustes</string>
+    <string name="camera_permissions_required">Se requieren permisos de cámara.</string>
+    <string name="camera_open_settings">Abrir ajustes</string>
+    <string name="camera_shutter_button_desc">Tomar foto</string>
     <!-- Settings Screen -->
-    <string name="settings_title">Settings</string>
-    <string name="settings_back_description">Back</string>
-    <string name="settings_sharing_section">Sharing</string>
-    <string name="settings_sanitize_filename">Sanitize file name</string>
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_back_description">Atrás</string>
+    <string name="settings_sharing_section">Compartiendo</string>
+    <string name="settings_sanitize_filename">Sanitizar nombre de archivo</string>
     <string name="settings_sanitize_filename_description">Remove identifying information from file names when sharing
         photos
     </string>
-    <string name="settings_sanitize_metadata">Sanitize metadata</string>
+    <string name="settings_sanitize_metadata">Anular metadatos</string>
     <string name="settings_sanitize_metadata_description">Strip metadata (location, device info, etc.) when sharing
         photos
     </string>
     <!-- Location Settings -->
-    <string name="settings_location_section">Location</string>
-    <string name="settings_location_status">Location Permission Status</string>
-    <string name="settings_location_status_denied">Denied</string>
-    <string name="settings_location_status_coarse">Approximate</string>
-    <string name="settings_location_status_fine">Precise</string>
-    <string name="settings_location_description">Current location access</string>
+    <string name="settings_location_section">Ubicación</string>
+    <string name="settings_location_status">Estado del permiso de ubicación</string>
+    <string name="settings_location_status_denied">Denegado</string>
+    <string name="settings_location_status_coarse">Aproximado</string>
+    <string name="settings_location_status_fine">Preciso</string>
+    <string name="settings_location_description">Acceso a la ubicación actual</string>
     <!-- Security Settings -->
-    <string name="settings_security_section">Security</string>
-    <string name="settings_security_status">Security Status</string>
-    <string name="settings_security_status_description">The level of hardware security available on your device</string>
-    <string name="settings_session_timeout">Session Timeout</string>
-    <string name="settings_session_timeout_description">Time before requiring PIN re-entry</string>
-    <string name="settings_session_timeout_1_min">1 Minute</string>
-    <string name="settings_session_timeout_5_min">5 Minutes</string>
-    <string name="settings_session_timeout_10_min">10 Minutes</string>
+    <string name="settings_security_section">Seguridad</string>
+    <string name="settings_security_status">Estado de seguridad</string>
+    <string name="settings_security_status_description">El nivel de seguridad de hardware disponible en su dispositivo</string>
+    <string name="settings_session_timeout">Tiempo de espera agotado</string>
+    <string name="settings_session_timeout_description">Tiempo antes de requerir la reentrada de PIN</string>
+    <string name="settings_session_timeout_1_min">1 minuto</string>
+    <string name="settings_session_timeout_5_min">5 Minutos</string>
+    <string name="settings_session_timeout_10_min">10 minutos</string>
     <!-- Security Reset -->
-    <string name="settings_security_reset">Security Reset</string>
-    <string name="settings_security_reset_description">Wipe all data and create a new PIN</string>
-    <string name="security_reset_dialog_title">Security Reset</string>
-    <string name="security_reset_dialog_message">This will wipe all data and require you to create a new PIN.\n\nAll
-        photos will be permanently deleted and cannot be recovered.
+    <string name="settings_security_reset">Restablecer seguridad</string>
+    <string name="settings_security_reset_description">Borrar todos los datos y crear un nuevo PIN</string>
+    <string name="security_reset_dialog_title">Restablecer seguridad</string>
+    <string name="security_reset_dialog_message">Esto borrará todos los datos y requerirá crear un nuevo PIN.\n\nTodas las fotos
+        se eliminarán permanentemente y no se podrán recuperar.
     </string>
-    <string name="security_reset_understand">I Understand</string>
-    <string name="security_reset_destroy_button">Destroy All Data</string>
-    <string name="security_reset_complete_toast">Security Reset complete.</string>
+    <string name="security_reset_understand">Yo no puedo</string>
+    <string name="security_reset_destroy_button">Destruir todos los datos</string>
+    <string name="security_reset_complete_toast">Restablecimiento de seguridad completado.</string>
     <!-- Poison Pill -->
-    <string name="settings_poison_pill">Set-up Poison Pill</string>
-    <string name="settings_poison_pill_description">This is an advanced security feature for high threat models</string>
-    <string name="settings_remove_poison_pill">Remove Poison Pill</string>
-    <string name="settings_remove_poison_pill_description">Remove the emergency security feature</string>
-    <string name="poison_pill_dialog_title">Poison Pill Setup</string>
+    <string name="settings_poison_pill">Configurar píldora de veneno</string>
+    <string name="settings_poison_pill_description">Esta es una característica de seguridad avanzada para modelos de alta amenaza</string>
+    <string name="settings_remove_poison_pill">Quitar píldora de veneno</string>
+    <string name="settings_remove_poison_pill_description">Eliminar la función de seguridad de emergencia</string>
+    <string name="poison_pill_dialog_title">Configuración de píldora de veneno</string>
     <string name="poison_pill_dialog_message">Poison Pill will create a second PIN that if entered, will wipe all of
         your data, and replace your current real PIN, with the Poison Pill PIN. It will look as if you just entered your
         normal PIN, and you will be logged in, but all photos and settings will be gone.\n\nAfter using the Poison Pill
         PIN, it is now your real PIN. It is recommended to do a Security Reset of the app once the situation that forced
         you to use the Pill is over.
     </string>
-    <string name="poison_pill_continue_button">Continue Setup</string>
-    <string name="poison_pill_cancel_button">Cancel</string>
-    <string name="poison_pill_creation_title">Create Poison Pill PIN</string>
-    <string name="poison_pill_creation_description">Create a PIN different from your current PIN</string>
-    <string name="poison_pill_creation_error">PIN cannot be the same as your current PIN</string>
-    <string name="poison_pill_setup_complete">Poison Pill setup complete</string>
-    <string name="remove_poison_pill_dialog_title">Remove Poison Pill</string>
+    <string name="poison_pill_continue_button">Continuar configuración</string>
+    <string name="poison_pill_cancel_button">Cancelar</string>
+    <string name="poison_pill_creation_title">Crear PIN de píldora de veneno</string>
+    <string name="poison_pill_creation_description">Crear un PIN diferente de su PIN actual</string>
+    <string name="poison_pill_creation_error">El PIN no puede ser el mismo que el PIN actual</string>
+    <string name="poison_pill_setup_complete">Configuración de píldora de veneno completada</string>
+    <string name="remove_poison_pill_dialog_title">Quitar píldora de veneno</string>
     <string name="remove_poison_pill_dialog_message">Are you sure you want to remove the Poison Pill? This will delete
         the emergency PIN.
     </string>
-    <string name="remove_poison_pill_confirm_button">Remove</string>
-    <string name="remove_poison_pill_complete">Poison Pill removed</string>
+    <string name="remove_poison_pill_confirm_button">Eliminar</string>
+    <string name="remove_poison_pill_complete">Píldora de veneno removida</string>
     <!-- Decoy Photo Explanation Dialog -->
-    <string name="decoy_explanation_dialog_title">Decoy Photos System</string>
+    <string name="decoy_explanation_dialog_title">Sistema de fotos señuelo</string>
     <string name="decoy_explanation_dialog_message">In the case where you are coerced for your PIN, and you give over
         your Poison Pill PIN instead, it might be suspicious that there are no photos whatsoever in the Gallery.\n\nTo
         solve this it is recommended you take several photos of various innocuous things, and then go into those photos
         in the Gallery, and mark them as \"Decoy\" photos.\n\nWhen your Poison Pill is activated, all photos EXCEPT for
         your Decoys will be deleted, leaving a less suspicious situation.
     </string>
-    <string name="decoy_explanation_dialog_ok_button">Okay</string>
+    <string name="decoy_explanation_dialog_ok_button">Vale</string>
     <!-- About Screen -->
-    <string name="settings_about_button">About SnapSafe</string>
-    <string name="about_title">About SnapSafe</string>
-    <string name="about_description">SnapSafe is a privacy-focused camera app designed to protect your sensitive photos
-        with strong encryption and secure storage.
+    <string name="settings_about_button">Acerca de SnapSafe</string>
+    <string name="about_title">Acerca de SnapSafe</string>
+    <string name="about_description">SnapSafe es una aplicación de cámara diseñada para proteger tus fotos sensibles
+        con encriptación fuerte y almacenamiento seguro.
     </string>
-    <string name="about_version">Version</string>
-    <string name="about_back_description">Back</string>
-    <string name="about_open_source">Open Source</string>
-    <string name="about_open_source_description">SnapSafe is an open source project. View the source code on GitHub:
+    <string name="about_version">Versión</string>
+    <string name="about_back_description">Atrás</string>
+    <string name="about_open_source">Código abierto</string>
+    <string name="about_open_source_description">SnapSafe es un proyecto de código abierto. Ver el código fuente en GitHub:
     </string>
-    <string name="about_privacy_policy">Privacy Policy</string>
-    <string name="about_privacy_policy_description">Read our privacy policy:</string>
-    <string name="about_report_bugs">Report Bugs</string>
-    <string name="about_report_bugs_description">Found a bug? Report it on GitHub:</string>
+    <string name="about_privacy_policy">Política de privacidad</string>
+    <string name="about_privacy_policy_description">Leer nuestra política de privacidad:</string>
+    <string name="about_report_bugs">Reporte de bugs</string>
+    <string name="about_report_bugs_description">¿Encontrado un error? Reportarlo en GitHub:</string>
     <!-- Location Dialog -->
-    <string name="location_dialog_title_denied">Request Location Permission</string>
-    <string name="location_dialog_title_coarse">Request Precise Location</string>
-    <string name="location_dialog_title_fine">Remove Location Permission</string>
-    <string name="location_dialog_message_denied">Allow the app to access your location?</string>
-    <string name="location_dialog_message_coarse">Allow the app to access your precise location?</string>
-    <string name="location_dialog_message_fine">Remove location permission for this app? You\'ll need to go to system
-        settings.
+    <string name="location_dialog_title_denied">Solicitar permiso de ubicación</string>
+    <string name="location_dialog_title_coarse">Solicitar ubicación precisa</string>
+    <string name="location_dialog_title_fine">Eliminar permiso de ubicación</string>
+    <string name="location_dialog_message_denied">¿Permitir que la aplicación acceda a su ubicación?</string>
+    <string name="location_dialog_message_coarse">¿Permitir que la aplicación acceda a su ubicación precisa?</string>
+    <string name="location_dialog_message_fine">¿Eliminar permiso de ubicación para esta aplicación? Necesitarás ir a la configuración
+        del sistema.
     </string>
-    <string name="location_dialog_change_settings">Change in Settings</string>
+    <string name="location_dialog_change_settings">Cambiar en Ajustes</string>
     <!-- Introduction Screen -->
-    <string name="intro_title">Welcome to SnapSafe!</string>
-    <string name="intro_next">Next</string>
-    <string name="intro_skip">Skip</string>
-    <string name="intro_finish">Finish</string>
+    <string name="intro_title">¡Bienvenido a SnapSafe!</string>
+    <string name="intro_next">Siguiente</string>
+    <string name="intro_skip">Saltar</string>
+    <string name="intro_finish">Finalizar</string>
     <!-- Introduction Slides -->
-    <string name="intro_slide_icon">Slide Icon</string>
-    <string name="intro_slide0_title">SnapSafe</string>
-    <string name="intro_slide0_description">Welcome to SnapSafe! A free and open source app designed to protect
-        your privacy.\n\nAlong with strong encryption, every measure is taken to safeguard your photos from prying eyes
-        even if your phone is confiscated and searched.
+    <string name="intro_slide_icon">Deslizar icono</string>
+    <string name="intro_slide0_title">Ajuste seguro</string>
+    <string name="intro_slide0_description">¡Bienvenido a SnapSafe! Una aplicación gratuita y de código abierto diseñada para proteger
+        tu privacidad.\n\njunto con un fuerte cifrado, cada medida se toma para proteger tus fotos de los ojos indiscretos
+        incluso si tu teléfono es confiscado y buscado.
     </string>
-    <string name="intro_slide1_title">Privacy Focused</string>
+    <string name="intro_slide1_title">Privacidad concentrada</string>
     <string name="intro_slide1_description">Your PIN is required to take and view the photos, keeping them safe from
         unauthorized access even if the rest of your device is
         unlocked.\n\nAfter a few minutes you will be required to enter your PIN again to verify it is still you.
     </string>
-    <string name="intro_slide2_title">Secure Storage</string>
-    <string name="intro_slide2_description">Your photos are stored in app-private, encrypted storage. The encryption key
-        is derived from your PIN and is never stored on disk.\n\nNo data, including photos, is ever uploaded or backed
-        up anywhere.
+    <string name="intro_slide2_title">Almacenamiento seguro</string>
+    <string name="intro_slide2_description">Tus fotos se almacenan en almacenamiento privado y cifrado. La clave de cifrado
+        se deriva de su PIN y nunca se almacena en el disco.\n\nNo hay datos, incluyendo fotos, nunca se sube o respalda
+        en cualquier lugar.
     </string>
-    <string name="intro_slide3_title">Still Shareable</string>
+    <string name="intro_slide3_title">Aún compartible</string>
     <string name="intro_slide3_description">Most times we still need to be able to move our sensitive photos out and
         share them to another app or person. SnapSafe still allows you to do so safely.\n\nOnce the photo leaves
         SnapSafe, its privacy is up to you.
     </string>
-    <string name="intro_slide4_title">Meta Data</string>
-    <string name="intro_slide4_description">You choose what to do about your photo\'s metadata based on your threat
-        model.\n\nInternally your photos are stored with some basic metadata. Based on your settings, we can
-        automatically strip this data when
-        sharing a photo outside the app.
+    <string name="intro_slide4_title">Meta Datos</string>
+    <string name="intro_slide4_description">Escoges qué hacer con los metadatos de tu foto basándose en el modelo
+        de tu amenaza.\n\nInternamente tus fotos se almacenan con algunos metadatos básicos. Basado en tu configuración, podemos
+        despojar automáticamente estos datos cuando
+        comparta una foto fuera de la aplicación.
     </string>
-    <string name="intro_slide5_title">Location Data</string>
+    <string name="intro_slide5_title">Datos de ubicación</string>
     <string name="intro_slide5_description">If you grant Location permissions, we\'ll store location in your photos, if
         you don\'t, we won\'t. It\'s that simple. This metadata will still be stripped out when sharing photos outside
         the app based on your settings.\n\nIf you only grant \"coarse\" location, then we\'ll store an obfuscated location
         with each photo.
     </string>
     <!-- PIN Creation -->
-    <string name="pin_creation_title">Create Your PIN</string>
-    <string name="pin_creation_description">Create a PIN at least 4-digits long to secure your photos</string>
+    <string name="pin_creation_title">Crea tu PIN</string>
+    <string name="pin_creation_description">Crea un PIN de al menos 4 dígitos para proteger tus fotos</string>
     <string name="pin_creation_warning">Do not use the same PIN as your device.\n\nIf you forget this PIN there is no
         way to recover it, all of your photos will be lost.
     </string>
-    <string name="pin_creation_hint">Enter PIN</string>
-    <string name="pin_creation_confirm_hint">Confirm PIN</string>
-    <string name="pin_creation_error">PINs do not match. Please try again.</string>
-    <string name="pin_creation_error_weak_pin">PIN is too weak, Please pick another.</string>
-    <string name="pin_creation_success">PIN created successfully!</string>
-    <string name="pin_creation_button">Create PIN</string>
-    <string name="pin_creating_vault">Creating photo vault…</string>
-    <string name="pin_show_description">Show PIN</string>
-    <string name="pin_hide_description">Hide PIN</string>
-    <string name="pin_create_notification_rationale_title">Allow Notifications</string>
+    <string name="pin_creation_hint">Introducir PIN</string>
+    <string name="pin_creation_confirm_hint">Confirmar PIN</string>
+    <string name="pin_creation_error">Los PIN no coinciden. Por favor, inténtalo de nuevo.</string>
+    <string name="pin_creation_error_weak_pin">El PIN es demasiado débil. Por favor, elige otro.</string>
+    <string name="pin_creation_success">¡PIN creado con éxito!</string>
+    <string name="pin_creation_button">Crear PIN</string>
+    <string name="pin_creating_vault">Creando bóveda de fotos…</string>
+    <string name="pin_show_description">Mostrar PIN</string>
+    <string name="pin_hide_description">Ocultar PIN</string>
+    <string name="pin_create_notification_rationale_title">Permitir notificaciones</string>
     <string name="pin_create_notification_rationale_text">SnapSafe only uses notifications to keep you in control of
         work it may be doing in the background, or to inform you of the current security status. It is strongly
         recommended that you allow notifications, but it is not required.
     </string>
     <!-- Security Introduction -->
-    <string name="security_intro_icon">Security Selection</string>
-    <string name="security_intro_supported_security_label">Your Security Is:</string>
-    <string name="security_intro_security_level_strong">Strong</string>
+    <string name="security_intro_icon">Selección de seguridad</string>
+    <string name="security_intro_supported_security_label">Tu seguridad es:</string>
+    <string name="security_intro_security_level_strong">Fuerte</string>
     <string name="security_intro_security_level_strong_explainer">Your encryption keys are stored in a Secure Element on
         this device. This is the highest level of protection possible. It is resistant to all forms of attack, even the
         most determined and well resourced.
     </string>
-    <string name="security_intro_string_biometric_label">Require Biometrics?</string>
+    <string name="security_intro_string_biometric_label">¿Requiere biométrico?</string>
     <string name="security_intro_string_biometric_explainer">Because your device has a Secure Element (SE), we can offer
         a further level of protection.
         \n\n
@@ -283,7 +283,7 @@
         This is generally not required for most users, but is an optional level of security if your threat model demands
         it.
     </string>
-    <string name="security_intro_string_ephemeral_label">Ephemeral Encryption Key</string>
+    <string name="security_intro_string_ephemeral_label">Clave de cifrado efemeral</string>
     <string name="security_intro_string_ephemeral_explainer">As an optional layer of security, we can offer you an
         ephemeral Key.
         \n\n
@@ -296,16 +296,16 @@
         This is generally not required for most users, but is an optional layer of security if your threat model demands
         it.
     </string>
-    <string name="security_intro_string_biometric_checkbox">Require Biometrics + PIN</string>
-    <string name="security_intro_advanced_section">Advanced</string>
-    <string name="security_intro_expand">Expand advanced options</string>
-    <string name="security_intro_collapse">Collapse advanced options</string>
+    <string name="security_intro_string_biometric_checkbox">Requiere Biométricos + PIN</string>
+    <string name="security_intro_advanced_section">Avanzado</string>
+    <string name="security_intro_expand">Expandir opciones avanzadas</string>
+    <string name="security_intro_collapse">Colapsar opciones avanzadas</string>
     <string name="security_intro_security_level_normal">Normal</string>
     <string name="security_intro_security_level_normal_explainer">Your encryption keys are stored in your chips Trusted
         Execution Environment on this device. This is the reasonable level of security for all but the highest risk
         threat models.
     </string>
-    <string name="security_intro_security_level_weak">Weak</string>
+    <string name="security_intro_security_level_weak">Débil</string>
     <string name="security_intro_security_level_weak_explainer">Your device lacks any hardware-backed key storage. While
         we can still provide you with a reasonable level of security, you will be vulnerable to offline attacks. This
         would be where
@@ -314,17 +314,17 @@
         If you believe yourself to have a high-risk threat model, you should consider upgrading to a newer device.
     </string>
     <!-- PIN Verification -->
-    <string name="pin_verification_icon">Create Pin Icon</string>
-    <string name="pin_verification_title">Enter your PIN</string>
+    <string name="pin_verification_icon">Crear icono de pin</string>
+    <string name="pin_verification_title">Introduce tu PIN</string>
     <string name="pin_verification_label">PIN</string>
-    <string name="pin_verification_empty_error">PIN cannot be empty</string>
-    <string name="pin_verification_invalid_error">Invalid PIN. Please try again.</string>
-    <string name="pin_verification_button">Verify</string>
+    <string name="pin_verification_empty_error">El PIN no puede estar vacío</string>
+    <string name="pin_verification_invalid_error">PIN no válido. Vuelve a intentarlo.</string>
+    <string name="pin_verification_button">Verificar</string>
     <!-- Additional PIN Verification Strings -->
-    <string name="pin_verification_all_data_deleted">ALL DATA DELETED</string>
-    <string name="pin_verification_remaining_attempts">Attempts: %1$d/%2$d</string>
-    <string name="pin_verification_verify_with_countdown">Verify (%1$d)</string>
-    <string name="pin_verification_verify_or_wipe">Verify OR Wipe All Data</string>
+    <string name="pin_verification_all_data_deleted">TODOS LOS DATOS DELETADOS</string>
+    <string name="pin_verification_remaining_attempts">Intentos: %1$d/%2$d</string>
+    <string name="pin_verification_verify_with_countdown">Verificar (%1$d)</string>
+    <string name="pin_verification_verify_or_wipe">Verificar o borrar todos los datos</string>
     <string name="pin_verification_wipe_warning">%1$d failed attempts will result in a full data wipe.\nALL PHOTOS WILL
         BE LOST!
     </string>
