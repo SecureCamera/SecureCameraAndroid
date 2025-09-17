@@ -2,4 +2,5 @@ files:
   - source: /app/src/main/res/values/strings**.xml
     translation: /app/src/main/res/values-%android_code%/%original_file_name%
     translatable_elements:
-      - resources/string
+      - //string
+      - //string-array/item
