@@ -107,7 +107,7 @@ open class SoftwareEncryptionScheme(
 		)
 
 		val deviceId = deviceInfo.getDeviceIdentifier()
-		val encodedDeviceId = Base64.Default.encode(deviceId)
+		val encodedDeviceId = Base64.encode(deviceId)
 
 		val dekInput = plainPin.toByteArray(Charsets.UTF_8) + encodedDeviceId.toByteArray(Charsets.UTF_8)
 

@@ -2,11 +2,7 @@ package com.darkrockstudios.app.securecamera.security.schemes
 
 import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
-import android.security.keystore.KeyProperties.BLOCK_MODE_GCM
-import android.security.keystore.KeyProperties.ENCRYPTION_PADDING_NONE
-import android.security.keystore.KeyProperties.KEY_ALGORITHM_AES
-import android.security.keystore.KeyProperties.PURPOSE_DECRYPT
-import android.security.keystore.KeyProperties.PURPOSE_ENCRYPT
+import android.security.keystore.KeyProperties.*
 import android.security.keystore.StrongBoxUnavailableException
 import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
 import com.darkrockstudios.app.securecamera.preferences.HashedPin
@@ -60,10 +56,10 @@ class HardwareBackedEncryptionScheme(
 
 		val cipheredDsalt = dSaltFile.readBytes()
 		val plainDsalt = decryptWithHardwareBackedKey(cipheredDsalt)
-		val encodedDsalt = Base64.Default.encode(plainDsalt)
+		val encodedDsalt = Base64.encode(plainDsalt)
 
 		val deviceId = deviceInfo.getDeviceIdentifier()
-		val encodedDeviceId = Base64.Default.encode(deviceId)
+		val encodedDeviceId = Base64.encode(deviceId)
 
 		val dekInput =
 			plainPin.toByteArray(Charsets.UTF_8) + encodedDsalt.toByteArray(Charsets.UTF_8) + encodedDeviceId.toByteArray(
@@ -134,10 +130,10 @@ class HardwareBackedEncryptionScheme(
 		SecureRandom.getInstanceStrong().nextBytes(dSalt)
 
 		// Derive the key
-		val encodedDsalt = Base64.Default.encode(dSalt)
+		val encodedDsalt = Base64.encode(dSalt)
 
 		val deviceId = deviceInfo.getDeviceIdentifier()
-		val encodedDeviceId = Base64.Default.encode(deviceId)
+		val encodedDeviceId = Base64.encode(deviceId)
 
 		val dekInput =
 			plainPin.toByteArray(Charsets.UTF_8) + encodedDsalt.toByteArray(Charsets.UTF_8) + encodedDeviceId.toByteArray(

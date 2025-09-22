@@ -9,13 +9,13 @@ object XorCipher {
 	fun encrypt(plaintext: String, key: String): String {
 		if (key.isBlank()) error("Key must not be empty!")
 		val obfuscated = xor(plaintext.toByteArray(StandardCharsets.UTF_8), key)
-		return String(Base64.Default.encodeToByteArray(obfuscated))
+		return String(Base64.encodeToByteArray(obfuscated))
 	}
 
 	@OptIn(ExperimentalEncodingApi::class)
 	fun decrypt(ciphertextB64: String, key: String): String {
 		if (key.isBlank()) error("Key must not be empty!")
-		val decoded: ByteArray = Base64.Default.decode(ciphertextB64)
+		val decoded: ByteArray = Base64.decode(ciphertextB64)
 		return String(xor(decoded, key), StandardCharsets.UTF_8)
 	}
 
