@@ -184,8 +184,9 @@
     <!-- About Screen -->
     <string name="settings_about_button">关于 SnapSafe</string>
     <string name="about_title">关于 SnapSafe</string>
+    <string name="about_button_description">了解SnapSafe 和我们的其他自由和开放源码软件应用</string>
     <string name="about_description">SnapSafe is a privacy-focused camera app designed to protect your sensitive photos
-        with strong encryption and secure storage.
+        with strong technical, legal, and social protections.
     </string>
     <string name="about_version">版本</string>
     <string name="about_back_description">后退</string>
@@ -193,9 +194,16 @@
     <string name="about_open_source_description">SnapSafe 是一个开源项目，在GitHub上查看源代码：
     </string>
     <string name="about_privacy_policy">隐私政策</string>
-    <string name="about_privacy_policy_description">阅读我们的隐私政策：</string>
+    <string name="about_privacy_policy_description">SnapSafe 在您的设备上本地存储所有数据。没有
+        数据传输到外部服务器。
+    </string>
     <string name="about_report_bugs">报告错误</string>
     <string name="about_report_bugs_description">发现错误？在 GitHub 上报告它：</string>
+    <string name="about_community">加入我们的社区</string>
+    <string name="about_community_description">Come engage with our community, discover more Free and Open Source
+        Software!
+    </string>
+    <!-- Display variants of URLs -->
     <!-- Location Dialog -->
     <string name="location_dialog_title_denied">请求位置权限</string>
     <string name="location_dialog_title_coarse">请求精准位置</string>
