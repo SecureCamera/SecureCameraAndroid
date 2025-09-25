@@ -199,8 +199,9 @@
     <!-- About Screen -->
     <string name="settings_about_button">About SnapSafe</string>
     <string name="about_title">About SnapSafe</string>
+	<string name="about_button_description">Learn about SnapSafe and our other FOSS apps</string>
     <string name="about_description">SnapSafe is a privacy-focused camera app designed to protect your sensitive photos
-        with strong encryption and secure storage.
+        with strong technical, legal, and social protections.
     </string>
     <string name="about_version">Version</string>
     <string name="about_back_description">Back</string>
@@ -211,7 +212,9 @@
     <string translatable="false" name="about_repository_url">https://github.com/SecureCamera/SecureCameraAndroid
     </string>
     <string name="about_privacy_policy">Privacy Policy</string>
-    <string name="about_privacy_policy_description">Read our privacy policy:</string>
+    <string name="about_privacy_policy_description">SnapSafe stores all data locally on your device. No data is
+        transmitted to external servers.
+    </string>
     <string translatable="false" name="about_privacy_policy_url">
         https://github.com/SecureCamera/SecureCameraAndroid/blob/main/PRIVACY.md
     </string>
@@ -220,6 +223,19 @@
     <string translatable="false" name="about_report_bugs_url">
         https://github.com/SecureCamera/SecureCameraAndroid/issues
     </string>
+    <string name="about_community">Join our community</string>
+    <string name="about_community_description">Come engage with our community, discover more Free and Open Source
+        Software!
+    </string>
+    <string translatable="false" name="about_discord">Discord</string>
+    <string translatable="false" name="about_discord_url">https://discord.gg/ju2RQa5x8W</string>
+
+    <!-- Display variants of URLs -->
+    <string translatable="false" name="about_promo_url_display">snapsafe.org</string>
+    <string translatable="false" name="about_repository_url_display">GitHub</string>
+    <string translatable="false" name="about_privacy_policy_url_display">Read our privacy policy</string>
+    <string translatable="false" name="about_report_bugs_url_display">Submit Issue</string>
+    <string translatable="false" name="about_discord_url_display">Join Discord</string>
 
     <!-- Location Dialog -->
     <string name="location_dialog_title_denied">Request Location Permission</string>
