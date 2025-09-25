@@ -93,6 +93,7 @@ fun PinCreationContent(
 						pin = newPin
 					}
 				},
+				enabled = !uiState.isCreatingPin,
 				label = { Text(stringResource(R.string.pin_creation_hint)) },
 				visualTransformation = if (pinVisible) VisualTransformation.None else PasswordVisualTransformation(),
 				keyboardOptions = KeyboardOptions(
@@ -124,6 +125,7 @@ fun PinCreationContent(
 						confirmPin = newConfirmPin
 					}
 				},
+				enabled = !uiState.isCreatingPin,
 				label = { Text(stringResource(R.string.pin_creation_confirm_hint)) },
 				visualTransformation = PasswordVisualTransformation(),
 				keyboardOptions = KeyboardOptions(
