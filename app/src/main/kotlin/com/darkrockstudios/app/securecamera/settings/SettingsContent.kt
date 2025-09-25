@@ -7,6 +7,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowRight
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
@@ -87,18 +88,6 @@ fun SettingsContent(
 					)
 				}
 			},
-			actions = {
-				IconButton(
-					onClick = { navController.navigate(About) },
-					modifier = Modifier.padding(8.dp)
-				) {
-					Icon(
-						imageVector = Icons.Filled.Info,
-						contentDescription = stringResource(id = R.string.settings_about_button),
-						tint = MaterialTheme.colorScheme.onPrimaryContainer,
-					)
-				}
-			}
 		)
 
 		// Settings content
@@ -117,6 +106,45 @@ fun SettingsContent(
 			horizontalAlignment = Alignment.Start
 		) {
 			Spacer(modifier = Modifier.height(24.dp))
+
+			// About row
+			Row(
+				modifier = Modifier
+					.fillMaxWidth()
+					.padding(top = 8.dp, bottom = 8.dp)
+					.clickable { navController.navigate(About) },
+				verticalAlignment = Alignment.CenterVertically,
+				horizontalArrangement = Arrangement.SpaceBetween
+			) {
+				Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+					Icon(
+						imageVector = Icons.Filled.Info,
+						contentDescription = stringResource(id = R.string.settings_about_button),
+						tint = MaterialTheme.colorScheme.primary,
+						modifier = Modifier.size(24.dp)
+					)
+					Spacer(modifier = Modifier.width(12.dp))
+					Column(modifier = Modifier.weight(1f)) {
+						Text(
+							text = stringResource(id = R.string.about_title),
+							style = MaterialTheme.typography.bodyLarge
+						)
+						Text(
+							text = stringResource(id = R.string.about_button_description),
+							style = MaterialTheme.typography.bodyMedium,
+							color = MaterialTheme.colorScheme.onSurfaceVariant
+						)
+					}
+				}
+				Icon(
+					imageVector = Icons.AutoMirrored.Filled.ArrowRight,
+					contentDescription = null,
+					tint = MaterialTheme.colorScheme.onSurfaceVariant,
+					modifier = Modifier.size(20.dp)
+				)
+			}
+
+			Spacer(modifier = Modifier.height(8.dp))
 
 			// Sharing section
 			Text(

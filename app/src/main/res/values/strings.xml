@@ -199,6 +199,7 @@
     <!-- About Screen -->
     <string name="settings_about_button">About SnapSafe</string>
     <string name="about_title">About SnapSafe</string>
+	<string name="about_button_description">Learn about SnapSafe and our other FOSS apps</string>
     <string name="about_description">SnapSafe is a privacy-focused camera app designed to protect your sensitive photos
         with strong technical, legal, and social protections.
     </string>

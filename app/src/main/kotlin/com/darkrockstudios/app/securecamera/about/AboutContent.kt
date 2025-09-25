@@ -92,10 +92,10 @@ fun AboutContent(
 			verticalArrangement = Arrangement.Top,
 			horizontalAlignment = Alignment.Start
 		) {
-			Spacer(modifier = Modifier.height(16.dp))
-
 			// App description + website
-			SectionCard {
+			SectionCard(
+				elevation = 0.dp
+			) {
 				Icon(
 					painter = painterResource(id = R.drawable.ic_launcher_foreground),
 					contentDescription = stringResource(id = R.string.app_name),
