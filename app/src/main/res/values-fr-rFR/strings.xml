@@ -185,7 +185,7 @@
     <string name="settings_about_button">À propos de SnapSafe</string>
     <string name="about_title">À propos de SnapSafe</string>
     <string name="about_button_description">En savoir plus sur SnapSafe et nos autres applications FOSS</string>
-    <string name="about_description">SnapSafe est une application de caméra orientée sur la vie privée conçue pour protéger vos photos sensibles
+    <string name="about_description">SnapSafe est une application de caméra orientée sur la confidentialité conçue pour protéger vos photos sensibles
         avec de fortes protections techniques, juridiques et sociales.
     </string>
     <string name="about_version">Version</string>
