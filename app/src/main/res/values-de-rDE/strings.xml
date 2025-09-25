@@ -184,8 +184,9 @@
     <!-- About Screen -->
     <string name="settings_about_button">Über SnapSafe</string>
     <string name="about_title">Über SnapSafe</string>
-    <string name="about_description">SnapSafe ist eine privatfokussierte Kamera-App, um Ihre sensiblen Fotos
-        mit starker Verschlüsselung und sicherem Speicher zu schützen.
+    <string name="about_button_description">Erfahren Sie mehr über SnapSafe und unsere anderen FOSS-Apps</string>
+    <string name="about_description">SnapSafe ist eine privacy-fokussierte Kamera-App, die entwickelt wurde, um Ihre sensiblen Fotos
+        mit starken technischen, rechtlichen und sozialen Schutzmaßnahmen zu schützen.
     </string>
     <string name="about_version">Version</string>
     <string name="about_back_description">Zurück</string>
@@ -193,9 +194,16 @@
     <string name="about_open_source_description">SnapSafe ist ein Open-Source-Projekt. Sehen Sie den Quellcode auf GitHub:
     </string>
     <string name="about_privacy_policy">Datenschutzerklärung</string>
-    <string name="about_privacy_policy_description">Lesen Sie unsere Datenschutzrichtlinie:</string>
+    <string name="about_privacy_policy_description">SnapSafe speichert alle Daten lokal auf Ihrem Gerät. Keine Daten werden
+        an externe Server übertragen.
+    </string>
     <string name="about_report_bugs">Fehler melden</string>
     <string name="about_report_bugs_description">Fehler gefunden? Melde es auf GitHub:</string>
+    <string name="about_community">Trete unserer Community bei</string>
+    <string name="about_community_description">Kommen Sie mit unserer Community in Kontakt, entdecken Sie mehr Freie und Open Source
+        Software!
+    </string>
+    <!-- Display variants of URLs -->
     <!-- Location Dialog -->
     <string name="location_dialog_title_denied">Standortberechtigung anfordern</string>
     <string name="location_dialog_title_coarse">genauen Standort anfordern</string>
