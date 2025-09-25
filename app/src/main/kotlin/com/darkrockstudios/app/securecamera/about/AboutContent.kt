@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -17,8 +18,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.darkrockstudios.app.securecamera.R
 import com.darkrockstudios.app.securecamera.navigation.NavController
+import org.koin.androidx.compose.koinViewModel
 
 /**
  * About screen content
@@ -29,6 +32,7 @@ fun AboutContent(
 	navController: NavController,
 	modifier: Modifier = Modifier,
 	paddingValues: PaddingValues,
+	viewModel: AboutViewModel = koinViewModel<AboutViewModelImpl>()
 ) {
 	Column(
 		modifier = modifier
@@ -58,6 +62,7 @@ fun AboutContent(
 		)
 
 		val context = LocalContext.current
+		val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
 		// About content
 		Column(
@@ -189,9 +194,8 @@ fun AboutContent(
 					style = MaterialTheme.typography.bodyLarge,
 					modifier = Modifier.weight(1f)
 				)
-				val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
 				Text(
-					text = packageInfo.versionName ?: "---",
+					text = uiState.versionName,
 					style = MaterialTheme.typography.bodyMedium,
 					color = MaterialTheme.colorScheme.primary
 				)

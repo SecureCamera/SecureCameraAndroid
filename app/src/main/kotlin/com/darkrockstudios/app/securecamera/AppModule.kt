@@ -1,6 +1,8 @@
 package com.darkrockstudios.app.securecamera
 
 import androidx.work.WorkManager
+import com.darkrockstudios.app.securecamera.about.AboutViewModel
+import com.darkrockstudios.app.securecamera.about.AboutViewModelImpl
 import com.darkrockstudios.app.securecamera.auth.AuthorizationRepository
 import com.darkrockstudios.app.securecamera.auth.PinVerificationViewModel
 import com.darkrockstudios.app.securecamera.camera.SecureImageRepository
@@ -92,4 +94,5 @@ val appModule = module {
     viewModelOf(::IntroductionViewModelImpl) bind IntroductionViewModel::class
 	viewModelOf(::PinVerificationViewModel)
 	viewModelOf(::ImportPhotosViewModel)
+	viewModelOf(::AboutViewModelImpl) bind AboutViewModel::class
 }
