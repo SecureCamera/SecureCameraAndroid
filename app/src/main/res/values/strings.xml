@@ -220,6 +220,8 @@
     <string translatable="false" name="about_report_bugs_url">
         https://github.com/SecureCamera/SecureCameraAndroid/issues
     </string>
+    <string translatable="false" name="about_discord">Discord</string>
+    <string translatable="false" name="about_discord_url">https://discord.gg/ju2RQa5x8W</string>
 
     <!-- Location Dialog -->
     <string name="location_dialog_title_denied">Request Location Permission</string>

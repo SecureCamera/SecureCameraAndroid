@@ -64,6 +64,12 @@ fun AboutContent(
 		val context = LocalContext.current
 		val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+		// Get URL strings
+		val repositoryUrl = stringResource(id = R.string.about_repository_url)
+		val privacyPolicyUrl = stringResource(id = R.string.about_privacy_policy_url)
+		val reportBugsUrl = stringResource(id = R.string.about_report_bugs_url)
+
+
 		// About content
 		Column(
 			modifier = Modifier
@@ -101,6 +107,27 @@ fun AboutContent(
 
 			Spacer(modifier = Modifier.height(24.dp))
 
+			// Community section
+			Text(
+				text = "Join our Community",
+				style = MaterialTheme.typography.titleMedium
+			)
+
+			Spacer(modifier = Modifier.height(8.dp))
+
+			val discordUrl = stringResource(id = R.string.about_discord_url)
+			Text(
+				text = stringResource(id = R.string.about_discord),
+				style = MaterialTheme.typography.bodyMedium,
+				color = MaterialTheme.colorScheme.primary,
+				textDecoration = TextDecoration.Underline,
+				modifier = Modifier.clickable {
+					openUrl(context, discordUrl)
+				}
+			)
+
+			Spacer(modifier = Modifier.height(24.dp))
+
 			// Open Source section
 			Text(
 				text = stringResource(id = R.string.about_open_source),
@@ -113,11 +140,6 @@ fun AboutContent(
 				text = stringResource(id = R.string.about_open_source_description),
 				style = MaterialTheme.typography.bodyLarge
 			)
-
-			// Get URL strings
-			val repositoryUrl = stringResource(id = R.string.about_repository_url)
-			val privacyPolicyUrl = stringResource(id = R.string.about_privacy_policy_url)
-			val reportBugsUrl = stringResource(id = R.string.about_report_bugs_url)
 
 			// Repository link
 			Text(
