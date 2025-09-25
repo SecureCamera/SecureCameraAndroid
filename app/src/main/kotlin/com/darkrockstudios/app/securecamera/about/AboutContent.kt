@@ -84,146 +84,157 @@ fun AboutContent(
 			verticalArrangement = Arrangement.Top,
 			horizontalAlignment = Alignment.Start
 		) {
-			Spacer(modifier = Modifier.height(24.dp))
+			Spacer(modifier = Modifier.height(16.dp))
 
-			// App description
-			Text(
-				text = stringResource(id = R.string.about_description),
-				style = MaterialTheme.typography.bodyLarge
-			)
-
-			Spacer(modifier = Modifier.height(24.dp))
-
-			val websiteUrl = stringResource(id = R.string.about_promo_url)
-			Text(
-				text = websiteUrl,
-				style = MaterialTheme.typography.bodyMedium,
-				color = MaterialTheme.colorScheme.primary,
-				textDecoration = TextDecoration.Underline,
-				modifier = Modifier.clickable {
-					openUrl(context, websiteUrl)
-				}
-			)
-
-			Spacer(modifier = Modifier.height(24.dp))
-
-			// Community section
-			Text(
-				text = "Join our Community",
-				style = MaterialTheme.typography.titleMedium
-			)
-
-			Spacer(modifier = Modifier.height(8.dp))
-
-			val discordUrl = stringResource(id = R.string.about_discord_url)
-			Text(
-				text = stringResource(id = R.string.about_discord),
-				style = MaterialTheme.typography.bodyMedium,
-				color = MaterialTheme.colorScheme.primary,
-				textDecoration = TextDecoration.Underline,
-				modifier = Modifier.clickable {
-					openUrl(context, discordUrl)
-				}
-			)
-
-			Spacer(modifier = Modifier.height(24.dp))
-
-			// Open Source section
-			Text(
-				text = stringResource(id = R.string.about_open_source),
-				style = MaterialTheme.typography.titleMedium
-			)
-
-			Spacer(modifier = Modifier.height(8.dp))
-
-			Text(
-				text = stringResource(id = R.string.about_open_source_description),
-				style = MaterialTheme.typography.bodyLarge
-			)
-
-			// Repository link
-			Text(
-				text = repositoryUrl,
-				style = MaterialTheme.typography.bodyMedium,
-				color = MaterialTheme.colorScheme.primary,
-				textDecoration = TextDecoration.Underline,
-				modifier = Modifier.clickable {
-					openUrl(context, repositoryUrl)
-				}
-			)
-
-			Spacer(modifier = Modifier.height(24.dp))
-
-			// Privacy Policy section
-			Text(
-				text = stringResource(id = R.string.about_privacy_policy),
-				style = MaterialTheme.typography.titleMedium
-			)
-
-			Spacer(modifier = Modifier.height(8.dp))
-
-			Text(
-				text = stringResource(id = R.string.about_privacy_policy_description),
-				style = MaterialTheme.typography.bodyLarge
-			)
-
-			// Privacy Policy link
-			Text(
-				text = privacyPolicyUrl,
-				style = MaterialTheme.typography.bodyMedium,
-				color = MaterialTheme.colorScheme.primary,
-				textDecoration = TextDecoration.Underline,
-				modifier = Modifier.clickable {
-					openUrl(context, privacyPolicyUrl)
-				}
-			)
-
-			Spacer(modifier = Modifier.height(24.dp))
-
-			// Report Bugs section
-			Text(
-				text = stringResource(id = R.string.about_report_bugs),
-				style = MaterialTheme.typography.titleMedium
-			)
-
-			Spacer(modifier = Modifier.height(8.dp))
-
-			Text(
-				text = stringResource(id = R.string.about_report_bugs_description),
-				style = MaterialTheme.typography.bodyLarge
-			)
-
-			// Report Bugs link
-			Text(
-				text = reportBugsUrl,
-				style = MaterialTheme.typography.bodyMedium,
-				color = MaterialTheme.colorScheme.primary,
-				textDecoration = TextDecoration.Underline,
-				modifier = Modifier.clickable {
-					openUrl(context, reportBugsUrl)
-				}
-			)
-
-			Spacer(modifier = Modifier.height(24.dp))
-
-			// Version info
-			Row(
-				modifier = Modifier.fillMaxWidth(),
-				verticalAlignment = Alignment.CenterVertically
-			) {
+			// App description + website
+			SectionCard {
 				Text(
-					text = stringResource(id = R.string.about_version),
-					style = MaterialTheme.typography.bodyLarge,
-					modifier = Modifier.weight(1f)
+					text = stringResource(id = R.string.about_description),
+					style = MaterialTheme.typography.bodyLarge
 				)
+				Spacer(modifier = Modifier.height(8.dp))
+				val websiteUrl = stringResource(id = R.string.about_promo_url)
 				Text(
-					text = uiState.versionName,
+					text = websiteUrl,
 					style = MaterialTheme.typography.bodyMedium,
-					color = MaterialTheme.colorScheme.primary
+					color = MaterialTheme.colorScheme.primary,
+					textDecoration = TextDecoration.Underline,
+					modifier = Modifier.clickable { openUrl(context, websiteUrl) }
 				)
 			}
 
+			Spacer(modifier = Modifier.height(12.dp))
+
+			// Community section
+			SectionCard {
+				Text(
+					text = "Join our Community",
+					style = MaterialTheme.typography.titleMedium
+				)
+				Spacer(modifier = Modifier.height(8.dp))
+				val discordUrl = stringResource(id = R.string.about_discord_url)
+				Text(
+					text = stringResource(id = R.string.about_discord),
+					style = MaterialTheme.typography.bodyMedium,
+					color = MaterialTheme.colorScheme.primary,
+					textDecoration = TextDecoration.Underline,
+					modifier = Modifier.clickable { openUrl(context, discordUrl) }
+				)
+			}
+
+			Spacer(modifier = Modifier.height(12.dp))
+
+			// Open Source section
+			SectionCard {
+				Text(
+					text = stringResource(id = R.string.about_open_source),
+					style = MaterialTheme.typography.titleMedium
+				)
+				Spacer(modifier = Modifier.height(8.dp))
+				Text(
+					text = stringResource(id = R.string.about_open_source_description),
+					style = MaterialTheme.typography.bodyLarge
+				)
+				Spacer(modifier = Modifier.height(8.dp))
+				Text(
+					text = repositoryUrl,
+					style = MaterialTheme.typography.bodyMedium,
+					color = MaterialTheme.colorScheme.primary,
+					textDecoration = TextDecoration.Underline,
+					modifier = Modifier.clickable { openUrl(context, repositoryUrl) }
+				)
+			}
+
+			Spacer(modifier = Modifier.height(12.dp))
+
+			// Privacy Policy section
+			SectionCard {
+				Text(
+					text = stringResource(id = R.string.about_privacy_policy),
+					style = MaterialTheme.typography.titleMedium
+				)
+				Spacer(modifier = Modifier.height(8.dp))
+				Text(
+					text = stringResource(id = R.string.about_privacy_policy_description),
+					style = MaterialTheme.typography.bodyLarge
+				)
+				Spacer(modifier = Modifier.height(8.dp))
+				Text(
+					text = privacyPolicyUrl,
+					style = MaterialTheme.typography.bodyMedium,
+					color = MaterialTheme.colorScheme.primary,
+					textDecoration = TextDecoration.Underline,
+					modifier = Modifier.clickable { openUrl(context, privacyPolicyUrl) }
+				)
+			}
+
+			Spacer(modifier = Modifier.height(12.dp))
+
+			// Report Bugs section
+			SectionCard {
+				Text(
+					text = stringResource(id = R.string.about_report_bugs),
+					style = MaterialTheme.typography.titleMedium
+				)
+				Spacer(modifier = Modifier.height(8.dp))
+				Text(
+					text = stringResource(id = R.string.about_report_bugs_description),
+					style = MaterialTheme.typography.bodyLarge
+				)
+				Spacer(modifier = Modifier.height(8.dp))
+				Text(
+					text = reportBugsUrl,
+					style = MaterialTheme.typography.bodyMedium,
+					color = MaterialTheme.colorScheme.primary,
+					textDecoration = TextDecoration.Underline,
+					modifier = Modifier.clickable { openUrl(context, reportBugsUrl) }
+				)
+			}
+
+			Spacer(modifier = Modifier.height(12.dp))
+
+			// Version info
+			SectionCard {
+				Row(
+					modifier = Modifier.fillMaxWidth(),
+					verticalAlignment = Alignment.CenterVertically
+				) {
+					Text(
+						text = stringResource(id = R.string.about_version),
+						style = MaterialTheme.typography.bodyLarge,
+						modifier = Modifier.weight(1f)
+					)
+					Text(
+						text = uiState.versionName,
+						style = MaterialTheme.typography.bodyMedium,
+						color = MaterialTheme.colorScheme.primary
+					)
+				}
+			}
+
 			Spacer(modifier = Modifier.height(24.dp))
+		}
+	}
+}
+
+@Composable
+private fun SectionCard(
+	modifier: Modifier = Modifier,
+	content: @Composable ColumnScope.() -> Unit
+) {
+	Card(
+		modifier = modifier.fillMaxWidth(),
+		colors = CardDefaults.cardColors(
+			containerColor = MaterialTheme.colorScheme.surface
+		),
+		shape = MaterialTheme.shapes.medium
+	) {
+		Column(
+			modifier = Modifier
+				.fillMaxWidth()
+				.padding(16.dp)
+		) {
+			content()
 		}
 	}
 }
