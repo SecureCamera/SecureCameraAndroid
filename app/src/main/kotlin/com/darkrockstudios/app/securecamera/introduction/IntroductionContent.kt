@@ -34,7 +34,7 @@ fun IntroductionContent(
 	modifier: Modifier = Modifier,
 	paddingValues: PaddingValues
 ) {
-	val viewModel: IntroductionViewModel = koinViewModel()
+	val viewModel: IntroductionViewModel = koinViewModel<IntroductionViewModelImpl>()
 	val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 	val coroutineScope = rememberCoroutineScope()
 
