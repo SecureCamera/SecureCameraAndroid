@@ -184,8 +184,9 @@
     <!-- About Screen -->
     <string name="settings_about_button">Про SnapSafe</string>
     <string name="about_title">Про SnapSafe</string>
-    <string name="about_description">SnapSafe це додаток для використання приватної камери, розроблений для захисту ваших конфіденційних фотографій
-        за допомогою міцного шифрування і безпечного сховища.
+    <string name="about_button_description">Дізнатися про SnapSafe та інші наші FOSS додатки</string>
+    <string name="about_description">SnapSafe - це додаток для приватної камери, розроблений для захисту ваших чутливих фотографій
+        з потужними технічними, юридичними та соціальними захистами.
     </string>
     <string name="about_version">Версія</string>
     <string name="about_back_description">Відмінити</string>
@@ -193,9 +194,16 @@
     <string name="about_open_source_description">SnapSafe is an open source project. View the source code on GitHub:
     </string>
     <string name="about_privacy_policy">Політика конфіденційності</string>
-    <string name="about_privacy_policy_description">Прочитайте нашу політику конфіденційності:</string>
+    <string name="about_privacy_policy_description">SnapSafe stores all data locally on your device. No data is
+        transmitted to external servers.
+    </string>
     <string name="about_report_bugs">Повідомити про помилку</string>
     <string name="about_report_bugs_description">Знайшли помилку? Доповісти про це на GitHub:</string>
+    <string name="about_community">Приєднайтеся до нашої спільноти</string>
+    <string name="about_community_description">Come engage with our community, discover more Free and Open Source
+        Software!
+    </string>
+    <!-- Display variants of URLs -->
     <!-- Location Dialog -->
     <string name="location_dialog_title_denied">Запитувати дозвіл розташування</string>
     <string name="location_dialog_title_coarse">Запит точного розташування</string>
