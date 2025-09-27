@@ -1,6 +1,10 @@
 package com.darkrockstudios.app.securecamera.obfuscation
 
 import android.graphics.Bitmap
+import android.graphics.RectF
+import androidx.camera.core.ImageProxy
+import androidx.compose.ui.unit.IntSize
+import com.darkrockstudios.app.securecamera.camera.mapRectToPreview
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetectorOptions
@@ -45,6 +49,37 @@ class MlFacialDetection : FacialDetection {
 					continuation.resume(newRegions)
 				}.addOnFailureListener { e ->
 					Timber.Forest.e(e, "Failed face detection in Image")
+					continuation.resume(emptyList())
+				}
+		}
+	}
+
+	override suspend fun processForFacesPreview(
+		image: ImageProxy,
+		previewWidth: Int,
+		previewHeight: Int,
+		isFrontCamera: Boolean,
+	): List<RectF> {
+		val mediaImage = image.image ?: return emptyList()
+		val rotation = image.imageInfo.rotationDegrees
+		val inputImage = InputImage.fromMediaImage(mediaImage, rotation)
+
+		return suspendCancellableCoroutine { continuation ->
+			detector.process(inputImage)
+				.addOnSuccessListener { foundFaces ->
+					val mapper = mapRectToPreview(
+						sourceWidth = inputImage.width,
+						sourceHeight = inputImage.height,
+						rotationDegrees = rotation,
+						isFrontCamera = isFrontCamera,
+						previewSizePx = IntSize(previewWidth, previewHeight),
+					)
+					val rects = foundFaces.map { face ->
+						mapper(RectF(face.boundingBox))
+					}
+					continuation.resume(rects)
+				}.addOnFailureListener { e ->
+					Timber.e(e, "Failed face detection in Image (realtime)")
 					continuation.resume(emptyList())
 				}
 		}

@@ -1,19 +1,27 @@
 package com.darkrockstudios.app.securecamera.camera
 
 import android.annotation.SuppressLint
+import android.graphics.RectF
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.compose.runtime.*
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntSize
 import androidx.lifecycle.LifecycleOwner
-import kotlinx.coroutines.suspendCancellableCoroutine
+import com.darkrockstudios.app.securecamera.obfuscation.FacialDetection
+import kotlinx.coroutines.*
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import timber.log.Timber
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.time.Clock
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 
 /**
  * Holds the mutable state and low‑level camera plumbing so that the UI composable is lightweight.
@@ -24,8 +32,16 @@ class CameraState internal constructor(
 	private val providerFuture: ProcessCameraProvider,
 	initialLensFacing: Int = CameraSelector.LENS_FACING_BACK,
 	initialFlashMode: Int = ImageCapture.FLASH_MODE_OFF,
-) {
+) : KoinComponent {
+	private val clock: Clock by inject()
+
 	private val cameraExecutor: ExecutorService = Executors.newSingleThreadExecutor()
+	private val analysisExecutor: ExecutorService = Executors.newSingleThreadExecutor()
+	private val analysisScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+	private var lastAutoFocusAt: Instant = Instant.DISTANT_PAST
+	private val minAutoFocusInterval: Duration = 800.milliseconds
+	val manualFocusAutoClear: Duration = 3.seconds
 
 	var surfaceRequest by mutableStateOf<SurfaceRequest?>(null)
 		private set
@@ -42,17 +58,24 @@ class CameraState internal constructor(
 	var maxZoom by mutableFloatStateOf(1f)
 		private set
 
-	var focusOffset by mutableStateOf<Offset?>(null)
+	var manualFocusOffset by mutableStateOf<Offset?>(null)
+		private set
+
+	var faceFocusRect by mutableStateOf<RectF?>(null)
 		private set
 
 	var displaySize by mutableStateOf<IntSize?>(null)
 		internal set
 
+	var faces by mutableStateOf<List<FaceBox>>(emptyList())
+		private set
+
 	fun clearFocusOffset() {
-		focusOffset = null
+		manualFocusOffset = null
 	}
 
 	private var imageCapture: ImageCapture? = null
+	private var imageAnalysis: ImageAnalysis? = null
 
 	private var _flashMode by mutableIntStateOf(initialFlashMode)
 	var flashMode: Int
@@ -93,8 +116,15 @@ class CameraState internal constructor(
 
 	fun getZoomState() = camera?.cameraInfo?.zoomState
 
+	fun manualFocusAt(offset: Offset) {
+		Timber.tag("camera").d("manualFocusAt")
+		faceFocusRect = null
+		focusAt(offset)
+		manualFocusOffset = offset
+	}
+
 	/** Focus + meter at the given px location from Compose coordinates. */
-	fun focusAt(offset: Offset) {
+	private fun focusAt(offset: Offset) {
 		camera?.let { cam ->
 			val displaySize = this.displaySize ?: return
 
@@ -111,7 +141,6 @@ class CameraState internal constructor(
 			).setAutoCancelDuration(3, TimeUnit.SECONDS).build()
 
 			cam.cameraControl.startFocusAndMetering(action)
-			focusOffset = offset
 		}
 	}
 
@@ -166,6 +195,10 @@ class CameraState internal constructor(
 			.setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
 			.build()
 
+		imageAnalysis = ImageAnalysis.Builder()
+			.setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+			.build()
+
 		val selector = CameraSelector.Builder()
 			.requireLensFacing(lensFacing)
 			.build()
@@ -177,7 +210,8 @@ class CameraState internal constructor(
 				lifecycleOwner,
 				selector,
 				preview,
-				imageCapture
+				imageCapture,
+				imageAnalysis
 			)
 
 			camera?.cameraInfo?.zoomState?.value?.let { zoomState ->
@@ -189,7 +223,52 @@ class CameraState internal constructor(
 		}
 	}
 
+	private fun setAnalyzer(analyzer: ImageAnalysis.Analyzer?) {
+		imageAnalysis?.clearAnalyzer()
+		if (analyzer != null) imageAnalysis?.setAnalyzer(analysisExecutor, analyzer)
+	}
+
+	/**
+	 * Enable face detection and internal auto-focus behavior. Business logic lives here.
+	 */
+	fun enableFaceDetection(detector: FacialDetection) {
+		setAnalyzer(
+			FacialDetectionAnalyzer(
+				scope = analysisScope,
+				detector = detector,
+				getPreviewSize = { displaySize },
+				isFrontCamera = { lensFacing == CameraSelector.LENS_FACING_FRONT },
+				onFaces = { rects: List<RectF> ->
+					faces = rects.map { r -> FaceBox(boundingBox = r) }
+					if (rects.isEmpty()) {
+						faceFocusRect = null
+						return@FacialDetectionAnalyzer
+					}
+
+					// Prefer manual tap focus over face auto-focus
+					if (manualFocusOffset != null) return@FacialDetectionAnalyzer
+
+					val now = clock.now()
+
+					val largest = rects.maxByOrNull { it.width() * it.height() }
+					largest?.let { r ->
+						val center = Offset(r.centerX(), r.centerY())
+						faceFocusRect = r
+						if ((now - lastAutoFocusAt) >= minAutoFocusInterval) {
+							Timber.tag("camera").d("focus on face")
+							focusAt(center)
+							lastAutoFocusAt = now
+						}
+					}
+				}
+			)
+		)
+	}
+
 	internal fun cleanup() {
+		imageAnalysis?.clearAnalyzer()
+		analysisScope.cancel()
 		cameraExecutor.shutdown()
+		analysisExecutor.shutdown()
 	}
 }

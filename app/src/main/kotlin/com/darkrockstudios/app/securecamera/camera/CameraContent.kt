@@ -53,9 +53,10 @@ internal fun CameraContent(
 	) {
 		if (permissionsState.allPermissionsGranted) {
 			val cameraState = rememberCameraState()
+
 			CameraPreview(
 				modifier = Modifier.fillMaxSize(),
-				state = cameraState
+				cameraState = cameraState,
 			)
 
 			CameraControls(

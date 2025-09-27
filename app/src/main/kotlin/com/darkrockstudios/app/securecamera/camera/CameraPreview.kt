@@ -15,8 +15,14 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -50,10 +56,16 @@ fun rememberCameraState(
 
 @Composable
 fun CameraPreview(
-	state: CameraState,
+	cameraState: CameraState,
 	modifier: Modifier = Modifier
 ) {
 	val scope = rememberCoroutineScope()
+
+	// Attach face detection once when state is ready
+	LaunchedEffect(cameraState) {
+		val detector = com.darkrockstudios.app.securecamera.obfuscation.MlFacialDetection()
+		cameraState.enableFaceDetection(detector)
+	}
 
 	// Track the display size for focus calculations
 	BoxWithConstraints(
@@ -66,24 +78,48 @@ fun CameraPreview(
 
 		// Update the camera state with current display size
 		LaunchedEffect(displaySize) {
-			state.displaySize = displaySize
+			cameraState.displaySize = displaySize
 		}
 
 		// Pinch‑to‑zoom transformable
 		val zoomState = rememberTransformableState { zoomChange, _, _ ->
-			state.camera?.let { cam ->
+			cameraState.camera?.let { cam ->
 				val current = cam.cameraInfo.zoomState.value?.zoomRatio ?: 1f
-				val newZoom = (current * zoomChange).coerceIn(state.minZoom, state.maxZoom)
-				state.setZoomRatio(newZoom)
+				val newZoom = (current * zoomChange).coerceIn(cameraState.minZoom, cameraState.maxZoom)
+				cameraState.setZoomRatio(newZoom)
 			}
 		}
 
-		// focus indicator fade animation
+		// focus indicator fade animation (manual tap)
 		val indicatorAlpha by animateFloatAsState(
-			targetValue = if (state.focusOffset != null) 1f else 0f,
+			targetValue = if (cameraState.manualFocusOffset != null) 1f else 0f,
 			animationSpec = tween(durationMillis = 300),
 			label = "focus_alpha"
 		)
+		val ringRadius = 40f
+		var clearFocusJob = remember<Job?> { null }
+
+		fun autoClearFocus() {
+			clearFocusJob?.cancel()
+			clearFocusJob = scope.launch {
+				delay(cameraState.manualFocusAutoClear)
+				// Only auto-clear if faces are currently present
+				if (cameraState.faces.isNotEmpty()) {
+					cameraState.clearFocusOffset()
+				}
+				clearFocusJob = null
+			}
+		}
+
+		// Edge-trigger: when we transition from no faces -> faces while a manual focus exists, schedule auto-clear
+		var lastHadFaces by remember { mutableStateOf(false) }
+		LaunchedEffect(cameraState.faces) {
+			val hasFaces = cameraState.faces.isNotEmpty()
+			if (hasFaces && !lastHadFaces && cameraState.manualFocusOffset != null) {
+				autoClearFocus()
+			}
+			lastHadFaces = hasFaces
+		}
 
 		Box(
 			modifier = Modifier
@@ -91,24 +127,52 @@ fun CameraPreview(
 				.transformable(zoomState)
 				.pointerInput(Unit) {
 					detectTapGestures { offset ->
-						state.focusAt(offset)
-
-						scope.launch {
-							delay(800)
-							state.clearFocusOffset()
+						// If user taps on the existing manual focus ring, clear it instead of setting a new focus
+						val existing = cameraState.manualFocusOffset
+						if (existing != null) {
+							val ringRadius = ringRadius * 1.25f
+							val dist = (offset - existing).getDistance()
+							val inRing = dist < ringRadius
+							if (inRing) {
+								cameraState.clearFocusOffset()
+								return@detectTapGestures
+							}
 						}
+
+						cameraState.manualFocusAt(offset)
+
+						autoClearFocus()
 					}
 				}
 		) {
-			state.surfaceRequest?.let { request ->
+			cameraState.surfaceRequest?.let { request ->
 				CameraXViewfinder(
 					surfaceRequest = request,
 					modifier = Modifier.fillMaxSize()
 				)
 			}
 
-			// Draw focus ring
-			state.focusOffset?.let { pos ->
+			val faceBoxStrokeWidth = 3.dp
+			// Face focus overlay: draw only the focused face rect
+			cameraState.faceFocusRect?.let { r ->
+				Canvas(
+					modifier = Modifier
+						.fillMaxSize()
+						.pointerInput(Unit) {}
+				) {
+					drawRoundRect(
+						color = Color(0xFFCDD5DC),
+						topLeft = Offset(r.left, r.top),
+						size = Size(r.width(), r.height()),
+						cornerRadius = CornerRadius(12f, 12f),
+						style = Stroke(width = faceBoxStrokeWidth.toPx())
+					)
+				}
+			}
+
+			val manualSpotStrokeWidth = 2.dp
+			// Draw focus ring for manual tap
+			cameraState.manualFocusOffset?.let { pos ->
 				Canvas(
 					modifier = Modifier
 						.fillMaxSize()
@@ -116,9 +180,9 @@ fun CameraPreview(
 				) {
 					drawCircle(
 						color = Color.White.copy(alpha = indicatorAlpha),
-						radius = 40f,
+						radius = ringRadius,
 						center = pos,
-						style = androidx.compose.ui.graphics.drawscope.Stroke(width = 4f)
+						style = Stroke(width = manualSpotStrokeWidth.toPx())
 					)
 				}
 			}
