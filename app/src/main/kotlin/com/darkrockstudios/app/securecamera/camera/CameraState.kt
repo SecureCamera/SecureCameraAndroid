@@ -3,15 +3,16 @@ package com.darkrockstudios.app.securecamera.camera
 import android.annotation.SuppressLint
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.view.PreviewView
 import androidx.compose.runtime.*
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.IntSize
 import androidx.lifecycle.LifecycleOwner
+import kotlinx.coroutines.suspendCancellableCoroutine
+import timber.log.Timber
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 import kotlin.time.Clock
 
 /**
@@ -19,13 +20,15 @@ import kotlin.time.Clock
  */
 @Stable
 class CameraState internal constructor(
-	val previewView: PreviewView,
 	private val lifecycleOwner: LifecycleOwner,
 	private val providerFuture: ProcessCameraProvider,
 	initialLensFacing: Int = CameraSelector.LENS_FACING_BACK,
 	initialFlashMode: Int = ImageCapture.FLASH_MODE_OFF,
 ) {
 	private val cameraExecutor: ExecutorService = Executors.newSingleThreadExecutor()
+
+	var surfaceRequest by mutableStateOf<SurfaceRequest?>(null)
+		private set
 
 	var lensFacing by mutableIntStateOf(initialLensFacing)
 		private set
@@ -35,11 +38,15 @@ class CameraState internal constructor(
 
 	var minZoom by mutableFloatStateOf(1f)
 		private set
+
 	var maxZoom by mutableFloatStateOf(1f)
 		private set
 
 	var focusOffset by mutableStateOf<Offset?>(null)
 		private set
+
+	var displaySize by mutableStateOf<IntSize?>(null)
+		internal set
 
 	fun clearFocusOffset() {
 		focusOffset = null
@@ -62,7 +69,6 @@ class CameraState internal constructor(
 			imageCapture?.flashMode = value
 		}
 
-	/** Toggle between front and back lenses. */
 	fun toggleLens() {
 		switchLens(
 			if (lensFacing == CameraSelector.LENS_FACING_BACK)
@@ -90,14 +96,21 @@ class CameraState internal constructor(
 	/** Focus + meter at the given px location from Compose coordinates. */
 	fun focusAt(offset: Offset) {
 		camera?.let { cam ->
-			val factory = previewView.meteringPointFactory
+			val displaySize = this.displaySize ?: return
+
+			// Create metering point factory for the display size
+			val factory = SurfaceOrientedMeteringPointFactory(
+				displaySize.width.toFloat(),
+				displaySize.height.toFloat()
+			)
+
 			val point = factory.createPoint(offset.x, offset.y)
 			val action = FocusMeteringAction.Builder(
 				point,
 				FocusMeteringAction.FLAG_AF or FocusMeteringAction.FLAG_AE or FocusMeteringAction.FLAG_AWB
 			).setAutoCancelDuration(3, TimeUnit.SECONDS).build()
-			cam.cameraControl.startFocusAndMetering(action)
 
+			cam.cameraControl.startFocusAndMetering(action)
 			focusOffset = offset
 		}
 	}
@@ -107,10 +120,10 @@ class CameraState internal constructor(
 	 * or an exception on failure.
 	 */
 	@SuppressLint("MissingPermission")
-	suspend fun capturePhoto(): Result<CapturedImage> = suspendCoroutine { continuation ->
+	suspend fun capturePhoto(): Result<CapturedImage> = suspendCancellableCoroutine { continuation ->
 		val capture = imageCapture ?: run {
 			continuation.resume(Result.failure(IllegalStateException("ImageCapture not ready")))
-			return@suspendCoroutine
+			return@suspendCancellableCoroutine
 		}
 
 		capture.flashMode = flashMode
@@ -143,8 +156,10 @@ class CameraState internal constructor(
 	internal fun bindCamera() {
 		val provider = providerFuture
 
-		val preview = Preview.Builder().build().also {
-			it.surfaceProvider = previewView.surfaceProvider
+		val preview = Preview.Builder().build().also { preview ->
+			preview.setSurfaceProvider { surfaceRequest ->
+				this.surfaceRequest = surfaceRequest
+			}
 		}
 
 		imageCapture = ImageCapture.Builder()
@@ -156,17 +171,25 @@ class CameraState internal constructor(
 			.build()
 
 		provider.unbindAll()
-		camera = provider.bindToLifecycle(lifecycleOwner, selector, preview, imageCapture)
 
-		// Observe zoom bounds
-		camera?.cameraInfo?.zoomState?.observe(lifecycleOwner) {
-			minZoom = it.minZoomRatio
-			maxZoom = it.maxZoomRatio
+		try {
+			camera = provider.bindToLifecycle(
+				lifecycleOwner,
+				selector,
+				preview,
+				imageCapture
+			)
+
+			camera?.cameraInfo?.zoomState?.value?.let { zoomState ->
+				minZoom = zoomState.minZoomRatio
+				maxZoom = zoomState.maxZoomRatio
+			}
+		} catch (e: Exception) {
+			Timber.e(e)
 		}
 	}
 
-	// Call when your app/session finishes with the camera
-	fun shutdown() {
+	internal fun cleanup() {
 		cameraExecutor.shutdown()
 	}
 }

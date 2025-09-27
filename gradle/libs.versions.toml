@@ -7,7 +7,7 @@ compileSdk = "36"
 minSdk = "29"
 
 javaVersion = "17"
-agp = "8.11.1"
+agp = "8.11.2"
 workManager = "2.10.5"
 argon2kt = "1.6.0"
 bcrypt = "0.10.2"
@@ -44,6 +44,8 @@ foundation = "1.9.2"
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
 androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "cameraCamera2" }
 androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "cameraView" }
+androidx-camera-compose = { module = "androidx.camera:camera-compose", version.ref = "cameraView" }
+androidx-camera-core = { module = "androidx.camera.viewfinder:viewfinder-core", version.ref = "cameraView" }
 androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraCamera2" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
