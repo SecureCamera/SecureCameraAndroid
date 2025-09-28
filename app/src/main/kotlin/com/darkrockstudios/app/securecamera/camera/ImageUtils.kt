@@ -1,14 +1,16 @@
 package com.darkrockstudios.app.securecamera.camera
 
 import android.graphics.*
+import android.graphics.Bitmap.createBitmap
 import androidx.camera.core.ImageProxy
+import timber.log.Timber
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 
 internal fun Bitmap.rotate(degrees: Int): Bitmap {
 	val m = Matrix()
 	m.postRotate(degrees.toFloat())
-	return Bitmap.createBitmap(this, 0, 0, width, height, m, true)
+	return createBitmap(this, 0, 0, width, height, m, true)
 }
 
 internal fun Bitmap.toJpegByteArray(quality: Int = 90): ByteArray {
@@ -25,18 +27,24 @@ internal fun imageProxyToBytes(proxy: ImageProxy): ByteArray {
 /**
  * Convert an ImageProxy to a Bitmap, handling JPEG and YUV_420_888 formats.
  * Returns a rotated bitmap matching the display orientation.
+ * Optionally returns the bitmap in the desiredConfig to avoid extra conversions.
  */
-internal fun imageProxyToBitmap(proxy: ImageProxy): Bitmap? {
+internal fun imageProxyToBitmap(
+	proxy: ImageProxy,
+	desiredConfig: Bitmap.Config = Bitmap.Config.ARGB_8888,
+): Bitmap? {
 	return try {
-		when (proxy.format) {
+		val rotated: Bitmap? = when (proxy.format) {
 			ImageFormat.JPEG -> {
 				val bytes = imageProxyToBytes(proxy)
-				BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.let { bmp ->
+				val opts = BitmapFactory.Options().apply { inPreferredConfig = desiredConfig }
+				BitmapFactory.decodeByteArray(bytes, 0, bytes.size, opts)?.let { bmp ->
 					val rotation = proxy.imageInfo.rotationDegrees
 					if (rotation == 0) bmp else bmp.rotate(rotation)
 				}
 			}
 
+			// TODO: This path is horrendously optimized, must refactor it for efficiency
 			ImageFormat.YUV_420_888 -> {
 				val image = proxy.image ?: return null
 				val nv21 = yuv420888ToNv21(image)
@@ -44,7 +52,8 @@ internal fun imageProxyToBitmap(proxy: ImageProxy): Bitmap? {
 				val out = ByteArrayOutputStream()
 				yuvImage.compressToJpeg(Rect(0, 0, proxy.width, proxy.height), 100, out)
 				val jpegBytes = out.toByteArray()
-				BitmapFactory.decodeByteArray(jpegBytes, 0, jpegBytes.size)?.let { bmp ->
+				val opts = BitmapFactory.Options().apply { inPreferredConfig = desiredConfig }
+				BitmapFactory.decodeByteArray(jpegBytes, 0, jpegBytes.size, opts)?.let { bmp ->
 					val rotation = proxy.imageInfo.rotationDegrees
 					if (rotation == 0) bmp else bmp.rotate(rotation)
 				}
@@ -53,13 +62,27 @@ internal fun imageProxyToBitmap(proxy: ImageProxy): Bitmap? {
 			else -> {
 				// Fallback: try decoding first plane as JPEG
 				val bytes = imageProxyToBytes(proxy)
-				BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.let { bmp ->
+				val opts = BitmapFactory.Options().apply { inPreferredConfig = desiredConfig }
+				BitmapFactory.decodeByteArray(bytes, 0, bytes.size, opts)?.let { bmp ->
 					val rotation = proxy.imageInfo.rotationDegrees
 					if (rotation == 0) bmp else bmp.rotate(rotation)
 				}
 			}
 		}
+
+		rotated?.let { r ->
+			if (r.config == desiredConfig) {
+				r
+			} else {
+				// Consolidate conversion to desired config here to avoid extra allocations later
+				createBitmap(r.width, r.height, desiredConfig).also { target ->
+					Canvas(target).drawBitmap(r, 0f, 0f, null)
+					r.recycle()
+				}
+			}
+		}
 	} catch (e: Exception) {
+		Timber.w(e, "Failed to convert image")
 		null
 	}
 }
@@ -105,9 +128,4 @@ private fun yuv420888ToNv21(image: android.media.Image): ByteArray {
 	}
 
 	return out
-}
-
-internal fun rotateAndEncode(proxy: ImageProxy, quality: Int = 90): ByteArray {
-	val bmp = imageProxyToBitmap(proxy) ?: return ByteArray(0)
-	return bmp.toJpegByteArray(quality)
 }

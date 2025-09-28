@@ -4,6 +4,7 @@ import android.graphics.*
 import android.media.FaceDetector
 import androidx.camera.core.ImageProxy
 import androidx.core.graphics.createBitmap
+import com.darkrockstudios.app.securecamera.camera.imageProxyToBitmap
 import com.darkrockstudios.app.securecamera.camera.mapRectToPreview
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -93,6 +94,27 @@ class AndroidFacialDetection : FacialDetection {
 			}
 		}
 
+	private class FaceDetectorInstance(
+		val detector: FaceDetector,
+		val width: Int,
+		val height: Int,
+		val faces: Array<FaceDetector.Face?> = arrayOfNulls(MAX_FACES),
+	)
+
+	private var detectorInstance: FaceDetectorInstance? = null
+
+	private fun createNewDetectorInstance(bitmapForDetection: Bitmap): FaceDetectorInstance {
+		val detector = FaceDetector(bitmapForDetection.width, bitmapForDetection.height, MAX_FACES)
+		return FaceDetectorInstance(detector, bitmapForDetection.width, bitmapForDetection.height)
+	}
+
+	private fun getDetectorInstance(bitmapForDetection: Bitmap): FaceDetectorInstance {
+		// Create a new detector instance if null or doesn't match
+		return detectorInstance?.takeIf {
+			it.width == bitmapForDetection.width && it.height == bitmapForDetection.height
+		} ?: createNewDetectorInstance(bitmapForDetection).also { detectorInstance = it }
+	}
+
 	override suspend fun processForFacesPreview(
 		image: ImageProxy,
 		previewWidth: Int,
@@ -101,33 +123,17 @@ class AndroidFacialDetection : FacialDetection {
 	): List<RectF> {
 		return withContext(Dispatchers.Default) {
 			try {
-				// Convert ImageProxy to a display-rotated Bitmap, supporting YUV and JPEG
-				val rotated = com.darkrockstudios.app.securecamera.camera.imageProxyToBitmap(image)
-				if (rotated == null) {
+				// Convert ImageProxy to a display-rotated Bitmap
+				val bitmapForDetection = imageProxyToBitmap(image, Bitmap.Config.RGB_565)
+				if (bitmapForDetection == null) {
 					Timber.w("Failed to decode ImageProxy to Bitmap for face preview detection")
-					return@withContext emptyList<RectF>()
+					return@withContext emptyList()
 				}
 
-				// Android FaceDetector requires RGB_565 format
-				val bitmapForDetection = if (rotated.config != Bitmap.Config.RGB_565) {
-					try {
-						androidx.core.graphics.createBitmap(rotated.width, rotated.height, Bitmap.Config.RGB_565)
-							.also { target ->
-								val canvas = Canvas(target)
-								canvas.drawBitmap(rotated, 0f, 0f, null)
-							}
-					} catch (e: Exception) {
-						Timber.e(e, "Failed to convert preview bitmap to RGB_565")
-						rotated.recycle()
-						return@withContext emptyList<RectF>()
-					}
-				} else rotated
+				val instance = getDetectorInstance(bitmapForDetection)
 
 				// Run detection
-				val maxFaces = 10
-				val detector = FaceDetector(bitmapForDetection.width, bitmapForDetection.height, maxFaces)
-				val faces = arrayOfNulls<FaceDetector.Face>(maxFaces)
-				val found = detector.findFaces(bitmapForDetection, faces)
+				val found = instance.detector.findFaces(bitmapForDetection, instance.faces)
 
 				// Prepare mapper from detection-bitmap coordinates to preview coordinates
 				val mapper = mapRectToPreview(
@@ -140,7 +146,7 @@ class AndroidFacialDetection : FacialDetection {
 
 				val rects = ArrayList<RectF>(found)
 				for (i in 0 until found) {
-					faces[i]?.let { face ->
+					instance.faces[i]?.let { face ->
 						val mid = PointF()
 						face.getMidPoint(mid)
 						val eyeDistance = face.eyesDistance()
@@ -157,8 +163,7 @@ class AndroidFacialDetection : FacialDetection {
 				}
 
 				// Cleanup
-				if (bitmapForDetection !== rotated) bitmapForDetection.recycle()
-				rotated.recycle()
+				bitmapForDetection.recycle()
 
 				rects
 			} catch (e: Exception) {
@@ -166,5 +171,9 @@ class AndroidFacialDetection : FacialDetection {
 				emptyList()
 			}
 		}
+	}
+
+	companion object {
+		private const val MAX_FACES = 10
 	}
 }
