@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import com.darkrockstudios.app.securecamera.auth.AuthorizationRepository
 import com.darkrockstudios.app.securecamera.navigation.AppNavHost
 import com.darkrockstudios.app.securecamera.navigation.NavController
@@ -20,7 +21,7 @@ import org.koin.compose.koinInject
 @Composable
 fun App(
 	capturePhoto: MutableState<Boolean?>,
-	backStack: NavBackStack,
+	backStack: NavBackStack<NavKey>,
 	navController: NavController
 ) {
 	KoinContext {

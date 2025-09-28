@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
-import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.darkrockstudios.app.securecamera.R
@@ -31,7 +30,7 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 @OptIn(ExperimentalEncodingApi::class)
 @Composable
 fun AppNavHost(
-	backStack: NavBackStack,
+	backStack: NavBackStack<NavKey>,
 	navController: NavController,
 	capturePhoto: MutableState<Boolean?>,
 	modifier: Modifier = Modifier,

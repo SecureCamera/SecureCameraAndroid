@@ -19,7 +19,7 @@ class NavOptions {
 }
 
 class Nav3CompatController(
-	private val backStack: NavBackStack
+	private val backStack: NavBackStack<NavKey>
 ) : NavController {
 	override fun navigate(key: NavKey, builder: (NavOptions.() -> Unit)?) {
 		val opts = NavOptions().apply { builder?.invoke(this) }
