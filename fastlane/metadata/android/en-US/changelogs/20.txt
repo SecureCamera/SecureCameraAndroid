@@ -1,0 +1,2 @@
+- Added auto-focus on faces
+- Improved manual focus on tap
