@@ -2,6 +2,8 @@ package com.darkrockstudios.app.securecamera.obfuscation
 
 import android.graphics.Bitmap
 import android.graphics.RectF
+import androidx.annotation.OptIn
+import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageProxy
 import androidx.compose.ui.unit.IntSize
 import com.darkrockstudios.app.securecamera.camera.mapRectToPreview
@@ -62,6 +64,7 @@ class MlFacialDetection : FacialDetection {
 		}
 	}
 
+	@OptIn(ExperimentalGetImage::class)
 	override suspend fun processForFacesPreview(
 		image: ImageProxy,
 		previewWidth: Int,
@@ -70,11 +73,16 @@ class MlFacialDetection : FacialDetection {
 	): List<RectF> {
 		val mediaImage = image.image ?: return emptyList()
 		val rotation = image.imageInfo.rotationDegrees
-		val inputImage = InputImage.fromMediaImage(mediaImage, rotation)
+		val inputImage: InputImage = InputImage.fromMediaImage(mediaImage, rotation)
 
 		return suspendCancellableCoroutine { continuation ->
 			realTimeDetector.process(inputImage)
 				.addOnSuccessListener { foundFaces ->
+					if (foundFaces.isEmpty()) {
+						continuation.resume(emptyList())
+						return@addOnSuccessListener
+					}
+
 					val mapper = mapRectToPreview(
 						sourceWidth = inputImage.width,
 						sourceHeight = inputImage.height,
