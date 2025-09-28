@@ -1,7 +1,16 @@
 package com.darkrockstudios.app.securecamera.camera
 
-import android.graphics.*
+import android.graphics.Bitmap
 import android.graphics.Bitmap.createBitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.ImageFormat
+import android.graphics.Matrix
+import android.graphics.Rect
+import android.graphics.YuvImage
+import android.media.Image
+import androidx.annotation.OptIn
+import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageProxy
 import timber.log.Timber
 import java.io.ByteArrayOutputStream
@@ -21,7 +30,12 @@ internal fun Bitmap.toJpegByteArray(quality: Int = 90): ByteArray {
 
 internal fun imageProxyToBytes(proxy: ImageProxy): ByteArray {
 	val buffer: ByteBuffer = proxy.planes[0].buffer
-	return ByteArray(buffer.remaining()).also { buffer.get(it) }
+	val size = buffer.remaining()
+
+	val pool = threadLocalBufferPool.get()!!
+	val bytes = pool.getYuvBuffer(size)
+
+	return bytes.also { buffer.get(it) }
 }
 
 /**
@@ -29,6 +43,7 @@ internal fun imageProxyToBytes(proxy: ImageProxy): ByteArray {
  * Returns a rotated bitmap matching the display orientation.
  * Optionally returns the bitmap in the desiredConfig to avoid extra conversions.
  */
+@OptIn(ExperimentalGetImage::class)
 internal fun imageProxyToBitmap(
 	proxy: ImageProxy,
 	desiredConfig: Bitmap.Config = Bitmap.Config.ARGB_8888,
@@ -44,7 +59,6 @@ internal fun imageProxyToBitmap(
 				}
 			}
 
-			// TODO: This path is horrendously optimized, must refactor it for efficiency
 			ImageFormat.YUV_420_888 -> {
 				val image = proxy.image ?: return null
 				val nv21 = yuv420888ToNv21(image)
@@ -87,12 +101,14 @@ internal fun imageProxyToBitmap(
 	}
 }
 
-private fun yuv420888ToNv21(image: android.media.Image): ByteArray {
+private fun yuv420888ToNv21(image: Image): ByteArray {
 	val width = image.width
 	val height = image.height
 	val ySize = width * height
 	val uvSize = width * height / 2
-	val out = ByteArray(ySize + uvSize)
+
+	val pool = threadLocalBufferPool.get()!!
+	val out = pool.getNv21BufferBuffer(ySize + uvSize)
 
 	// Copy Y plane
 	val yPlane = image.planes[0]
@@ -128,4 +144,34 @@ private fun yuv420888ToNv21(image: android.media.Image): ByteArray {
 	}
 
 	return out
+}
+
+/**
+ * Thread-local buffer pools to avoid allocations in tight loops
+ */
+private val threadLocalBufferPool = ThreadLocal.withInitial {
+	BufferPool()
+}
+
+private class BufferPool {
+	var nv21Buffer: ByteArray? = null
+	var yuvBuffer: ByteArray? = null
+
+	fun getYuvBuffer(size: Int): ByteArray {
+		val buffer = yuvBuffer
+		return if (buffer != null && buffer.size >= size) {
+			buffer
+		} else {
+			ByteArray(size).also { yuvBuffer = it }
+		}
+	}
+
+	fun getNv21BufferBuffer(size: Int): ByteArray {
+		val buffer = nv21Buffer
+		return if (buffer != null && buffer.size >= size) {
+			buffer
+		} else {
+			ByteArray(size).also { nv21Buffer = it }
+		}
+	}
 }
