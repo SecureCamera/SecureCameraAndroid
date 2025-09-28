@@ -61,12 +61,6 @@ fun CameraPreview(
 ) {
 	val scope = rememberCoroutineScope()
 
-	// Attach face detection once when state is ready
-	LaunchedEffect(cameraState) {
-		val detector = com.darkrockstudios.app.securecamera.obfuscation.MlFacialDetection()
-		cameraState.enableFaceDetection(detector)
-	}
-
 	// Track the display size for focus calculations
 	BoxWithConstraints(
 		modifier = modifier

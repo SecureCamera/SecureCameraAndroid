@@ -14,7 +14,7 @@ import timber.log.Timber
 import kotlin.coroutines.resume
 
 class MlFacialDetection : FacialDetection {
-	private val detector = FaceDetection.getClient(
+	private val accurateDetector = FaceDetection.getClient(
 		FaceDetectorOptions.Builder()
 			.setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
 			.setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
@@ -22,11 +22,19 @@ class MlFacialDetection : FacialDetection {
 			.build()
 	)
 
+	private val realTimeDetector = FaceDetection.getClient(
+		FaceDetectorOptions.Builder()
+			.setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_NONE)
+			.setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
+			.setMinFaceSize(0.1f)
+			.build()
+	)
+
 	override suspend fun processForFaces(bitmap: Bitmap): List<FacialDetection.FoundFace> {
 		val inputImage = InputImage.fromBitmap(bitmap, 0)
 
 		return suspendCancellableCoroutine { continuation ->
-			detector.process(inputImage)
+			accurateDetector.process(inputImage)
 				.addOnSuccessListener { foundFaces ->
 					val newRegions = foundFaces.map { face ->
 						val leftEye =
@@ -48,7 +56,7 @@ class MlFacialDetection : FacialDetection {
 					}
 					continuation.resume(newRegions)
 				}.addOnFailureListener { e ->
-					Timber.Forest.e(e, "Failed face detection in Image")
+					Timber.e(e, "Failed face detection in Image")
 					continuation.resume(emptyList())
 				}
 		}
@@ -65,7 +73,7 @@ class MlFacialDetection : FacialDetection {
 		val inputImage = InputImage.fromMediaImage(mediaImage, rotation)
 
 		return suspendCancellableCoroutine { continuation ->
-			detector.process(inputImage)
+			realTimeDetector.process(inputImage)
 				.addOnSuccessListener { foundFaces ->
 					val mapper = mapRectToPreview(
 						sourceWidth = inputImage.width,

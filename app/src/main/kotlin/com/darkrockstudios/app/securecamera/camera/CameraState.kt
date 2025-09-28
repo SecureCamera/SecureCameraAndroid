@@ -33,7 +33,9 @@ class CameraState internal constructor(
 	initialLensFacing: Int = CameraSelector.LENS_FACING_BACK,
 	initialFlashMode: Int = ImageCapture.FLASH_MODE_OFF,
 ) : KoinComponent {
+
 	private val clock: Clock by inject()
+	private val facialDetection: FacialDetection by inject()
 
 	private val cameraExecutor: ExecutorService = Executors.newSingleThreadExecutor()
 	private val analysisExecutor: ExecutorService = Executors.newSingleThreadExecutor()
@@ -197,7 +199,10 @@ class CameraState internal constructor(
 
 		imageAnalysis = ImageAnalysis.Builder()
 			.setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-			.build()
+			.build().apply {
+				val analyzer = createFaceDetector(facialDetection)
+				setAnalyzer(analysisExecutor, analyzer)
+			}
 
 		val selector = CameraSelector.Builder()
 			.requireLensFacing(lensFacing)
@@ -212,28 +217,22 @@ class CameraState internal constructor(
 				preview,
 				imageCapture,
 				imageAnalysis
-			)
-
-			camera?.cameraInfo?.zoomState?.value?.let { zoomState ->
-				minZoom = zoomState.minZoomRatio
-				maxZoom = zoomState.maxZoomRatio
+			).apply {
+				cameraInfo.zoomState.value?.let { zoomState ->
+					minZoom = zoomState.minZoomRatio
+					maxZoom = zoomState.maxZoomRatio
+				}
 			}
 		} catch (e: Exception) {
 			Timber.e(e)
 		}
 	}
 
-	private fun setAnalyzer(analyzer: ImageAnalysis.Analyzer?) {
-		imageAnalysis?.clearAnalyzer()
-		if (analyzer != null) imageAnalysis?.setAnalyzer(analysisExecutor, analyzer)
-	}
-
 	/**
 	 * Enable face detection and internal auto-focus behavior. Business logic lives here.
 	 */
-	fun enableFaceDetection(detector: FacialDetection) {
-		setAnalyzer(
-			FacialDetectionAnalyzer(
+	private fun createFaceDetector(detector: FacialDetection): FacialDetectionAnalyzer {
+		return FacialDetectionAnalyzer(
 				scope = analysisScope,
 				detector = detector,
 				getPreviewSize = { displaySize },
@@ -262,7 +261,6 @@ class CameraState internal constructor(
 					}
 				}
 			)
-		)
 	}
 
 	internal fun cleanup() {
