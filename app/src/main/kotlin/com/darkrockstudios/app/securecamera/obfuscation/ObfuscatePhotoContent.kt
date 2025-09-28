@@ -14,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
@@ -259,6 +260,7 @@ fun ObfuscatePhotoContent(
 									}
 								}
 						) {
+							val boxStrokeWidthPx = 2.dp.toPx()
 							if (imageWidth > 0 && imageHeight > 0) {
 								val scaleX = imageWidth / it.width
 								val scaleY = imageHeight / it.height
@@ -279,11 +281,12 @@ fun ObfuscatePhotoContent(
 										} else {
 											Color.Blue
 										}
-										drawRect(
+										drawRoundRect(
 											color = color,
 											topLeft = Offset(scaledLeft, scaledTop),
 											size = Size(scaledRight - scaledLeft, scaledBottom - scaledTop),
-											style = Stroke(width = 2.dp.toPx())
+											cornerRadius = CornerRadius(12f, 12f),
+											style = Stroke(width = boxStrokeWidthPx)
 										)
 									}
 								}
@@ -301,7 +304,7 @@ fun ObfuscatePhotoContent(
 										color = Color.Blue,
 										topLeft = Offset(scaledLeft, scaledTop),
 										size = Size(scaledRight - scaledLeft, scaledBottom - scaledTop),
-										style = Stroke(width = 2.dp.toPx())
+										style = Stroke(width = boxStrokeWidthPx)
 									)
 								}
 							}
