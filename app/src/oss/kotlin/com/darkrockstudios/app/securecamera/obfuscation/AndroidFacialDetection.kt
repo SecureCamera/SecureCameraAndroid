@@ -1,6 +1,10 @@
 package com.darkrockstudios.app.securecamera.obfuscation
 
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.PointF
+import android.graphics.Rect
+import android.graphics.RectF
 import android.media.FaceDetector
 import androidx.camera.core.ImageProxy
 import androidx.core.graphics.createBitmap
@@ -161,9 +165,6 @@ class AndroidFacialDetection : FacialDetection {
 						rects.add(mapper(r))
 					}
 				}
-
-				// Cleanup
-				bitmapForDetection.recycle()
 
 				rects
 			} catch (e: Exception) {

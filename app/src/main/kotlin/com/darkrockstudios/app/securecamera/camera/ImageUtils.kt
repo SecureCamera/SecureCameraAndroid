@@ -66,8 +66,7 @@ internal fun imageProxyToBitmap(
 				val out = ByteArrayOutputStream()
 				yuvImage.compressToJpeg(Rect(0, 0, proxy.width, proxy.height), 100, out)
 				val jpegBytes = out.toByteArray()
-				val opts = BitmapFactory.Options().apply { inPreferredConfig = desiredConfig }
-				BitmapFactory.decodeByteArray(jpegBytes, 0, jpegBytes.size, opts)?.let { bmp ->
+				decodeToBitmap(jpegBytes, image.width, image.height, desiredConfig)?.let { bmp ->
 					val rotation = proxy.imageInfo.rotationDegrees
 					if (rotation == 0) bmp else bmp.rotate(rotation)
 				}
@@ -88,6 +87,7 @@ internal fun imageProxyToBitmap(
 			if (r.config == desiredConfig) {
 				r
 			} else {
+				Timber.w("Final bitmap was not in the correct configuration, recreating...")
 				// Consolidate conversion to desired config here to avoid extra allocations later
 				createBitmap(r.width, r.height, desiredConfig).also { target ->
 					Canvas(target).drawBitmap(r, 0f, 0f, null)
@@ -146,6 +146,27 @@ private fun yuv420888ToNv21(image: Image): ByteArray {
 	return out
 }
 
+private val decodeOpts = BitmapFactory.Options().apply {
+	inMutable = true
+}
+
+private fun decodeToBitmap(
+	jpegBytes: ByteArray,
+	width: Int,
+	height: Int,
+	config: Bitmap.Config
+): Bitmap? {
+	val opts = decodeOpts
+
+	val pool = threadLocalBufferPool.get()!!
+	val bitmap = pool.getScratchBitmap(width = width, height = height, config = config)
+
+	opts.inBitmap = bitmap
+	opts.inPreferredConfig = config
+
+	return BitmapFactory.decodeByteArray(jpegBytes, 0, jpegBytes.size, opts)
+}
+
 /**
  * Thread-local buffer pools to avoid allocations in tight loops
  */
@@ -156,6 +177,7 @@ private val threadLocalBufferPool = ThreadLocal.withInitial {
 private class BufferPool {
 	var nv21Buffer: ByteArray? = null
 	var yuvBuffer: ByteArray? = null
+	var scratchBitmap: Bitmap? = null
 
 	fun getYuvBuffer(size: Int): ByteArray {
 		val buffer = yuvBuffer
@@ -172,6 +194,18 @@ private class BufferPool {
 			buffer
 		} else {
 			ByteArray(size).also { nv21Buffer = it }
+		}
+	}
+
+	fun getScratchBitmap(width: Int, height: Int, config: Bitmap.Config): Bitmap {
+		val bitmap = scratchBitmap
+		return if (bitmap != null && bitmap.width == width && bitmap.height == height && bitmap.config == config) {
+			bitmap
+		} else {
+			bitmap?.recycle()
+			val newBitmap = createBitmap(width, height, config)
+			scratchBitmap = newBitmap
+			newBitmap
 		}
 	}
 }
