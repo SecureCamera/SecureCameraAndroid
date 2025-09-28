@@ -49,6 +49,18 @@ Attacks come in many forms, from accidental swipes, to intrusive surveillance, a
 
 ---
 
+## 🪨 Dark Rock Studios
+
+[**Dark Rock Studios**](https://darkrock.studio/) is all about building **Free and Open Source Software**.
+
+🐛 Found bugs?  
+💡 Have suggestions?  
+📚 Want to help translate?  
+🎮 Interested in our other apps?  
+👉 Join our community of Open Source enthusiasts on [**Discord**](https://discord.gg/ju2RQa5x8W)!
+
+---
+
 ## Contributing
 
 Pull requests are happily accepted.
