@@ -61,24 +61,6 @@ Attacks come in many forms, from accidental swipes, to intrusive surveillance, a
 
 ---
 
-## Contributing
-
-Pull requests are happily accepted.
-
-Start with an issue or draft PR and we can talk it through.
-
-### Automated Publishing
-
-The project uses GitHub Actions to automatically build and publish new releases to Google Play when a tag with the
-format `v*` (e.g., `v1.0.0`) is pushed. See the [GitHub Actions workflow documentation](.github/workflows/README.md) for
-details on how this works and the required setup.
-
-The project includes a pre-configured [FastLane](https://fastlane.tools/) setup for automating the deployment process.
-See the [FastLane documentation](fastlane/README.md) for details on how to use it for manual deployments or to customize
-the metadata.
-
----
-
 ## License
 
 SnapSafe is released under the [MIT License](LICENSE). Use it, fork it, improve it—just keep it open.
@@ -88,3 +70,15 @@ SnapSafe is released under the [MIT License](LICENSE). Use it, fork it, improve
 ## Privacy
 
 Our full, ultra‑brief Privacy Policy lives in [PRIVACY.md](PRIVACY.md). Spoiler: we collect nothing.
+
+---
+
+## Development
+
+See [docs/HOW-TO-RELEASE](docs/HOW-TO-RELEASE.md) on how to publish a new release.
+
+### Contributing
+
+Pull requests are happily accepted.
+
+Start with an issue or draft PR and we can talk it through.
