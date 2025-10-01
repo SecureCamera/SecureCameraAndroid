@@ -13,6 +13,7 @@ _Available on:_
 
 [![Build](https://github.com/SecureCamera/SecureCameraAndroid/actions/workflows/build.yml/badge.svg)](https://github.com/SecureCamera/SecureCameraAndroid/actions/workflows/build.yml)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/8fc95b1f8c134ddfae9547226c753402)](https://app.codacy.com/gh/SecureCamera/SecureCameraAndroid/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+[![Crowdin](https://badges.crowdin.net/snap-safe-android/localized.svg)](https://crowdin.com/project/snap-safe-android)
 
 ----
 
