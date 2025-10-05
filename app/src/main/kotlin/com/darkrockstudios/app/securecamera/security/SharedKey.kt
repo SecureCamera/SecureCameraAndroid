@@ -2,7 +2,6 @@ package com.darkrockstudios.app.securecamera.security
 
 import dev.whyoleg.cryptography.random.CryptographyRandom
 import java.nio.ByteBuffer
-import kotlin.random.Random
 
 class ShardedKey(
 	key: ByteArray
@@ -19,26 +18,6 @@ class ShardedKey(
 		CryptographyRandom.nextBytes(part1Array)
 		part1.put(part1Array)
 		part1.flip()
-
-		// Best effort to ensure the two key parts don't live next to each other in memory.
-		// This will be released once the constructor returns (or when ever the GC runs next)
-		val spacerSize = Random.nextInt(978, 2893)
-		val spacer = ByteBuffer.allocateDirect(spacerSize)
-		val spacerArray = ByteArray(spacerSize)
-		CryptographyRandom.nextBytes(spacerArray)
-		spacer.put(spacerArray)
-		spacer.flip()
-
-		// Use it so it doesn't get optimized out
-		(0..Random.nextInt(13)).forEachIndexed { i, _ ->
-			val x = spacer.get(0) + spacer.get(i)
-			// Almost never true, but compiler doesn't know that
-			if (System.nanoTime() % 10000 == 0L) {
-				// Side effect that's rarely executed
-				println("$x")
-				println(System.identityHashCode(spacer))
-			}
-		}
 
 		// Randomly size the storage buffer so it is not the exact length of an AES key
 		val part2Size = keySize + CryptographyRandom.nextInt(5, 111)
