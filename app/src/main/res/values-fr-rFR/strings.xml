@@ -103,6 +103,7 @@
     <string name="camera_toggle_content_description">Activer/désactiver la caméra</string>
     <string name="camera_close_controls_content_description">Fermer les contrôles</string>
     <string name="camera_flash_text">Clignoter</string>
+    <string name="camera_face_tracking">Auto-Focus</string>
     <string name="camera_capture_content_description">Capturer</string>
     <string name="camera_gallery_content_description">Galerie</string>
     <string name="camera_captured_image_content_description">Image capturée</string>
