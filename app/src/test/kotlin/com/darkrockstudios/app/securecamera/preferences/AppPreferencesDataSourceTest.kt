@@ -53,6 +53,16 @@ class AppPreferencesDataSourceTest {
 	}
 
 	@Test
+	fun `enableFaceTracking defaults to true and is settable`() = runTest {
+		val sut = newSut()
+		assertEquals(true, sut.enableFaceTracking.first())
+		sut.setEnableFaceTracking(false)
+		assertEquals(false, sut.enableFaceTracking.first())
+		sut.setEnableFaceTracking(true)
+		assertEquals(true, sut.enableFaceTracking.first())
+	}
+
+	@Test
 	fun `session timeout default and set-get`() = runTest {
 		val sut = newSut()
 		assertEquals(PreferencesAppSettingsDataSource.SESSION_TIMEOUT_DEFAULT, sut.sessionTimeout.first())
@@ -134,6 +144,7 @@ class AppPreferencesDataSourceTest {
 		assertEquals(false, sut.hasCompletedIntro.first())
 		assertEquals(true, sut.sanitizeFileName.first())
 		assertEquals(true, sut.sanitizeMetadata.first())
+		assertEquals(false, sut.enableFaceTracking.first())
 		assertEquals(0, sut.getFailedPinAttempts())
 		assertEquals(0L, sut.getLastFailedAttemptTimestamp())
 		assertEquals(PreferencesAppSettingsDataSource.SESSION_TIMEOUT_DEFAULT, sut.sessionTimeout.first())

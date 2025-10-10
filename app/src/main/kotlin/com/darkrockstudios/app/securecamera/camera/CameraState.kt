@@ -8,7 +8,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntSize
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.coroutineScope
 import com.darkrockstudios.app.securecamera.obfuscation.FacialDetection
+import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
 import kotlinx.coroutines.*
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -36,7 +38,9 @@ class CameraState internal constructor(
 
 	private val clock: Clock by inject()
 	private val facialDetection: FacialDetection by inject()
+	private val preferences: AppSettingsDataSource by inject()
 
+	private var faceAnalyzer: FacialDetectionAnalyzer? = null
 	private val cameraExecutor: ExecutorService = Executors.newSingleThreadExecutor()
 	private val analysisExecutor: ExecutorService = Executors.newSingleThreadExecutor()
 	private val analysisScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -69,8 +73,35 @@ class CameraState internal constructor(
 	var displaySize by mutableStateOf<IntSize?>(null)
 		internal set
 
+	var faceTracking by mutableStateOf<Boolean?>(null)
+		internal set
+
 	var faces by mutableStateOf<List<FaceBox>>(emptyList())
 		private set
+
+	init {
+		observePreferences()
+	}
+
+	private fun observePreferences() {
+		lifecycleOwner.lifecycle.coroutineScope.launch {
+			preferences.enableFaceTracking.collect { enabled ->
+				faceTracking = enabled
+			}
+		}
+	}
+
+	fun setEnableFaceTracking(enabled: Boolean) {
+		if (enabled.not()) {
+			faces = emptyList()
+			faceFocusRect = null
+		}
+		faceAnalyzer?.enabled = enabled
+
+		lifecycleOwner.lifecycle.coroutineScope.launch {
+			preferences.setEnableFaceTracking(enabled)
+		}
+	}
 
 	fun clearFocusOffset() {
 		manualFocusOffset = null
@@ -201,6 +232,7 @@ class CameraState internal constructor(
 			.setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
 			.build().apply {
 				val analyzer = createFaceDetector(facialDetection)
+				faceAnalyzer = analyzer
 				setAnalyzer(analysisExecutor, analyzer)
 			}
 
@@ -238,6 +270,8 @@ class CameraState internal constructor(
 				getPreviewSize = { displaySize },
 				isFrontCamera = { lensFacing == CameraSelector.LENS_FACING_FRONT },
 				onFaces = { rects: List<RectF> ->
+					if (faceTracking != true) return@FacialDetectionAnalyzer
+
 					faces = rects.map { r -> FaceBox(boundingBox = r) }
 					if (rects.isEmpty()) {
 						faceFocusRect = null
@@ -264,6 +298,7 @@ class CameraState internal constructor(
 	}
 
 	internal fun cleanup() {
+		faceAnalyzer = null
 		imageAnalysis?.clearAnalyzer()
 		analysisScope.cancel()
 		cameraExecutor.shutdown()

@@ -22,9 +22,12 @@ class FacialDetectionAnalyzer(
 	@Volatile
 	private var runningJob: Job? = null
 
+	var enabled: Boolean = true
+
 	override fun analyze(image: ImageProxy) {
-		if (runningJob?.isActive == true) {
-			image.close(); return
+		if (runningJob?.isActive == true || enabled.not()) {
+			image.close()
+			return
 		}
 
 		runningJob = scope.launch(Dispatchers.Default) {

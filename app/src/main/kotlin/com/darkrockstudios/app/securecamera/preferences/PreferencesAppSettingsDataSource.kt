@@ -35,6 +35,7 @@ class PreferencesAppSettingsDataSource(
 		private val POISON_PILL_PIN_PLAIN = stringPreferencesKey("poison_pill_pin_plain")
 		private val SANITIZE_FILE_NAME = booleanPreferencesKey("sanitize_file_name")
 		private val SANITIZE_METADATA = booleanPreferencesKey("sanitize_metadata")
+		private val FACE_TRACKING_ENABLED = booleanPreferencesKey("face_tracking_enabled")
 		private val FAILED_PIN_ATTEMPTS = stringPreferencesKey("failed_pin_attempts")
 		private val LAST_FAILED_ATTEMPT_TIMESTAMP = stringPreferencesKey("last_failed_attempt_timestamp")
 		private val SESSION_TIMEOUT = stringPreferencesKey("session_timeout")
@@ -92,6 +93,15 @@ class PreferencesAppSettingsDataSource(
 	override val sanitizeMetadataDefault = true
 
 	/**
+	 * Enable face tracking preference
+	 */
+	override val enableFaceTracking: Flow<Boolean> = dataStore.data
+		.map { preferences ->
+			preferences[FACE_TRACKING_ENABLED] ?: enableFaceTrackingDefault
+		}
+	override val enableFaceTrackingDefault = true
+
+	/**
 	 * Get the session timeout preference
 	 */
 	override val sessionTimeout: Flow<Long> = dataStore.data
@@ -134,6 +144,15 @@ class PreferencesAppSettingsDataSource(
 	override suspend fun setSanitizeMetadata(sanitize: Boolean) {
 		dataStore.edit { preferences ->
 			preferences[SANITIZE_METADATA] = sanitize
+		}
+	}
+
+	/**
+	 * Set the enable face tracking preference
+	 */
+	override suspend fun setEnableFaceTracking(enable: Boolean) {
+		dataStore.edit { preferences ->
+			preferences[FACE_TRACKING_ENABLED] = enable
 		}
 	}
 

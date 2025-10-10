@@ -22,6 +22,12 @@ interface AppSettingsDataSource {
 	val sanitizeMetadataDefault: Boolean
 
 	/**
+	 * Enable face tracking for features like face-aware focus or blurring
+	 */
+	val enableFaceTracking: Flow<Boolean>
+	val enableFaceTrackingDefault: Boolean
+
+	/**
 	 * Get the session timeout preference
 	 */
 	val sessionTimeout: Flow<Long>
@@ -48,6 +54,11 @@ interface AppSettingsDataSource {
 	 * Set the sanitize metadata preference
 	 */
 	suspend fun setSanitizeMetadata(sanitize: Boolean)
+
+	/**
+	 * Set the enable face tracking preference
+	 */
+	suspend fun setEnableFaceTracking(enable: Boolean)
 
 	/**
 	 * Get the current failed PIN attempts count
