@@ -103,7 +103,7 @@
     <string name="camera_toggle_content_description">Перемкнути камеру</string>
     <string name="camera_close_controls_content_description">Закрити керування</string>
     <string name="camera_flash_text">Флеш</string>
-    <string name="camera_face_tracking">Auto-Focus</string>
+    <string name="camera_face_tracking">Автофокус</string>
     <string name="camera_capture_content_description">Захоплення</string>
     <string name="camera_gallery_content_description">Галерея</string>
     <string name="camera_captured_image_content_description">Захоплене зображення</string>
