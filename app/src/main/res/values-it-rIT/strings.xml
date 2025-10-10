@@ -103,6 +103,7 @@
     <string name="camera_toggle_content_description">Attiva/Disattiva Fotocamera</string>
     <string name="camera_close_controls_content_description">Chiudi Controlli</string>
     <string name="camera_flash_text">Flash</string>
+    <string name="camera_face_tracking">Auto-Focus</string>
     <string name="camera_capture_content_description">Cattura</string>
     <string name="camera_gallery_content_description">Galleria</string>
     <string name="camera_captured_image_content_description">Immagine Catturata</string>
