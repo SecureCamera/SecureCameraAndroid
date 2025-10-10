@@ -111,6 +111,7 @@
     <string name="camera_toggle_content_description">Toggle Camera</string>
     <string name="camera_close_controls_content_description">Close Controls</string>
     <string name="camera_flash_text">Flash</string>
+	<string name="camera_face_tracking">Auto-Focus</string>
     <string name="camera_capture_content_description">Capture</string>
     <string name="camera_gallery_content_description">Gallery</string>
     <string name="camera_captured_image_content_description">Captured Image</string>
