@@ -103,7 +103,7 @@
     <string name="camera_toggle_content_description">切换相机</string>
     <string name="camera_close_controls_content_description">关闭控件</string>
     <string name="camera_flash_text">闪光灯</string>
-    <string name="camera_face_tracking">Auto-Focus</string>
+    <string name="camera_face_tracking">自动对焦</string>
     <string name="camera_capture_content_description">抓取</string>
     <string name="camera_gallery_content_description">相册</string>
     <string name="camera_captured_image_content_description">捕获的图像</string>
