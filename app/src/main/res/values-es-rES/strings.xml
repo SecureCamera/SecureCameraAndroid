@@ -103,7 +103,7 @@
     <string name="camera_toggle_content_description">Cambiar cámara</string>
     <string name="camera_close_controls_content_description">Cerrar controles</string>
     <string name="camera_flash_text">Flashear</string>
-    <string name="camera_face_tracking">Auto-Focus</string>
+    <string name="camera_face_tracking">Enfoque automático</string>
     <string name="camera_capture_content_description">Captura</string>
     <string name="camera_gallery_content_description">Galería</string>
     <string name="camera_captured_image_content_description">Imagen capturada</string>
