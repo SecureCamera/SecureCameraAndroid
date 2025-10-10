@@ -7,19 +7,13 @@ import kotlin.math.min
 
 class ReleaseLogTree : Timber.Tree() {
 	override fun isLoggable(tag: String?, priority: Int): Boolean {
-		// Don't log VERBOSE or DEBUG
-		if (priority == Log.VERBOSE || priority == Log.DEBUG) {
-			return false
-		}
-
-		// Log only ERROR, WARN and WTF, INFO
-		return true
+		// Only log ERROR and WTF in release builds
+		return priority >= Log.ERROR
 	}
 
 	override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
 		if (isLoggable(tag, priority)) {
 			// Message is short enough, doesn't need to be broken into chunks
-
 			if (message.length < MAX_LOG_LENGTH) {
 				if (priority == Log.ASSERT) {
 					Log.wtf(tag, message)
