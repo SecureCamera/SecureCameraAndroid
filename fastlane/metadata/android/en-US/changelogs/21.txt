@@ -1,0 +1,3 @@
+- Optimized face tracking performance
+- Added FaceTracking toggle
+- Fixed minor UI bug on PIN verification
