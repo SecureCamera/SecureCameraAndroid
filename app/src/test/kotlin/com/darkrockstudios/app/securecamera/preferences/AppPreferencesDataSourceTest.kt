@@ -144,7 +144,7 @@ class AppPreferencesDataSourceTest {
 		assertEquals(false, sut.hasCompletedIntro.first())
 		assertEquals(true, sut.sanitizeFileName.first())
 		assertEquals(true, sut.sanitizeMetadata.first())
-		assertEquals(false, sut.enableFaceTracking.first())
+		assertEquals(true, sut.enableFaceTracking.first())
 		assertEquals(0, sut.getFailedPinAttempts())
 		assertEquals(0L, sut.getLastFailedAttemptTimestamp())
 		assertEquals(PreferencesAppSettingsDataSource.SESSION_TIMEOUT_DEFAULT, sut.sessionTimeout.first())
