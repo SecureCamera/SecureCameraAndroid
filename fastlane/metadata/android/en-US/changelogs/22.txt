@@ -1,0 +1,2 @@
+- Fixed INTERNET permission being present
+- Added translations
