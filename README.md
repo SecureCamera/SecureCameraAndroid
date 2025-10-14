@@ -26,7 +26,7 @@ Attacks come in many forms, from accidental swipes, to intrusive surveillance, a
 
 ### Key Features
 
-* 🔒 **Zero‑Leak Design** – The app has no internet access; android backups are prevented..
+* 🔒 **Zero‑Leak Design** – The app has no internet access; android backups are prevented.
 * 🛡️ **Fully Encrypted** – Shots are written to encrypted, app‑private storage.
 * 🔢 **PIN‑Locked Gallery** – A separate PIN stands between curious thumbs and your photos.
 * 📤 **Secure Sharing** – Metadata is scrubbed and filenames are randomized when you share.
