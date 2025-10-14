@@ -17,7 +17,7 @@ _Available on:_
 
 ----
 
-## Why Snap Safe?
+## Why SnapSafe?
 
 **SnapSafe** is a camera app that has been engineered from the ground up to protect your photos.
 
