@@ -1,4 +1,4 @@
-# Snap Safe
+# SnapSafe
 *The camera that minds its own business.*
 
 _Available on:_
