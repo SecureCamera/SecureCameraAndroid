@@ -7,22 +7,21 @@ on:
     branches: [ "**" ]
 
 jobs:
-  build:
+  build-and-unit-tests:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        api-level: [ 34 ]
-
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up JDK
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
 
       - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Gradle cache
         uses: gradle/actions/setup-gradle@v4
 
       - name: Grant execute permission for gradlew
@@ -37,49 +36,69 @@ jobs:
       - name: Run Unit Tests
         run: ./gradlew test
 
-      #      - name: Enable KVM
-      #        run: |
-      #          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-      #          sudo udevadm control --reload-rules
-      #          sudo udevadm trigger --name-match=kvm
-      #
-      #      - name: AVD cache
-      #        uses: actions/cache@v4
-      #        id: avd-cache
-      #        with:
-      #          path: |
-      #            ~/.android/avd/*
-      #            ~/.android/adb*
-      #          key: avd-${{ matrix.api-level }}
-      #
-      #      - name: create AVD and generate snapshot for caching
-      #        if: steps.avd-cache.outputs.cache-hit != 'true'
-      #        uses: reactivecircus/android-emulator-runner@v2
-      #        with:
-      #          api-level: ${{ matrix.api-level }}
-      #          arch: x86_64
-      #          target: default
-      #          force-avd-creation: false
-      #          disable-animations: false
-      #          script: echo "Generated AVD snapshot for caching."
-      #
-      #      - name: Run Instrumentation Tests
-      #        uses: reactivecircus/android-emulator-runner@v2
-      #        with:
-      #          api-level: ${{ matrix.api-level }}
-      #          arch: x86_64
-      #          target: default
-      #          force-avd-creation: false
-      #          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-front emulated -camera-back emulated
-      #          disable-animations: true
-      #          script: |
-      #            adb wait-for-device
-      #            adb shell input keyevent 82
-      #            ./gradlew connectedOssDebugAndroidTest --continue
-
-      - name: Upload Test Reports
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: android-test-report
-          path: '**/build/reports/'
+#  instrumentation-tests:
+#    needs: build-and-unit-tests
+#    runs-on: ubuntu-latest
+#    strategy:
+#      matrix:
+#        api-level: [ 29, 33, 36 ]
+#        image-target: [ google_apis ]
+#    steps:
+#      - uses: actions/checkout@v5
+#
+#      - name: Set up JDK
+#        uses: actions/setup-java@v5
+#        with:
+#          distribution: 'temurin'
+#          java-version: '17'
+#
+#      - name: Setup Gradle
+#        uses: gradle/actions/setup-gradle@v4
+#
+#      - name: Grant execute permission for gradlew
+#        run: chmod +x gradlew
+#
+#      - name: Enable KVM
+#        run: |
+#          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+#          sudo udevadm control --reload-rules
+#          sudo udevadm trigger --name-match=kvm
+#
+#      - name: AVD cache
+#        uses: actions/cache@v4
+#        id: avd-cache
+#        with:
+#          path: |
+#            ~/.android/avd/*
+#            ~/.android/adb*
+#          key: avd-${{ matrix.api-level }}-{{ matrix.image-target }}
+#
+#      - name: create AVD and generate snapshot for caching
+#        if: steps.avd-cache.outputs.cache-hit != 'true'
+#        uses: reactivecircus/android-emulator-runner@v2
+#        with:
+#          api-level: ${{ matrix.api-level }}
+#          target: ${{ matrix.image-target }}
+#          arch: x86_64
+#          force-avd-creation: false
+#          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+#          disable-animations: false
+#          script: echo "Generated AVD snapshot for caching."
+#
+#      - name: Run Instrumentation Tests
+#        uses: reactivecircus/android-emulator-runner@v2
+#        with:
+#          api-level: ${{ matrix.api-level }}
+#          target: ${{ matrix.image-target }}
+#          force-avd-creation: false
+#          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+#          disable-animations: true
+#          arch: x86_64
+#          script: ./gradlew connectedCheck
+#
+#      - name: Upload Test Reports
+#        if: failure()
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: android-test-report
+#          path: '**/build/reports/'

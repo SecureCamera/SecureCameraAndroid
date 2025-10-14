@@ -10,7 +10,6 @@ import com.ashampoo.kim.common.convertToPhotoMetadata
 import com.ashampoo.kim.model.GpsCoordinates
 import com.ashampoo.kim.model.MetadataUpdate
 import com.ashampoo.kim.model.TiffOrientation
-import com.darkrockstudios.app.securecamera.security.pin.PinRepository
 import com.darkrockstudios.app.securecamera.security.schemes.EncryptionScheme
 import timber.log.Timber
 import java.io.ByteArrayOutputStream
@@ -23,7 +22,6 @@ import kotlin.time.toJavaInstant
 
 class SecureImageRepository(
 	private val appContext: Context,
-	private val pinRepository: PinRepository,
 	internal val thumbnailCache: ThumbnailCache,
 	private val encryptionScheme: EncryptionScheme,
 ) {
@@ -227,13 +225,12 @@ class SecureImageRepository(
 		val updatedBytes = processImageWithMetadata(bitmap, jpgBytes, quality)
 
 		val dir = getGalleryDirectory()
-		val newImageName = photoDef.photoName.substringBefore(".jpg") + "_cp.jpg"
+		val newImageName = generateCopyName(dir, photoDef.photoName)
 		val newPhotoFile = File(dir, newImageName)
 		val tempFile = File(dir, "$newImageName.tmp")
 
 		encryptAndSaveImage(updatedBytes, tempFile, newPhotoFile)
 
-		// Create a new PhotoDef for the new file
 		val newPhotoDef = PhotoDef(
 			photoName = newImageName,
 			photoFormat = "jpg",
@@ -438,18 +435,15 @@ class SecureImageRepository(
 
 	fun numDecoys(): Int = getDecoyFiles().count()
 
-	suspend fun addDecoyPhoto(photoDef: PhotoDef): Boolean {
+	suspend fun addDecoyPhotoWithKey(photoDef: PhotoDef, keyBytes: ByteArray): Boolean {
 		return if (numDecoys() < MAX_DECOY_PHOTOS) {
 			val jpgBytes = decryptJpg(photoDef)
 			getDecoyDirectory().mkdirs()
 			val decoyFile = getDecoyFile(photoDef)
 
-			val ppp = pinRepository.getHashedPoisonPillPin() ?: return false
-			val pin = pinRepository.getPlainPoisonPillPin() ?: return false
-			val ppk = encryptionScheme.deriveKey(plainPin = pin, hashedPin = ppp)
 			encryptionScheme.encryptToFile(
 				plain = jpgBytes,
-				keyBytes = ppk,
+				keyBytes = keyBytes,
 				targetFile = decoyFile
 			)
 
@@ -474,5 +468,17 @@ class SecureImageRepository(
 		const val DECOYS_DIR = "decoys"
 		const val THUMBNAILS_DIR = ".thumbnails"
 		const val MAX_DECOY_PHOTOS = 10
+
+        internal fun generateCopyName(dir: File, originalName: String): String {
+            val base = originalName.substringBeforeLast(".")
+            val ext = originalName.substringAfterLast('.', "jpg")
+            var candidate = "${base}_cp.${ext}"
+            var i = 1
+            while (File(dir, candidate).exists()) {
+                candidate = "${base}_cp${i}.${ext}"
+                i++
+            }
+            return candidate
+        }
 	}
 }

@@ -1,6 +1,12 @@
 package com.darkrockstudios.app.securecamera.obfuscation
 
 import android.graphics.Bitmap
+import android.graphics.RectF
+import androidx.annotation.OptIn
+import androidx.camera.core.ExperimentalGetImage
+import androidx.camera.core.ImageProxy
+import androidx.compose.ui.unit.IntSize
+import com.darkrockstudios.app.securecamera.camera.mapRectToPreview
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetectorOptions
@@ -10,7 +16,7 @@ import timber.log.Timber
 import kotlin.coroutines.resume
 
 class MlFacialDetection : FacialDetection {
-	private val detector = FaceDetection.getClient(
+	private val accurateDetector = FaceDetection.getClient(
 		FaceDetectorOptions.Builder()
 			.setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
 			.setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
@@ -18,11 +24,19 @@ class MlFacialDetection : FacialDetection {
 			.build()
 	)
 
+	private val realTimeDetector = FaceDetection.getClient(
+		FaceDetectorOptions.Builder()
+			.setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_NONE)
+			.setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
+			.setMinFaceSize(0.1f)
+			.build()
+	)
+
 	override suspend fun processForFaces(bitmap: Bitmap): List<FacialDetection.FoundFace> {
 		val inputImage = InputImage.fromBitmap(bitmap, 0)
 
 		return suspendCancellableCoroutine { continuation ->
-			detector.process(inputImage)
+			accurateDetector.process(inputImage)
 				.addOnSuccessListener { foundFaces ->
 					val newRegions = foundFaces.map { face ->
 						val leftEye =
@@ -44,7 +58,44 @@ class MlFacialDetection : FacialDetection {
 					}
 					continuation.resume(newRegions)
 				}.addOnFailureListener { e ->
-					Timber.Forest.e(e, "Failed face detection in Image")
+					Timber.e(e, "Failed face detection in Image")
+					continuation.resume(emptyList())
+				}
+		}
+	}
+
+	@OptIn(ExperimentalGetImage::class)
+	override suspend fun processForFacesPreview(
+		image: ImageProxy,
+		previewWidth: Int,
+		previewHeight: Int,
+		isFrontCamera: Boolean,
+	): List<RectF> {
+		val mediaImage = image.image ?: return emptyList()
+		val rotation = image.imageInfo.rotationDegrees
+		val inputImage: InputImage = InputImage.fromMediaImage(mediaImage, rotation)
+
+		return suspendCancellableCoroutine { continuation ->
+			realTimeDetector.process(inputImage)
+				.addOnSuccessListener { foundFaces ->
+					if (foundFaces.isEmpty()) {
+						continuation.resume(emptyList())
+						return@addOnSuccessListener
+					}
+
+					val mapper = mapRectToPreview(
+						sourceWidth = inputImage.width,
+						sourceHeight = inputImage.height,
+						rotationDegrees = rotation,
+						isFrontCamera = isFrontCamera,
+						previewSizePx = IntSize(previewWidth, previewHeight),
+					)
+					val rects = foundFaces.map { face ->
+						mapper(RectF(face.boundingBox))
+					}
+					continuation.resume(rects)
+				}.addOnFailureListener { e ->
+					Timber.e(e, "Failed face detection in Image (realtime)")
 					continuation.resume(emptyList())
 				}
 		}

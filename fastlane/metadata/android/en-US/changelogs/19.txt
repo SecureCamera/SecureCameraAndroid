@@ -1,0 +1,4 @@
+- Fixed Intro crash
+- Updated libraries
+- Improved About Screen
+- Relaxed PIN backoff timer

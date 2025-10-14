@@ -1,24 +1,20 @@
 package com.darkrockstudios.app.securecamera.security.pin
 
-import com.darkrockstudios.app.securecamera.preferences.*
-import com.darkrockstudios.app.securecamera.security.DeviceInfo
+import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
+import com.darkrockstudios.app.securecamera.preferences.HashedPin
+import com.darkrockstudios.app.securecamera.security.DeviceInfoDataSource
 import com.darkrockstudios.app.securecamera.security.SchemeConfig
-import com.darkrockstudios.app.securecamera.security.pin.PinRepository.Companion.ARGON_COST
-import com.darkrockstudios.app.securecamera.security.pin.PinRepository.Companion.ARGON_ITERATIONS
 import com.darkrockstudios.app.securecamera.security.schemes.EncryptionScheme
-import com.lambdapioneer.argon2kt.Argon2Kt
-import com.lambdapioneer.argon2kt.Argon2KtResult
-import com.lambdapioneer.argon2kt.Argon2Mode
-import dev.whyoleg.cryptography.random.CryptographyRandom
-import kotlinx.serialization.encodeToString
+import com.darkrockstudios.app.securecamera.utils.base64Decode
+import com.darkrockstudios.app.securecamera.utils.base64Encode
 import kotlinx.serialization.json.Json
 
 class PinRepositoryHardware(
-	private val dataSource: AppPreferencesDataSource,
-	private val encryptionScheme: EncryptionScheme,
-	private val deviceInfo: DeviceInfo,
+    private val dataSource: AppSettingsDataSource,
+    private val encryptionScheme: EncryptionScheme,
+    private val deviceInfo: DeviceInfoDataSource,
+    private val pinCrypto: PinCrypto,
 ) : PinRepository {
-	private val argon2Kt = Argon2Kt()
 
 	override suspend fun setAppPin(
 		pin: String,
@@ -41,32 +37,14 @@ class PinRepositoryHardware(
 	}
 
 	override suspend fun hashPin(pin: String): HashedPin {
-		val salt = CryptographyRandom.nextBytes(16)
-		val password = pin.toByteArray() + deviceInfo.getDeviceIdentifier()
-		val hashResult: Argon2KtResult = argon2Kt.hash(
-			mode = Argon2Mode.ARGON2_I,
-			password = password,
-			salt = salt,
-			tCostInIterations = ARGON_ITERATIONS,
-			mCostInKibibyte = ARGON_COST,
-		)
-
-		return HashedPin(
-			hashResult.encodedOutputAsString().toByteArray().base64EncodeUrlSafe(),
-			salt.base64EncodeUrlSafe()
-		)
+		return pinCrypto.hashPin(pin, deviceInfo.getDeviceIdentifier())
 	}
 
 	override suspend fun verifyPin(
 		inputPin: String,
 		storedHash: HashedPin
 	): Boolean {
-		val password = inputPin.toByteArray() + deviceInfo.getDeviceIdentifier()
-		return argon2Kt.verify(
-			mode = Argon2Mode.ARGON2_I,
-			encoded = String(storedHash.hash.base64DecodeUrlSafe()),
-			password = password,
-		)
+		return pinCrypto.verifyPin(inputPin, storedHash, deviceInfo.getDeviceIdentifier())
 	}
 
 	override suspend fun setPoisonPillPin(pin: String) {

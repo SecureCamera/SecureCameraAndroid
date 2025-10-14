@@ -24,12 +24,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import com.darkrockstudios.app.securecamera.ConfirmDeletePhotoDialog
 import com.darkrockstudios.app.securecamera.R
 import com.darkrockstudios.app.securecamera.camera.PhotoDef
 import com.darkrockstudios.app.securecamera.camera.SecureImageRepository
-import com.darkrockstudios.app.securecamera.navigation.AppDestinations
+import com.darkrockstudios.app.securecamera.navigation.NavController
+import com.darkrockstudios.app.securecamera.navigation.ViewPhoto
 import com.darkrockstudios.app.securecamera.ui.HandleUiEvents
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -107,7 +107,7 @@ fun GalleryContent(
 						if (uiState.isSelectionMode) {
 							viewModel.togglePhotoSelection(photoName)
 						} else {
-							navController.navigate(AppDestinations.createViewPhotoRoute(photoName))
+							navController.navigate(ViewPhoto(photoName))
 						}
 					},
 				)
@@ -135,7 +135,12 @@ private fun PhotoGrid(
 	val scope = rememberCoroutineScope()
 	LazyVerticalGrid(
 		columns = GridCells.Adaptive(minSize = 128.dp),
-		contentPadding = PaddingValues(start = 8.dp, end = 8.dp, bottom = paddingValues.calculateBottomPadding(), top = 0.dp),
+		contentPadding = PaddingValues(
+			start = 8.dp,
+			end = 8.dp,
+			bottom = paddingValues.calculateBottomPadding(),
+			top = 0.dp
+		),
 		horizontalArrangement = Arrangement.spacedBy(8.dp),
 		verticalArrangement = Arrangement.spacedBy(8.dp),
 		modifier = modifier.fillMaxSize()

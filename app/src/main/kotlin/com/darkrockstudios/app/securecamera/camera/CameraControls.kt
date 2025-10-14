@@ -17,16 +17,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.ashampoo.kim.model.GpsCoordinates
 import com.darkrockstudios.app.securecamera.LocationRepository
 import com.darkrockstudios.app.securecamera.R
 import com.darkrockstudios.app.securecamera.RequestLocationPermission
 import com.darkrockstudios.app.securecamera.auth.AuthorizationRepository
 import com.darkrockstudios.app.securecamera.gallery.vibrateDevice
-import com.darkrockstudios.app.securecamera.navigation.AppDestinations
+import com.darkrockstudios.app.securecamera.navigation.Camera
+import com.darkrockstudios.app.securecamera.navigation.NavController
+import com.darkrockstudios.app.securecamera.navigation.PinVerification
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -38,13 +40,13 @@ import kotlin.uuid.ExperimentalUuidApi
 fun CameraControls(
 	cameraController: CameraState,
 	capturePhoto: MutableState<Boolean?>,
-	navController: NavHostController,
+	navController: NavController,
 	paddingValues: PaddingValues,
 ) {
 	val scope = rememberCoroutineScope()
 	var isFlashOn by rememberSaveable(cameraController.flashMode) { mutableStateOf(cameraController.flashMode == ImageCapture.FLASH_MODE_ON) }
 	var isTopControlsVisible by rememberSaveable { mutableStateOf(false) }
-	var activeJobs by remember { mutableStateOf(mutableListOf<kotlinx.coroutines.Job>()) }
+	var activeJobs by remember { mutableStateOf(listOf<kotlinx.coroutines.Job>()) }
 	val isLoading by remember { derivedStateOf { activeJobs.isNotEmpty() } }
 	var isFlashing by rememberSaveable { mutableStateOf(false) }
 	val imageSaver = koinInject<SecureImageRepository>()
@@ -86,7 +88,7 @@ fun CameraControls(
 			}
 			activeJobs = (activeJobs + job).toMutableList()
 		} else {
-			navController.navigate(AppDestinations.createPinVerificationRoute(AppDestinations.CAMERA_ROUTE))
+			navController.navigate(PinVerification(Camera))
 		}
 	}
 
@@ -123,6 +125,7 @@ fun CameraControls(
 			ElevatedButton(
 				onClick = { isTopControlsVisible = true },
 				modifier = Modifier
+					.testTag("more-button")
 					.align(Alignment.TopEnd)
 					.padding(
 						top = paddingValues.calculateTopPadding().plus(16.dp),
@@ -148,9 +151,13 @@ fun CameraControls(
 
 		TopCameraControlsBar(
 			isFlashOn = isFlashOn,
+			isFaceTrackingWorker = cameraController.faceTracking == true,
 			isVisible = isTopControlsVisible,
 			onFlashToggle = {
 				isFlashOn = !isFlashOn
+			},
+			onFaceTrackingToggle = { enabled ->
+				cameraController.setEnableFaceTracking(enabled)
 			},
 			onLensToggle = { cameraController.toggleLens() },
 			onClose = { isTopControlsVisible = false },

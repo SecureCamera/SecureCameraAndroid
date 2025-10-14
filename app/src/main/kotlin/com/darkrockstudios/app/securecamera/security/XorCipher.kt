@@ -1,9 +1,8 @@
-package com.darkrockstudios.app.securecamera.preferences
+package com.darkrockstudios.app.securecamera.security
 
 import java.nio.charset.StandardCharsets
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
-
 
 object XorCipher {
 	@OptIn(ExperimentalEncodingApi::class)

@@ -22,13 +22,13 @@ fun LocationDialog(
 ) {
 	Dialog(onDismissRequest = onDismiss) {
 		Card(
-			modifier = Modifier.Companion
+			modifier = Modifier
 				.fillMaxWidth()
 				.padding(16.dp),
 			shape = MaterialTheme.shapes.medium
 		) {
 			Column(
-				modifier = Modifier.Companion
+				modifier = Modifier
 					.fillMaxWidth()
 					.padding(16.dp)
 			) {
@@ -41,7 +41,7 @@ fun LocationDialog(
 					style = MaterialTheme.typography.headlineSmall
 				)
 
-				Spacer(modifier = Modifier.Companion.height(8.dp))
+				Spacer(modifier = Modifier.height(8.dp))
 
 				Text(
 					text = when (locationPermissionStatus) {
@@ -52,17 +52,17 @@ fun LocationDialog(
 					style = MaterialTheme.typography.bodyMedium
 				)
 
-				Spacer(modifier = Modifier.Companion.height(16.dp))
+				Spacer(modifier = Modifier.height(16.dp))
 
 				Row(
-					modifier = Modifier.Companion.fillMaxWidth(),
+					modifier = Modifier.fillMaxWidth(),
 					horizontalArrangement = Arrangement.End
 				) {
 					TextButton(onClick = onDismiss) {
 						Text(stringResource(id = R.string.cancel_button))
 					}
 
-					Spacer(modifier = Modifier.Companion.width(8.dp))
+					Spacer(modifier = Modifier.width(8.dp))
 
 					Button(
 						onClick = {

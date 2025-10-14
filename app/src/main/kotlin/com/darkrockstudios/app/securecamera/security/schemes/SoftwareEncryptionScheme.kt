@@ -2,7 +2,7 @@ package com.darkrockstudios.app.securecamera.security.schemes
 
 import com.darkrockstudios.app.securecamera.ReentrantMutex
 import com.darkrockstudios.app.securecamera.preferences.HashedPin
-import com.darkrockstudios.app.securecamera.security.DeviceInfo
+import com.darkrockstudios.app.securecamera.security.DeviceInfoDataSource
 import com.darkrockstudios.app.securecamera.security.KeyParams
 import com.darkrockstudios.app.securecamera.security.ShardedKey
 import dev.whyoleg.cryptography.CryptographyProvider
@@ -17,7 +17,7 @@ import kotlin.io.encoding.ExperimentalEncodingApi
  * Implementation of EncryptionScheme that uses AES encryption with keys derived from a PIN.
  */
 open class SoftwareEncryptionScheme(
-	protected val deviceInfo: DeviceInfo,
+	protected val deviceInfo: DeviceInfoDataSource,
 ) : EncryptionScheme {
 	private val provider = CryptographyProvider.Default
 	protected var key: ShardedKey? = null
@@ -107,7 +107,7 @@ open class SoftwareEncryptionScheme(
 		)
 
 		val deviceId = deviceInfo.getDeviceIdentifier()
-		val encodedDeviceId = Base64.Default.encode(deviceId)
+		val encodedDeviceId = Base64.encode(deviceId)
 
 		val dekInput = plainPin.toByteArray(Charsets.UTF_8) + encodedDeviceId.toByteArray(Charsets.UTF_8)
 

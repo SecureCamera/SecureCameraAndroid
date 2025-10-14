@@ -1,5 +1,6 @@
 package com.darkrockstudios.app.securecamera.camera
 
+import androidx.annotation.StringRes
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -15,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.darkrockstudios.app.securecamera.Flashlight
@@ -24,8 +26,10 @@ import com.darkrockstudios.app.securecamera.R
 @Composable
 fun TopCameraControlsBar(
 	isFlashOn: Boolean,
+	isFaceTrackingWorker: Boolean,
 	isVisible: Boolean,
 	onFlashToggle: (Boolean) -> Unit,
+	onFaceTrackingToggle: (Boolean) -> Unit,
 	onLensToggle: () -> Unit,
 	onClose: () -> Unit,
 	paddingValues: PaddingValues? = null
@@ -53,25 +57,14 @@ fun TopCameraControlsBar(
 			color = Color.Black.copy(alpha = 0.6f),
 			shape = RoundedCornerShape(16.dp)
 		) {
-			Row(
+			Column(
 				modifier = Modifier
 					.fillMaxWidth()
 					.padding(16.dp),
-				horizontalArrangement = Arrangement.SpaceBetween,
-				verticalAlignment = Alignment.CenterVertically
 			) {
-				Column(
-					verticalArrangement = Arrangement.spacedBy(8.dp)
-				) {
-					CameraControlSwitch(
-						icon = if (isFlashOn) Flashlight else FlashlightOff,
-						checked = isFlashOn,
-						onCheckedChange = onFlashToggle
-					)
-				}
-
 				Row(
-					horizontalArrangement = Arrangement.spacedBy(16.dp),
+					modifier = Modifier.fillMaxWidth(),
+					horizontalArrangement = Arrangement.SpaceBetween,
 					verticalAlignment = Alignment.CenterVertically
 				) {
 					FilledTonalButton(
@@ -104,6 +97,26 @@ fun TopCameraControlsBar(
 						)
 					}
 				}
+
+				Spacer(Modifier.height(16.dp))
+
+				CameraControlSwitch(
+					icon = if (isFlashOn) Flashlight else FlashlightOff,
+					label = R.string.camera_flash_text,
+					checked = isFlashOn,
+					onCheckedChange = onFlashToggle,
+					testTage = "flash-switch"
+				)
+
+				Spacer(Modifier.height(16.dp))
+
+				CameraControlSwitch(
+					icon = if (isFaceTrackingWorker) FaceTrackingOn else FaceTrackingOff,
+					label = R.string.camera_face_tracking,
+					checked = isFaceTrackingWorker,
+					onCheckedChange = onFaceTrackingToggle,
+					testTage = "face-switch"
+				)
 			}
 		}
 	}
@@ -112,7 +125,9 @@ fun TopCameraControlsBar(
 @Composable
 private fun CameraControlSwitch(
 	icon: ImageVector,
+	@StringRes label: Int,
 	checked: Boolean,
+	testTage: String,
 	onCheckedChange: (Boolean) -> Unit
 ) {
 	Row(
@@ -126,19 +141,23 @@ private fun CameraControlSwitch(
 			modifier = Modifier.size(24.dp)
 		)
 		Spacer(modifier = Modifier.width(8.dp))
-		Text(
-			text = stringResource(id = R.string.camera_flash_text),
-			color = Color.White,
-			style = MaterialTheme.typography.bodyMedium
-		)
-		Spacer(modifier = Modifier.width(8.dp))
+
 		Switch(
+			modifier = Modifier.testTag(testTage),
 			checked = checked,
 			onCheckedChange = onCheckedChange,
 			colors = SwitchDefaults.colors(
 				checkedThumbColor = MaterialTheme.colorScheme.primary,
 				checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
 			)
+		)
+
+		Spacer(modifier = Modifier.width(8.dp))
+
+		Text(
+			text = stringResource(id = label),
+			color = Color.White,
+			style = MaterialTheme.typography.bodyMedium
 		)
 	}
 }

@@ -14,9 +14,11 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.darkrockstudios.app.securecamera.R
-import com.darkrockstudios.app.securecamera.navigation.AppDestinations
+import com.darkrockstudios.app.securecamera.navigation.Camera
+import com.darkrockstudios.app.securecamera.navigation.Gallery
+import com.darkrockstudios.app.securecamera.navigation.NavController
+import com.darkrockstudios.app.securecamera.navigation.navigateFromBase
 import com.darkrockstudios.app.securecamera.ui.NotificationPermissionRationale
 import org.koin.androidx.compose.koinViewModel
 import timber.log.Timber
@@ -24,7 +26,7 @@ import timber.log.Timber
 @Composable
 fun ImportPhotosContent(
 	photosToImport: List<Uri>,
-	navController: NavHostController,
+	navController: NavController,
 	paddingValues: PaddingValues
 ) {
 	val viewModel: ImportPhotosViewModel = koinViewModel()
@@ -156,9 +158,7 @@ fun ImportPhotosContent(
 				Button(
 					modifier = Modifier.padding(16.dp),
 					onClick = {
-						navController.navigate(AppDestinations.GALLERY_ROUTE) {
-							popUpTo(0) { inclusive = true }
-						}
+						navController.navigateFromBase(Camera, Gallery)
 					}
 				) {
 					Text(stringResource(id = R.string.import_photos_done_button))
@@ -169,7 +169,7 @@ fun ImportPhotosContent(
 }
 
 @Composable
-private fun CancelImportDialog(navController: NavHostController, dismiss: () -> Unit) {
+private fun CancelImportDialog(navController: NavController, dismiss: () -> Unit) {
 	val viewModel: ImportPhotosViewModel = koinViewModel()
 
 	AlertDialog(
@@ -181,9 +181,7 @@ private fun CancelImportDialog(navController: NavHostController, dismiss: () -> 
 				onClick = {
 					viewModel.cancelImport()
 					dismiss()
-					navController.navigate(AppDestinations.GALLERY_ROUTE) {
-						popUpTo(0) { inclusive = true }
-					}
+					navController.navigateFromBase(Camera, Gallery)
 				}
 			) {
 				Text(stringResource(id = R.string.discard_button))

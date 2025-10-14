@@ -8,7 +8,7 @@ import dev.whyoleg.cryptography.algorithms.SHA512
 import dev.whyoleg.cryptography.operations.Hasher
 import kotlin.io.encoding.ExperimentalEncodingApi
 
-class DeviceInfo(private val appContext: Context) {
+class DeviceInfoDataSource(private val appContext: Context) {
 	private val hasher: Hasher = CryptographyProvider.Default.get(SHA512).hasher()
 
 	@OptIn(ExperimentalStdlibApi::class, ExperimentalEncodingApi::class)

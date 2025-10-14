@@ -1,6 +1,8 @@
 package com.darkrockstudios.app.securecamera
 
 import androidx.work.WorkManager
+import com.darkrockstudios.app.securecamera.about.AboutViewModel
+import com.darkrockstudios.app.securecamera.about.AboutViewModelImpl
 import com.darkrockstudios.app.securecamera.auth.AuthorizationRepository
 import com.darkrockstudios.app.securecamera.auth.PinVerificationViewModel
 import com.darkrockstudios.app.securecamera.camera.SecureImageRepository
@@ -8,11 +10,14 @@ import com.darkrockstudios.app.securecamera.camera.ThumbnailCache
 import com.darkrockstudios.app.securecamera.gallery.GalleryViewModel
 import com.darkrockstudios.app.securecamera.import.ImportPhotosViewModel
 import com.darkrockstudios.app.securecamera.introduction.IntroductionViewModel
+import com.darkrockstudios.app.securecamera.introduction.IntroductionViewModelImpl
 import com.darkrockstudios.app.securecamera.obfuscation.ObfuscatePhotoViewModel
-import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSource
-import com.darkrockstudios.app.securecamera.security.DeviceInfo
+import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
+import com.darkrockstudios.app.securecamera.preferences.PreferencesAppSettingsDataSource
+import com.darkrockstudios.app.securecamera.security.DeviceInfoDataSource
 import com.darkrockstudios.app.securecamera.security.SecurityLevel
 import com.darkrockstudios.app.securecamera.security.SecurityLevelDetector
+import com.darkrockstudios.app.securecamera.security.pin.PinCrypto
 import com.darkrockstudios.app.securecamera.security.pin.PinRepository
 import com.darkrockstudios.app.securecamera.security.pin.PinRepositoryHardware
 import com.darkrockstudios.app.securecamera.security.pin.PinRepositorySoftware
@@ -31,13 +36,14 @@ import kotlin.time.Clock
 
 val appModule = module {
 
-	single { Clock.System } bind Clock::class
-	singleOf(::SecureImageRepository)
-	single<AppPreferencesDataSource> { AppPreferencesDataSource(context = get()) }
+	factory { Clock.System } bind Clock::class
+	factory<AppSettingsDataSource> { PreferencesAppSettingsDataSource(context = get()) }
+    factoryOf(::DeviceInfoDataSource)
+
+    singleOf(::SecureImageRepository)
 	single {
 		AuthorizationRepository(
 			preferences = get(),
-			pinRepository = get(),
 			encryptionScheme = get(),
 			context = get(),
 			clock = get()
@@ -58,34 +64,35 @@ val appModule = module {
 		val detector = get<SecurityLevelDetector>()
 		when (detector.detectSecurityLevel()) {
 			SecurityLevel.SOFTWARE ->
-				PinRepositorySoftware(get(), get())
+				PinRepositorySoftware(get(), get(), get())
 
 			SecurityLevel.TEE, SecurityLevel.STRONGBOX -> {
-				PinRepositoryHardware(get(), get(), get())
+				PinRepositoryHardware(get(), get(), get(), get())
 			}
 		}
 	} bind PinRepository::class
 	singleOf(::SecurityLevelDetector)
+	single<PinCrypto> { PinCrypto() }
 
 	single { WorkManager.getInstance(get()) }
-
-	factoryOf(::DeviceInfo)
 
 	factoryOf(::ThumbnailCache)
 	factoryOf(::SecurityResetUseCase)
 	factoryOf(::PinStrengthCheckUseCase)
 	factoryOf(::VerifyPinUseCase)
+	factoryOf(::AuthorizePinUseCase)
 	factoryOf(::CreatePinUseCase)
 	factoryOf(::PinSizeUseCase)
 	factoryOf(::RemovePoisonPillIUseCase)
-	factoryOf(::MigratePinHash)
 	factoryOf(::InvalidateSessionUseCase)
+	factoryOf(::AddDecoyPhotoUseCase)
 
 	viewModelOf(::ObfuscatePhotoViewModel)
 	viewModelOf(::ViewPhotoViewModel)
 	viewModelOf(::GalleryViewModel)
 	viewModelOf(::SettingsViewModel)
-	viewModelOf(::IntroductionViewModel)
+    viewModelOf(::IntroductionViewModelImpl) bind IntroductionViewModel::class
 	viewModelOf(::PinVerificationViewModel)
 	viewModelOf(::ImportPhotosViewModel)
+	viewModelOf(::AboutViewModelImpl) bind AboutViewModel::class
 }

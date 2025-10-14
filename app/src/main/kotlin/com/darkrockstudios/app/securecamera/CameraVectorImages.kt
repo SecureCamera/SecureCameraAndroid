@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
-public val Camera: ImageVector
+val Camera: ImageVector
 	get() {
 		if (_Camera != null) {
 			return _Camera!!

@@ -17,6 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -92,6 +93,7 @@ fun PinCreationContent(
 						pin = newPin
 					}
 				},
+				enabled = !uiState.isCreatingPin,
 				label = { Text(stringResource(R.string.pin_creation_hint)) },
 				visualTransformation = if (pinVisible) VisualTransformation.None else PasswordVisualTransformation(),
 				keyboardOptions = KeyboardOptions(
@@ -123,6 +125,7 @@ fun PinCreationContent(
 						confirmPin = newConfirmPin
 					}
 				},
+				enabled = !uiState.isCreatingPin,
 				label = { Text(stringResource(R.string.pin_creation_confirm_hint)) },
 				visualTransformation = PasswordVisualTransformation(),
 				keyboardOptions = KeyboardOptions(
@@ -141,7 +144,9 @@ fun PinCreationContent(
 					text = errorMessage,
 					color = MaterialTheme.colorScheme.error,
 					style = MaterialTheme.typography.bodyMedium,
-					modifier = Modifier.padding(bottom = 16.dp)
+					modifier = Modifier
+						.padding(bottom = 16.dp)
+						.testTag("pin-error")
 				)
 			}
 

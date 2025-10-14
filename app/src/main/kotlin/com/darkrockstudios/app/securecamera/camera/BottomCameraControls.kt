@@ -19,16 +19,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.darkrockstudios.app.securecamera.R
-import com.darkrockstudios.app.securecamera.navigation.AppDestinations
+import com.darkrockstudios.app.securecamera.navigation.Gallery
+import com.darkrockstudios.app.securecamera.navigation.NavController
+import com.darkrockstudios.app.securecamera.navigation.Settings
 
 @Composable
 fun BottomCameraControls(
 	modifier: Modifier = Modifier,
 	onCapture: (() -> Unit)?,
 	isLoading: Boolean,
-	navController: NavHostController,
+	navController: NavController,
 ) {
 	val context = LocalContext.current
 
@@ -38,7 +39,7 @@ fun BottomCameraControls(
 			.padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
 	) {
 		ElevatedButton(
-			onClick = { navController.navigate(AppDestinations.SETTINGS_ROUTE) },
+			onClick = { navController.navigate(Settings) },
 			enabled = isLoading.not(),
 			modifier = Modifier.align(Alignment.BottomStart),
 		) {
@@ -73,7 +74,7 @@ fun BottomCameraControls(
 		}
 
 		ElevatedButton(
-			onClick = { navController.navigate(AppDestinations.GALLERY_ROUTE) },
+			onClick = { navController.navigate(Gallery) },
 			enabled = isLoading.not(),
 			modifier = Modifier.align(Alignment.BottomEnd),
 		) {

@@ -9,10 +9,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.navigation.NavDestination
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.navArgument
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.ui.NavDisplay
 import com.darkrockstudios.app.securecamera.R
 import com.darkrockstudios.app.securecamera.about.AboutContent
 import com.darkrockstudios.app.securecamera.auth.AuthorizationRepository
@@ -25,263 +25,165 @@ import com.darkrockstudios.app.securecamera.introduction.IntroductionContent
 import com.darkrockstudios.app.securecamera.obfuscation.ObfuscatePhotoContent
 import com.darkrockstudios.app.securecamera.settings.SettingsContent
 import com.darkrockstudios.app.securecamera.viewphoto.ViewPhotoContent
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.launch
-import org.koin.compose.koinInject
 import kotlin.io.encoding.ExperimentalEncodingApi
 
-/**
- * Main navigation component for the app
- */
 @OptIn(ExperimentalEncodingApi::class)
 @Composable
 fun AppNavHost(
-	navController: NavHostController,
+	backStack: NavBackStack<NavKey>,
+	navController: NavController,
 	capturePhoto: MutableState<Boolean?>,
 	modifier: Modifier = Modifier,
 	snackbarHostState: SnackbarHostState,
-	startDestination: String = AppDestinations.CAMERA_ROUTE,
 	paddingValues: PaddingValues,
 ) {
-	val imageManager = koinInject<SecureImageRepository>()
-	val authManager = koinInject<AuthorizationRepository>()
-
+	val imageManager = org.koin.compose.koinInject<SecureImageRepository>()
+	val authManager = org.koin.compose.koinInject<AuthorizationRepository>()
 	val scope = rememberCoroutineScope()
 
-	/**
-	 * Continually enforce auth as the user navigates around the app
-	 */
-	LaunchedEffect(Unit) {
-		authManager.checkSessionValidity()
+	LaunchedEffect(Unit) { authManager.checkSessionValidity() }
 
-		authManager.isAuthorized
-			.combine(navController.currentBackStackEntryFlow) { isAuthorized, backStackEntry ->
-				Pair(
-					isAuthorized,
-					backStackEntry
-				)
-			}
-			.collect { (_, backStackEntry) ->
-				enforceAuth(authManager, backStackEntry.destination, navController)
-			}
-	}
-
-	NavHost(
-		navController = navController,
-		startDestination = startDestination,
-		modifier = modifier
-	) {
-		defaultAnimatedComposable(
-			route = AppDestinations.INTRODUCTION_ROUTE,
-		) {
-			IntroductionContent(
-				navController = navController,
-				modifier = Modifier.fillMaxSize(),
-				paddingValues = paddingValues,
-			)
-		}
-
-		defaultAnimatedComposable(
-			AppDestinations.CAMERA_ROUTE,
-		) {
-			CameraContent(
-				capturePhoto = capturePhoto,
-				navController = navController,
-				modifier = Modifier.fillMaxSize(),
-				paddingValues = paddingValues
-			)
-		}
-
-		defaultAnimatedComposable(
-			AppDestinations.GALLERY_ROUTE,
-		) {
-			val isAuthorized by authManager.isAuthorized.collectAsState()
-
-			if (isAuthorized) {
-				GalleryContent(
+	NavDisplay(
+		backStack = backStack,
+		onBack = { if (backStack.isNotEmpty()) backStack.removeAt(backStack.lastIndex) },
+		modifier = modifier,
+		entryProvider = entryProvider {
+			entry<Introduction> {
+				IntroductionContent(
 					navController = navController,
 					modifier = Modifier.fillMaxSize(),
 					paddingValues = paddingValues,
-					snackbarHostState = snackbarHostState
 				)
-			} else {
-				Box(modifier = Modifier.fillMaxSize()) {
-					Text(
-						text = stringResource(R.string.unauthorized),
-						modifier = Modifier.align(Alignment.Center)
-					)
-				}
 			}
-		}
-
-		defaultAnimatedComposable(
-			route = AppDestinations.VIEW_PHOTO_ROUTE,
-			arguments = listOf(navArgument("photoName") { defaultValue = "" }),
-		) { backStackEntry ->
-			val photoName = backStackEntry.arguments?.getString("photoName") ?: ""
-
-			if (authManager.checkSessionValidity()) {
-				val photo = imageManager.getPhotoByName(photoName)
-				if (photo != null) {
-					ViewPhotoContent(
-						initialPhoto = photo,
+			entry<Camera> {
+				CameraContent(
+					capturePhoto = capturePhoto,
+					navController = navController,
+					modifier = Modifier.fillMaxSize(),
+					paddingValues = paddingValues
+				)
+			}
+			entry<Gallery> {
+				val isAuthorized by authManager.isAuthorized.collectAsState()
+				if (isAuthorized) {
+					GalleryContent(
 						navController = navController,
 						modifier = Modifier.fillMaxSize(),
 						paddingValues = paddingValues,
-						snackbarHostState = snackbarHostState,
+						snackbarHostState = snackbarHostState
 					)
 				} else {
-					Text(text = stringResource(R.string.photo_content_none_selected))
-				}
-			} else {
-				Box(modifier = Modifier.fillMaxSize()) {
-					Text(
-						text = stringResource(R.string.unauthorized),
-						modifier = Modifier.align(Alignment.Center)
-					)
+					Box(modifier = Modifier.fillMaxSize()) {
+						Text(
+							text = stringResource(R.string.unauthorized),
+							modifier = Modifier.align(Alignment.Center)
+						)
+					}
 				}
 			}
-		}
-
-		defaultAnimatedComposable(
-			route = AppDestinations.PIN_VERIFICATION_ROUTE,
-			arguments = listOf(navArgument("returnRoute") {
-				defaultValue = AppDestinations.encodeReturnRoute(AppDestinations.CAMERA_ROUTE)
-			}),
-		) { backStackEntry ->
-			val returnRoute = backStackEntry.arguments?.getString("returnRoute")?.let { encodedRoute ->
-				AppDestinations.decodeReturnRoute(encodedRoute)
-			} ?: AppDestinations.CAMERA_ROUTE
-
-			PinVerificationContent(
-				navController = navController,
-				returnRoute = returnRoute,
-				snackbarHostState = snackbarHostState,
-				modifier = Modifier.fillMaxSize()
-			)
-		}
-
-		defaultAnimatedComposable(
-			AppDestinations.SETTINGS_ROUTE,
-		) {
-			SettingsContent(
-				navController = navController,
-				modifier = Modifier.fillMaxSize(),
-				paddingValues = paddingValues,
-				snackbarHostState = snackbarHostState,
-			)
-		}
-
-		defaultAnimatedComposable(
-			AppDestinations.ABOUT_ROUTE,
-		) {
-			AboutContent(
-				navController = navController,
-				modifier = Modifier.fillMaxSize(),
-				paddingValues = paddingValues,
-			)
-		}
-
-		defaultAnimatedComposable(
-			route = AppDestinations.OBFUSCATE_PHOTO_ROUTE,
-			arguments = listOf(navArgument("photoName") { defaultValue = "" }),
-		) { backStackEntry ->
-			val photoName = backStackEntry.arguments?.getString("photoName") ?: ""
-
-			if (authManager.checkSessionValidity()) {
-				ObfuscatePhotoContent(
-					photoName = photoName,
+			entry<ViewPhoto> { key ->
+				if (authManager.checkSessionValidity()) {
+					val photo = imageManager.getPhotoByName(key.photoName)
+					if (photo != null) {
+						ViewPhotoContent(
+							initialPhoto = photo,
+							navController = navController,
+							modifier = Modifier.fillMaxSize(),
+							paddingValues = paddingValues,
+							snackbarHostState = snackbarHostState,
+						)
+					} else {
+						Text(text = stringResource(R.string.photo_content_none_selected))
+					}
+				} else {
+					Box(modifier = Modifier.fillMaxSize()) {
+						Text(
+							text = stringResource(R.string.unauthorized),
+							modifier = Modifier.align(Alignment.Center)
+						)
+					}
+				}
+			}
+			entry<PinVerification> { key ->
+				PinVerificationContent(
 					navController = navController,
+					returnKey = key.returnKey,
 					snackbarHostState = snackbarHostState,
-					outerScope = scope,
+					modifier = Modifier.fillMaxSize()
+				)
+			}
+			entry<Settings> {
+				SettingsContent(
+					navController = navController,
+					modifier = Modifier.fillMaxSize(),
+					paddingValues = paddingValues,
+					snackbarHostState = snackbarHostState,
+				)
+			}
+			entry<About> {
+				AboutContent(
+					navController = navController,
+					modifier = Modifier.fillMaxSize(),
 					paddingValues = paddingValues,
 				)
-			} else {
-				Box(modifier = Modifier.fillMaxSize()) {
-					Text(
-						text = stringResource(R.string.unauthorized),
-						modifier = Modifier.align(Alignment.Center)
+			}
+			entry<ObfuscatePhoto> { key ->
+				if (authManager.checkSessionValidity()) {
+					ObfuscatePhotoContent(
+						photoName = key.photoName,
+						navController = navController,
+						snackbarHostState = snackbarHostState,
+						outerScope = scope,
+						paddingValues = paddingValues,
 					)
+				} else {
+					Box(modifier = Modifier.fillMaxSize()) {
+						Text(
+							text = stringResource(R.string.unauthorized),
+							modifier = Modifier.align(Alignment.Center)
+						)
+					}
 				}
 			}
-		}
-
-		defaultAnimatedComposable(
-			route = AppDestinations.IMPORT_PHOTOS_ROUTE,
-			arguments = listOf(
-				navArgument("photoUris") {
-					type = UriListType
-				}
-			)
-		) { backStackEntry ->
-			if (authManager.checkSessionValidity()) {
-				val importJob = backStackEntry.arguments?.getParcelable<PhotoImportJob>("photoUris")
-				if (importJob == null) {
-					val msg = stringResource(R.string.import_error_no_photos)
-					scope.launch {
-						snackbarHostState.showSnackbar(msg)
-					}
-					navController.navigate(AppDestinations.CAMERA_ROUTE) {
-						launchSingleTop = true
-					}
-				} else {
+			entry<ImportPhotos> { key ->
+				if (authManager.checkSessionValidity()) {
 					ImportPhotosContent(
-						photosToImport = importJob.photos,
+						photosToImport = key.job.photos,
 						navController = navController,
 						paddingValues = paddingValues,
 					)
-				}
-			} else {
-				Box(modifier = Modifier.fillMaxSize()) {
-					Text(
-						text = stringResource(R.string.unauthorized),
-						modifier = Modifier.align(Alignment.Center)
-					)
+				} else {
+					Box(modifier = Modifier.fillMaxSize()) {
+						Text(
+							text = stringResource(R.string.unauthorized),
+							modifier = Modifier.align(Alignment.Center)
+						)
+					}
 				}
 			}
 		}
-	}
+	)
 }
 
-/**
- * Check for session validity, send user to PinVerification
- * if needed.
- *
- * This also calculates the return path for successful
- * PinVerification.
- */
 fun enforceAuth(
 	authManager: AuthorizationRepository,
-	destination: NavDestination?,
-	navController: NavHostController
+	currentKey: NavKey?,
+	navController: NavController
 ) {
 	if (
-		authManager.checkSessionValidity().not()
-		&& AppDestinations.isPinVerificationRoute(destination).not()
-		&& destination?.route != AppDestinations.INTRODUCTION_ROUTE
+		authManager.checkSessionValidity().not() &&
+		currentKey !is PinVerification &&
+		currentKey !is Introduction
 	) {
-		val returnRoute = when (destination?.route) {
-			AppDestinations.VIEW_PHOTO_ROUTE -> {
-				navController.currentBackStackEntry?.arguments?.getString("photoName")
-					?.let { photoName ->
-						AppDestinations.createViewPhotoRoute(photoName)
-					} ?: AppDestinations.CAMERA_ROUTE
-			}
-
-			AppDestinations.OBFUSCATE_PHOTO_ROUTE -> {
-				navController.currentBackStackEntry?.arguments?.getString("photoName")
-					?.let { photoName ->
-						AppDestinations.createObfuscatePhotoRoute(photoName)
-					} ?: AppDestinations.CAMERA_ROUTE
-			}
-
-			else -> {
-				destination?.route ?: AppDestinations.CAMERA_ROUTE
-			}
+		val returnKey = when (currentKey) {
+			is ViewPhoto -> ViewPhoto(currentKey.photoName)
+			is ObfuscatePhoto -> ObfuscatePhoto(currentKey.photoName)
+			is Gallery -> Gallery
+			is Settings -> Settings
+			is About -> About
+			is ImportPhotos -> ImportPhotos(currentKey.job)
+			else -> Camera
 		}
-
-		navController.navigate(AppDestinations.createPinVerificationRoute(returnRoute)) {
-			launchSingleTop = true
-		}
+		navController.navigate(PinVerification(returnKey)) { launchSingleTop = true }
 	}
 }

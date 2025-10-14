@@ -15,9 +15,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
 import com.darkrockstudios.app.securecamera.R
-import com.darkrockstudios.app.securecamera.navigation.AppDestinations
+import com.darkrockstudios.app.securecamera.navigation.Camera
+import com.darkrockstudios.app.securecamera.navigation.NavController
+import com.darkrockstudios.app.securecamera.navigation.navigateClearingBackStack
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -29,20 +30,18 @@ import org.koin.androidx.compose.koinViewModel
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun IntroductionContent(
-	navController: NavHostController,
+	navController: NavController,
 	modifier: Modifier = Modifier,
 	paddingValues: PaddingValues
 ) {
-	val viewModel: IntroductionViewModel = koinViewModel()
+	val viewModel: IntroductionViewModel = koinViewModel<IntroductionViewModelImpl>()
 	val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 	val coroutineScope = rememberCoroutineScope()
 
 	// Navigate to camera when PIN is created
 	LaunchedEffect(uiState.pinCreated) {
 		if (uiState.pinCreated) {
-			navController.navigate(AppDestinations.CAMERA_ROUTE) {
-				popUpTo(0)
-			}
+			navController.navigateClearingBackStack(Camera)
 		}
 	}
 
@@ -64,7 +63,9 @@ fun IntroductionContent(
 	}
 
 	Box(
-		modifier = modifier.fillMaxSize().padding(paddingValues),
+		modifier = modifier
+			.fillMaxSize()
+			.padding(paddingValues),
 	) {
 		HorizontalPager(
 			state = pagerState,

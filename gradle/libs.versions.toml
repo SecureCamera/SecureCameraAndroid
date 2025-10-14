@@ -1,57 +1,59 @@
 [versions]
-versionCode = "17"
-versionName = "3.2.1"
+versionCode = "21"
+versionName = "3.5.0"
 
-targetSdk = "35"
-compileSdk = "35"
+targetSdk = "36"
+compileSdk = "36"
 minSdk = "29"
 
 javaVersion = "17"
-agp = "8.9.3"
-workManager = "2.10.1"
+agp = "8.11.2"
+workManager = "2.10.5"
 argon2kt = "1.6.0"
 bcrypt = "0.10.2"
 faceDetection = "16.1.7"
 kotlinxCoroutinesTest = "1.10.2"
-rules = "1.6.1"
+rules = "1.7.0"
 accompanistPermissions = "0.37.3"
 coreSplashscreen = "1.0.1"
-lifecycleRuntimeCompose = "2.9.0"
-lifecycleViewModel = "2.9.0"
+lifecycleViewModel = "2.9.4"
 materialIconsExtended = "1.7.8"
-mockk = "1.14.2"
-kim = "0.24"
-kotlin = "2.1.20"
-kotlinx-serialization = "1.8.1"
-runtimeLivedata = "1.8.2"
-coreKtx = "1.16.0"
+mockk = "1.14.6"
+kim = "0.26.2"
+kotlin = "2.2.20"
+kotlinx-serialization = "1.9.0"
+runtimeLivedata = "1.9.3"
+coreKtx = "1.17.0"
 junit = "4.13.2"
-junitVersion = "1.2.1"
-activityCompose = "1.10.1"
-composeBom = "2025.05.01"
-navigationCompose = "2.9.0"
-koin-bom = "4.0.4"
-cryptographyBom = "0.4.0"
-datastorePreferences = "1.1.4"
+junitVersion = "1.3.0"
+activityCompose = "1.11.0"
+composeBom = "2025.10.00"
+navigation3 = "1.0.0-alpha11"
+nav3Material = "1.0.0-SNAPSHOT"
+lifecycleViewmodelNav3 = "1.0.0-alpha04"
+koin-bom = "4.1.1"
+cryptographyBom = "0.5.0"
+datastorePreferences = "1.1.7"
 timber = "5.0.1"
-zoomable = "2.6.0"
-cameraCamera2 = "1.4.2"
-cameraView = "1.4.2"
-foundation = "1.8.2"
+zoomable = "2.8.2"
+cameraCamera2 = "1.5.1"
+cameraView = "1.5.1"
+foundation = "1.9.3"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
 androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "cameraCamera2" }
 androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "cameraView" }
+androidx-camera-compose = { module = "androidx.camera:camera-compose", version.ref = "cameraView" }
+androidx-camera-core = { module = "androidx.camera.viewfinder:viewfinder-core", version.ref = "cameraView" }
 androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraCamera2" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 androidx-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "foundation" }
-androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
+androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleViewModel" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewModel" }
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleViewModel" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
-androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 androidx-rules = { module = "androidx.test:rules", version.ref = "rules" }
 androidx-runtime-livedata = { module = "androidx.compose.runtime:runtime-livedata", version.ref = "runtimeLivedata" }
 argon2kt = { module = "com.lambdapioneer.argon2kt:argon2kt", version.ref = "argon2kt" }
@@ -64,7 +66,7 @@ cryptography-provider-jdk = { module = "dev.whyoleg.cryptography:cryptography-pr
 cryptography-core = { module = "dev.whyoleg.cryptography:cryptography-core" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
-androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeCompose" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleViewModel" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
@@ -93,6 +95,11 @@ ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
 ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 zoomable = { module = "net.engawapg.lib:zoomable", version.ref = "zoomable" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workManager" }
+androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNav3" }
+androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "navigation3" }
+androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "navigation3" }
+androidx-material3-navigation3 = { group = "androidx.compose.material3.adaptive", name = "adaptive-navigation3", version.ref = "nav3Material" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

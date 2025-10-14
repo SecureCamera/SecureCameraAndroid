@@ -1,4 +1,4 @@
-package com.darkrockstudios.app.securecamera
+package com.darkrockstudios.app.securecamera.utils
 
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex

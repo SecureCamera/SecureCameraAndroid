@@ -8,31 +8,38 @@ import com.darkrockstudios.app.securecamera.BaseViewModel
 import com.darkrockstudios.app.securecamera.R
 import com.darkrockstudios.app.securecamera.camera.PhotoDef
 import com.darkrockstudios.app.securecamera.camera.SecureImageRepository
-import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSource
+import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
 import com.darkrockstudios.app.securecamera.security.pin.PinRepository
 import com.darkrockstudios.app.securecamera.share.sharePhotoWithProvider
+import com.darkrockstudios.app.securecamera.usecases.AddDecoyPhotoUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class ViewPhotoViewModel(
-	private val appContext: Context,
-	private val imageManager: SecureImageRepository,
-	private val preferencesManager: AppPreferencesDataSource,
-	private val pinRepository: PinRepository,
+    private val appContext: Context,
+    private val imageManager: SecureImageRepository,
+    private val preferencesManager: AppSettingsDataSource,
+    private val pinRepository: PinRepository,
+    private val addDecoyPhotoUseCase: AddDecoyPhotoUseCase,
+    private val initialPhotoName: String,
 ) : BaseViewModel<ViewPhotoUiState>() {
 
-	var currentIndex: Int = 0
-		private set
+	private var currentIndex: Int
+		get() = uiState.value.currentIndex
+		set(value) {
+			_uiState.update { it.copy(currentIndex = value) }
+		}
 
 	override fun createState() = ViewPhotoUiState()
 
-	fun initialize(initialPhoto: PhotoDef) {
+	init {
 		val photos = imageManager.getPhotos().sortedByDescending { photoDef ->
 			photoDef.dateTaken()
 		}
-		val initialIndex = photos.indexOfFirst { it == initialPhoto }
+		val initialIndex = photos.indexOfFirst { it.photoName == initialPhotoName }
+		val initialPhoto = photos[initialIndex]
 
 		viewModelScope.launch {
 			val hasPoisonPill = pinRepository.hasPoisonPillPin()
@@ -41,16 +48,10 @@ class ViewPhotoViewModel(
 			_uiState.update {
 				it.copy(
 					photos = photos,
-					initialIndex = initialIndex,
+					currentIndex = initialIndex,
 					hasPoisonPill = hasPoisonPill,
 					isDecoy = isDecoy
 				)
-			}
-		}
-
-		viewModelScope.launch {
-			preferencesManager.sanitizeFileName.collect { sanitizeFileName ->
-				_uiState.update { it.copy(sanitizeFileName = sanitizeFileName) }
 			}
 		}
 
@@ -67,6 +68,10 @@ class ViewPhotoViewModel(
 
 	fun setCurrentPhotoIndex(index: Int) {
 		currentIndex = index
+		viewModelScope.launch {
+			val isDecoy = getCurrentPhoto()?.let { imageManager.isDecoyPhoto(it) } ?: false
+			_uiState.update { it.copy(isDecoy = isDecoy) }
+		}
 	}
 
 	fun getCurrentPhoto(): PhotoDef? {
@@ -96,7 +101,7 @@ class ViewPhotoViewModel(
 					showMessage(appContext.getString(R.string.decoy_removed))
 				}
 			} else {
-				val success = imageManager.addDecoyPhoto(currentPhoto)
+				val success = addDecoyPhotoUseCase.addDecoyPhoto(currentPhoto)
 				withContext(Dispatchers.Main) {
 					_uiState.update {
 						it.copy(
@@ -155,7 +160,7 @@ class ViewPhotoViewModel(
 
 data class ViewPhotoUiState(
 	val photos: List<PhotoDef> = emptyList(),
-	val initialIndex: Int = 0,
+	val currentIndex: Int = 0,
 	val hasPoisonPill: Boolean = false,
 	val isDecoy: Boolean = false,
 	val isDecoyLoading: Boolean = false,

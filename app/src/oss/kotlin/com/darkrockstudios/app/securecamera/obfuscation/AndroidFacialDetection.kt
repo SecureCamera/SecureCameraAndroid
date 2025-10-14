@@ -4,8 +4,12 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.PointF
 import android.graphics.Rect
+import android.graphics.RectF
 import android.media.FaceDetector
+import androidx.camera.core.ImageProxy
 import androidx.core.graphics.createBitmap
+import com.darkrockstudios.app.securecamera.camera.imageProxyToBitmap
+import com.darkrockstudios.app.securecamera.camera.mapRectToPreview
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -21,7 +25,7 @@ class AndroidFacialDetection : FacialDetection {
 						canvas.drawBitmap(bitmap, 0f, 0f, null)
 					}
 				} catch (e: Exception) {
-					Timber.Forest.e(e, "Failed to convert bitmap to RGB_565")
+					Timber.e(e, "Failed to convert bitmap to RGB_565")
 					return@withContext emptyList<FacialDetection.FoundFace>()
 				}
 			} else {
@@ -37,7 +41,7 @@ class AndroidFacialDetection : FacialDetection {
 
 				// Find faces in the bitmap
 				val facesFound = detector.findFaces(bitmapForDetection, faces)
-				Timber.Forest.d("Found $facesFound faces using Android FaceDetector")
+				Timber.d("Found $facesFound faces using Android FaceDetector")
 
 				// Convert the detected faces to our FoundFace format
 				val foundFaces = mutableListOf<FacialDetection.FoundFace>()
@@ -89,8 +93,88 @@ class AndroidFacialDetection : FacialDetection {
 
 				foundFaces
 			} catch (e: Exception) {
-				Timber.Forest.e(e, "Error detecting faces with Android FaceDetector")
+				Timber.e(e, "Error detecting faces with Android FaceDetector")
 				emptyList()
 			}
 		}
+
+	private class FaceDetectorInstance(
+		val detector: FaceDetector,
+		val width: Int,
+		val height: Int,
+		val faces: Array<FaceDetector.Face?> = arrayOfNulls(MAX_FACES),
+	)
+
+	private var detectorInstance: FaceDetectorInstance? = null
+
+	private fun createNewDetectorInstance(bitmapForDetection: Bitmap): FaceDetectorInstance {
+		val detector = FaceDetector(bitmapForDetection.width, bitmapForDetection.height, MAX_FACES)
+		return FaceDetectorInstance(detector, bitmapForDetection.width, bitmapForDetection.height)
+	}
+
+	private fun getDetectorInstance(bitmapForDetection: Bitmap): FaceDetectorInstance {
+		// Create a new detector instance if null or doesn't match
+		return detectorInstance?.takeIf {
+			it.width == bitmapForDetection.width && it.height == bitmapForDetection.height
+		} ?: createNewDetectorInstance(bitmapForDetection).also { detectorInstance = it }
+	}
+
+	override suspend fun processForFacesPreview(
+		image: ImageProxy,
+		previewWidth: Int,
+		previewHeight: Int,
+		isFrontCamera: Boolean
+	): List<RectF> {
+		return withContext(Dispatchers.Default) {
+			try {
+				// Convert ImageProxy to a display-rotated Bitmap
+				val bitmapForDetection = imageProxyToBitmap(image, Bitmap.Config.RGB_565)
+				if (bitmapForDetection == null) {
+					Timber.w("Failed to decode ImageProxy to Bitmap for face preview detection")
+					return@withContext emptyList()
+				}
+
+				val instance = getDetectorInstance(bitmapForDetection)
+
+				// Run detection
+				val found = instance.detector.findFaces(bitmapForDetection, instance.faces)
+
+				// Prepare mapper from detection-bitmap coordinates to preview coordinates
+				val mapper = mapRectToPreview(
+					sourceWidth = bitmapForDetection.width,
+					sourceHeight = bitmapForDetection.height,
+					rotationDegrees = 0, // already rotated into display basis
+					isFrontCamera = isFrontCamera,
+					previewSizePx = androidx.compose.ui.unit.IntSize(previewWidth, previewHeight),
+				)
+
+				val rects = ArrayList<RectF>(found)
+				for (i in 0 until found) {
+					instance.faces[i]?.let { face ->
+						val mid = PointF()
+						face.getMidPoint(mid)
+						val eyeDistance = face.eyesDistance()
+						// Estimate bounding box from midpoint and eye distance
+						val faceW = (eyeDistance * 2.5f)
+						val faceH = (eyeDistance * 3.0f)
+						val left = (mid.x - faceW / 2f).coerceAtLeast(0f)
+						val top = (mid.y - faceH / 2f).coerceAtLeast(0f)
+						val right = (mid.x + faceW / 2f).coerceAtMost(bitmapForDetection.width.toFloat())
+						val bottom = (mid.y + faceH / 2f).coerceAtMost(bitmapForDetection.height.toFloat())
+						val r = RectF(left, top, right, bottom)
+						rects.add(mapper(r))
+					}
+				}
+
+				rects
+			} catch (e: Exception) {
+				Timber.e(e, "Error during preview face detection")
+				emptyList()
+			}
+		}
+	}
+
+	companion object {
+		private const val MAX_FACES = 10
+	}
 }

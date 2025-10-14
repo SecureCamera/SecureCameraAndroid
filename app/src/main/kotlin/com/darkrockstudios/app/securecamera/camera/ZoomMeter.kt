@@ -78,7 +78,7 @@ fun ZoomMeter(
 					.height(50.dp)
 			) {
 				Canvas(
-					modifier = Modifier.Companion.fillMaxSize()
+					modifier = Modifier.fillMaxSize()
 				) {
 					val canvasWidth = size.width
 					val canvasHeight = size.height
@@ -88,11 +88,11 @@ fun ZoomMeter(
 					val lineLength = lineEndX - lineStartX
 
 					drawLine(
-						color = Color.Companion.LightGray,
+						color = Color.LightGray,
 						start = Offset(lineStartX, centerY),
 						end = Offset(lineEndX, centerY),
 						strokeWidth = 2.dp.toPx(),
-						cap = StrokeCap.Companion.Round
+						cap = StrokeCap.Round
 					)
 
 					// Draw tick marks at 1.0x, 2.0x, and 4.0x
@@ -106,11 +106,11 @@ fun ZoomMeter(
 							val tickX = lineStartX + (normalizedTickPosition * lineLength)
 
 							drawLine(
-								color = Color.Companion.White,
+								color = Color.White,
 								start = Offset(tickX, centerY),
 								end = Offset(tickX, centerY - tickHeight),
 								strokeWidth = 1.5.dp.toPx(),
-								cap = StrokeCap.Companion.Round
+								cap = StrokeCap.Round
 							)
 						}
 					}
@@ -128,30 +128,30 @@ fun ZoomMeter(
 				// Min zoom text
 				Text(
 					text = String.format("%.1fx", min),
-					color = Color.Companion.White,
+					color = Color.White,
 					style = MaterialTheme.typography.bodySmall,
-					modifier = Modifier.Companion
-						.align(Alignment.Companion.BottomStart)
+					modifier = Modifier
+						.align(Alignment.BottomStart)
 						.padding(start = 8.dp)
 				)
 
 				// Max zoom text
 				Text(
 					text = String.format("%.1fx", max),
-					color = Color.Companion.White,
+					color = Color.White,
 					style = MaterialTheme.typography.bodySmall,
-					modifier = Modifier.Companion
-						.align(Alignment.Companion.BottomEnd)
+					modifier = Modifier
+						.align(Alignment.BottomEnd)
 						.padding(end = 8.dp)
 				)
 
 				// Current zoom text
 				Text(
 					text = String.format("%.1fx", current),
-					color = Color.Companion.White,
+					color = Color.White,
 					style = MaterialTheme.typography.bodySmall,
-					modifier = Modifier.Companion
-						.align(Alignment.Companion.TopCenter)
+					modifier = Modifier
+						.align(Alignment.TopCenter)
 						.padding(top = 4.dp)
 				)
 			}

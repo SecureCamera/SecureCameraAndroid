@@ -6,28 +6,26 @@ import com.darkrockstudios.app.securecamera.security.pin.PinRepository
 import com.darkrockstudios.app.securecamera.security.schemes.EncryptionScheme
 
 class VerifyPinUseCase(
-	private val authManager: AuthorizationRepository,
-	private val imageManager: SecureImageRepository,
-	private val pinRepository: PinRepository,
-	private val encryptionScheme: EncryptionScheme,
-	private val migratePinHash: MigratePinHash,
+    private val imageRepository: SecureImageRepository,
+    private val authRepository: AuthorizationRepository,
+    private val pinRepository: PinRepository,
+    private val encryptionScheme: EncryptionScheme,
+    private val authorizePinUseCase: AuthorizePinUseCase,
 ) {
 	suspend fun verifyPin(pin: String): Boolean {
-		migratePinHash.runMigration(pin)
-
 		if (pinRepository.hasPoisonPillPin() && pinRepository.verifyPoisonPillPin(pin)) {
 			encryptionScheme.activatePoisonPill(oldPin = pinRepository.getHashedPin())
-			imageManager.activatePoisonPill()
-			authManager.activatePoisonPill()
+			imageRepository.activatePoisonPill()
+			pinRepository.activatePoisonPill()
 		}
 
-		val hashedPin = authManager.verifyPin(pin)
+		val hashedPin = authorizePinUseCase.authorizePin(pin)
 		return if (hashedPin != null) {
 			encryptionScheme.deriveAndCacheKey(pin, hashedPin)
-			authManager.resetFailedAttempts()
 			true
 		} else {
-			false
+            authRepository.incrementFailedAttempts()
+            false
 		}
 	}
 }

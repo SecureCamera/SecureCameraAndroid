@@ -4,11 +4,7 @@ import com.darkrockstudios.app.securecamera.auth.AuthorizationRepository
 import com.darkrockstudios.app.securecamera.camera.SecureImageRepository
 import com.darkrockstudios.app.securecamera.security.pin.PinRepository
 import com.darkrockstudios.app.securecamera.security.schemes.EncryptionScheme
-import io.mockk.Runs
-import io.mockk.coEvery
-import io.mockk.coVerify
-import io.mockk.just
-import io.mockk.mockk
+import io.mockk.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertFalse
@@ -24,24 +20,22 @@ class VerifyPinUseCaseTest {
 	private lateinit var pinRepository: PinRepository
 	private lateinit var verifyPinUseCase: VerifyPinUseCase
 	private lateinit var encryptionScheme: EncryptionScheme
-	private lateinit var migratePinHash: MigratePinHash
+	private lateinit var authorizePinUseCase: AuthorizePinUseCase
 
 	@Before
 	fun setup() {
 		authManager = mockk()
 		imageManager = mockk()
 		pinRepository = mockk()
-		migratePinHash = mockk()
+		authorizePinUseCase = mockk()
 		encryptionScheme = mockk(relaxed = true)
 		verifyPinUseCase = VerifyPinUseCase(
-			authManager = authManager,
-			imageManager = imageManager,
+			authRepository = authManager,
+			imageRepository = imageManager,
 			pinRepository = pinRepository,
 			encryptionScheme = encryptionScheme,
-			migratePinHash = migratePinHash,
+			authorizePinUseCase = authorizePinUseCase,
 		)
-
-		coEvery { migratePinHash.runMigration(any()) } just Runs
 	}
 
 	@Test
@@ -49,7 +43,7 @@ class VerifyPinUseCaseTest {
 		// Given
 		val pin = "1234"
 		coEvery { pinRepository.hasPoisonPillPin() } returns false
-		coEvery { authManager.verifyPin(pin) } returns mockk(relaxed = true)
+		coEvery { authorizePinUseCase.authorizePin(pin) } returns mockk(relaxed = true)
 		coEvery { authManager.resetFailedAttempts() } just Runs
 
 		// When
@@ -57,8 +51,8 @@ class VerifyPinUseCaseTest {
 
 		// Then
 		assertTrue(result)
-		coVerify { authManager.verifyPin(pin) }
-		coVerify(exactly = 0) { authManager.activatePoisonPill() }
+		coVerify { authorizePinUseCase.authorizePin(pin) }
+		coVerify(exactly = 0) { pinRepository.activatePoisonPill() }
 		coVerify(exactly = 0) { imageManager.activatePoisonPill() }
 	}
 
@@ -67,15 +61,16 @@ class VerifyPinUseCaseTest {
 		// Given
 		val pin = "1234"
 		coEvery { pinRepository.hasPoisonPillPin() } returns false
-		coEvery { authManager.verifyPin(pin) } returns null
+		coEvery { authorizePinUseCase.authorizePin(pin) } returns null
+		coEvery { authManager.incrementFailedAttempts() } returns 1
 
 		// When
 		val result = verifyPinUseCase.verifyPin(pin)
 
 		// Then
 		assertFalse(result)
-		coVerify { authManager.verifyPin(pin) }
-		coVerify(exactly = 0) { authManager.activatePoisonPill() }
+		coVerify { authorizePinUseCase.authorizePin(pin) }
+		coVerify(exactly = 0) { pinRepository.activatePoisonPill() }
 		coVerify(exactly = 0) { imageManager.activatePoisonPill() }
 	}
 
@@ -86,15 +81,16 @@ class VerifyPinUseCaseTest {
 		coEvery { pinRepository.getHashedPin() } returns mockk()
 		coEvery { pinRepository.hasPoisonPillPin() } returns true
 		coEvery { pinRepository.verifyPoisonPillPin(pin) } returns true
-		coEvery { authManager.activatePoisonPill() } returns Unit
+		coEvery { pinRepository.activatePoisonPill() } returns Unit
 		coEvery { imageManager.activatePoisonPill() } returns Unit
-		coEvery { authManager.verifyPin(pin) } returns null // Even if PIN verification fails, poison pill should activate
+		coEvery { authorizePinUseCase.authorizePin(pin) } returns null // Even if PIN verification fails, poison pill should activate
+		coEvery { authManager.incrementFailedAttempts() } returns 1
 
 		// When
 		val result = verifyPinUseCase.verifyPin(pin)
 
 		// Then
-		assertFalse(result) // Result should match what authManager.verifyPin returns
+		assertFalse(result) // Result should match what authorizePinUseCase.authorizePin returns
 	}
 
 	@Test
@@ -103,7 +99,7 @@ class VerifyPinUseCaseTest {
 		val pin = "1234"
 		coEvery { pinRepository.hasPoisonPillPin() } returns true
 		coEvery { pinRepository.verifyPoisonPillPin(pin) } returns false
-		coEvery { authManager.verifyPin(pin) } returns mockk(relaxed = true)
+		coEvery { authorizePinUseCase.authorizePin(pin) } returns mockk(relaxed = true)
 		coEvery { authManager.resetFailedAttempts() } just Runs
 
 		// When
@@ -113,9 +109,9 @@ class VerifyPinUseCaseTest {
 		assertTrue(result)
 		coVerify { pinRepository.hasPoisonPillPin() }
 		coVerify { pinRepository.verifyPoisonPillPin(pin) }
-		coVerify(exactly = 0) { authManager.activatePoisonPill() }
+		coVerify(exactly = 0) { pinRepository.activatePoisonPill() }
 		coVerify(exactly = 0) { imageManager.activatePoisonPill() }
-		coVerify { authManager.verifyPin(pin) }
+		coVerify { authorizePinUseCase.authorizePin(pin) }
 	}
 
 	@Test
@@ -123,13 +119,14 @@ class VerifyPinUseCaseTest {
 		// Given
 		val pin = ""
 		coEvery { pinRepository.hasPoisonPillPin() } returns false
-		coEvery { authManager.verifyPin(pin) } returns null
+		coEvery { authorizePinUseCase.authorizePin(pin) } returns null
+		coEvery { authManager.incrementFailedAttempts() } returns 1
 
 		// When
 		val result = verifyPinUseCase.verifyPin(pin)
 
 		// Then
 		assertFalse(result)
-		coVerify { authManager.verifyPin(pin) }
+		coVerify { authorizePinUseCase.authorizePin(pin) }
 	}
 }

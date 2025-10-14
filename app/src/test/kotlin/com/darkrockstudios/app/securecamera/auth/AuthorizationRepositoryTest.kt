@@ -2,101 +2,62 @@ package com.darkrockstudios.app.securecamera.auth
 
 import android.content.Context
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.emptyPreferences
 import com.darkrockstudios.app.securecamera.TestClock
-import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSource
+import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
+import com.darkrockstudios.app.securecamera.preferences.PreferencesAppSettingsDataSource
 import com.darkrockstudios.app.securecamera.preferences.HashedPin
 import com.darkrockstudios.app.securecamera.security.SoftwareSchemeConfig
 import com.darkrockstudios.app.securecamera.security.pin.PinRepository
 import com.darkrockstudios.app.securecamera.security.schemes.EncryptionScheme
+import com.darkrockstudios.app.securecamera.usecases.AuthorizePinUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.spyk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
-import java.io.File
+import testutil.FakeDataStore
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
 @ExperimentalCoroutinesApi
-class AuthorizationManagerTest {
+class AuthorizationRepositoryTest {
 
 	private lateinit var context: Context
-	private lateinit var preferencesManager: AppPreferencesDataSource
+	private lateinit var preferencesManager: AppSettingsDataSource
 	private lateinit var authManager: AuthorizationRepository
+	private lateinit var authorizePinUseCase: AuthorizePinUseCase
+	private lateinit var pinRepository: PinRepository
 	private lateinit var dataStore: DataStore<Preferences>
 	private lateinit var encryptionManager: EncryptionScheme
-	private lateinit var pinRepository: PinRepository
 	private lateinit var clock: TestClock
 
 	private val configJson = Json.encodeToString(SoftwareSchemeConfig)
 
-	@OptIn(ExperimentalCoroutinesApi::class)
-	private val testScope = TestScope(UnconfinedTestDispatcher())
-
 	@Before
 	fun setup() {
 		context = mockk(relaxed = true)
-		dataStore = PreferenceDataStoreFactory.create(
-			scope = testScope,
-			produceFile = { File.createTempFile("prefs_test", ".preferences_pb") }
-		)
-		preferencesManager = spyk(AppPreferencesDataSource(context, dataStore))
+		dataStore = FakeDataStore(emptyPreferences())
+		preferencesManager = spyk(PreferencesAppSettingsDataSource(context, dataStore))
 		encryptionManager = mockk(relaxed = true)
-		pinRepository = mockk()
 		clock = TestClock(Instant.fromEpochSeconds(1))
 
-		// Default mocks for PinRepository methods
+		authManager = AuthorizationRepository(preferencesManager, encryptionManager, context, clock)
+
+		pinRepository = mockk()
 		coEvery { pinRepository.getHashedPin() } returns HashedPin("hashed_pin", "salt")
 		coEvery { pinRepository.verifySecurityPin(any()) } returns true
-		coEvery { pinRepository.activatePoisonPill() } returns Unit
-		coEvery { pinRepository.verifyPoisonPillPin(any()) } returns true
-		coEvery { pinRepository.hasPoisonPillPin() } returns true
 
-		authManager = AuthorizationRepository(preferencesManager, pinRepository, encryptionManager, context, clock)
-	}
-
-	@Test
-	fun `verifyPin should update authorization state when PIN is valid`() = runTest {
-		// Given
-		val pin = "1234"
-		preferencesManager.setAppPin(pin, configJson)
-
-		// When
-		val result = authManager.verifyPin(pin)
-
-		// Then
-		assertNotNull(result)
-		assertTrue(authManager.isAuthorized.first())
-	}
-
-	@Test
-	fun `verifyPin should not update authorization state when PIN is invalid`() = runTest {
-		// Given
-		val correctPin = "1234"
-		val incorrectPin = "5678"
-		preferencesManager.setAppPin(correctPin, configJson)
-
-		// Mock verifySecurityPin to return false for incorrect PIN
-		coEvery { pinRepository.verifySecurityPin(incorrectPin) } returns false
-
-		// When
-		val result = authManager.verifyPin(incorrectPin)
-
-		// Then
-		assertNull(result)
-		assertFalse(authManager.isAuthorized.first())
+		authorizePinUseCase = AuthorizePinUseCase(authManager, pinRepository)
 	}
 
 	@Test
@@ -117,7 +78,7 @@ class AuthorizationManagerTest {
 		// Given
 		val pin = "1234"
 		preferencesManager.setAppPin(pin, configJson)
-		authManager.verifyPin(pin)
+		authorizePinUseCase.authorizePin(pin)
 
 		// When
 		val result = authManager.checkSessionValidity()
@@ -133,15 +94,12 @@ class AuthorizationManagerTest {
 		val pin = "1234"
 		preferencesManager.setAppPin(pin, configJson)
 
-		coEvery { pinRepository.getHashedPin() } returns null
-
 		// Set a very small session timeout (1 millisecond)
 		preferencesManager.setSessionTimeout(1L)
 
-		authManager.verifyPin(pin)
+		authorizePinUseCase.authorizePin(pin)
 
-		// Wait for the session to expire
-		Thread.sleep(10)
+		clock.advanceBy(1.seconds)
 
 		// When
 		val result = authManager.checkSessionValidity()
@@ -156,7 +114,7 @@ class AuthorizationManagerTest {
 		// Given
 		val pin = "1234"
 		preferencesManager.setAppPin(pin, configJson)
-		authManager.verifyPin(pin)
+		authorizePinUseCase.authorizePin(pin)
 		assertTrue(authManager.isAuthorized.first())
 
 		// When
@@ -175,7 +133,7 @@ class AuthorizationManagerTest {
 		preferencesManager.setSessionTimeout(customTimeout)
 
 		// When
-		authManager.verifyPin(pin)
+		authorizePinUseCase.authorizePin(pin)
 
 		// Then
 		assertTrue(authManager.checkSessionValidity())
@@ -241,22 +199,6 @@ class AuthorizationManagerTest {
 		assertEquals(0L, preferencesManager.getLastFailedAttemptTimestamp())
 	}
 
-	@Test
-	fun `verifyPin should reset failed attempts when PIN is valid`() = runTest {
-		// Given
-		val pin = "1234"
-		preferencesManager.setAppPin(pin, configJson)
-		preferencesManager.setFailedPinAttempts(3)
-		preferencesManager.setLastFailedAttemptTimestamp(1000L)
-
-		// When
-		val result = authManager.verifyPin(pin)
-
-		// Then
-		assertNotNull(result)
-		assertEquals(0, preferencesManager.getFailedPinAttempts())
-		assertEquals(0L, preferencesManager.getLastFailedAttemptTimestamp())
-	}
 
 	@Test
 	fun `getLastFailedAttemptTimestamp should return the timestamp from preferences`() = runTest {
@@ -320,15 +262,14 @@ class AuthorizationManagerTest {
 		// Given
 		val pin = "1234"
 
-		// Create a new spy for preferencesManager for this test
-		val spyPreferencesManager = spyk(AppPreferencesDataSource(context, dataStore))
+		// Create a new AuthorizationRepository for this test
 		val testAuthManager =
-			AuthorizationRepository(spyPreferencesManager, pinRepository, encryptionManager, context, clock)
+			AuthorizationRepository(preferencesManager, encryptionManager, context, clock)
 
 		// Set up initial state
-		spyPreferencesManager.setAppPin(pin, configJson)
-		spyPreferencesManager.setFailedPinAttempts(5)
-		spyPreferencesManager.setLastFailedAttemptTimestamp(1000L)
+		preferencesManager.setAppPin(pin, configJson)
+		preferencesManager.setFailedPinAttempts(5)
+		preferencesManager.setLastFailedAttemptTimestamp(1000L)
 
 		// Mock verifySecurityPin to return true initially, then false after reset
 		coEvery { pinRepository.verifySecurityPin(pin) } returns true andThen false
@@ -338,55 +279,9 @@ class AuthorizationManagerTest {
 
 		// Then
 		// Verify that securityFailureReset was called on the preferences manager
-		coVerify { spyPreferencesManager.securityFailureReset() }
+		coVerify { preferencesManager.securityFailureReset() }
 	}
 
-	@Test
-	fun `activatePoisonPill should delegate to preferencesManager`() = runTest {
-		// Given
-		val regularPin = "1234"
-		val poisonPillPin = "5678"
-		val hashedPoisonPin = "hashed"
-		preferencesManager.setAppPin(regularPin, configJson)
-		preferencesManager.setPoisonPillPin(hashedPoisonPin, poisonPillPin)
-
-		// Mock activatePoisonPill to change behavior
-		coEvery { pinRepository.activatePoisonPill() } answers {
-			// After activatePoisonPill is called, hasPoisonPillPin should return false
-			// and verifySecurityPin should return true for the poison pill pin
-			coEvery { pinRepository.hasPoisonPillPin() } returns false
-			coEvery { pinRepository.verifySecurityPin(poisonPillPin) } returns true
-		}
-
-		// Verify initial state
-		assertTrue(pinRepository.verifySecurityPin(regularPin))
-		assertTrue(pinRepository.verifyPoisonPillPin(poisonPillPin))
-		assertTrue(pinRepository.hasPoisonPillPin())
-
-		// When
-		authManager.activatePoisonPill()
-
-		// Then
-		// Verify poison pill was activated
-		assertTrue(pinRepository.verifySecurityPin(poisonPillPin))
-		assertFalse(pinRepository.hasPoisonPillPin())
-	}
-
-	@Test
-	fun `verifyPin should not update authorization state when PIN is valid but hashedPin is null`() = runTest {
-		// Given
-		val pin = "1234"
-		coEvery { pinRepository.verifySecurityPin(pin) } returns true
-		coEvery { pinRepository.getHashedPin() } returns null
-
-		// When
-		val result = authManager.verifyPin(pin)
-
-		// Then
-		assertNull(result)
-		assertFalse(authManager.isAuthorized.first())
-		coVerify { pinRepository.verifySecurityPin(pin) }
-	}
 
 	@Test
 	fun `calculateRemainingBackoffSeconds should return 0 when elapsed time exceeds backoff time`() = runTest {
@@ -420,7 +315,7 @@ class AuthorizationManagerTest {
 		clock.fixedInstant = initialTime
 
 		// Authorize the session
-		authManager.verifyPin(pin)
+		authorizePinUseCase.authorizePin(pin)
 		assertTrue(authManager.isAuthorized.first())
 
 		// Advance time by half the session timeout

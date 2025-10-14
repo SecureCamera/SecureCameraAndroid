@@ -2,10 +2,11 @@ package com.darkrockstudios.app.securecamera.auth
 
 import android.content.Context
 import androidx.lifecycle.viewModelScope
+import androidx.navigation3.runtime.NavKey
 import com.darkrockstudios.app.securecamera.BaseViewModel
 import com.darkrockstudios.app.securecamera.R
 import com.darkrockstudios.app.securecamera.gallery.vibrateDevice
-import com.darkrockstudios.app.securecamera.navigation.AppDestinations
+import com.darkrockstudios.app.securecamera.navigation.Introduction
 import com.darkrockstudios.app.securecamera.usecases.InvalidateSessionUseCase
 import com.darkrockstudios.app.securecamera.usecases.PinSizeUseCase
 import com.darkrockstudios.app.securecamera.usecases.SecurityResetUseCase
@@ -90,7 +91,8 @@ class PinVerificationViewModel(
 		}
 	}
 
-	fun verify(pin: String, returnRoute: String, onNavigate: (String) -> Unit, onFailure: () -> Unit) {
+
+	fun verify(pin: String, returnKey: NavKey, onNavigate: (NavKey) -> Unit, onFailure: () -> Unit) {
 		val currentState = uiState.value
 
 		if (pin.isBlank()) {
@@ -111,16 +113,14 @@ class PinVerificationViewModel(
 				withContext(Dispatchers.Main) {
 					_uiState.update {
 						it.copy(
-							isVerifying = false,
 							failedAttempts = 0
 						)
 					}
-
-					onNavigate(returnRoute)
+					onNavigate(returnKey)
 				}
 			} else {
-				val newFailedAttempts = authRepository.incrementFailedAttempts()
-				val remainingBackoff = authRepository.calculateRemainingBackoffSeconds()
+                val newFailedAttempts = authRepository.getFailedAttempts()
+                val remainingBackoff = authRepository.calculateRemainingBackoffSeconds()
 				val isBackoffActive = remainingBackoff > 0
 
 				withContext(Dispatchers.Main) {
@@ -144,7 +144,7 @@ class PinVerificationViewModel(
 						// Nuke it all
 						securityResetUseCase.reset()
 						showMessage(appContext.getString(R.string.pin_verification_all_data_deleted))
-						onNavigate(AppDestinations.INTRODUCTION_ROUTE)
+						onNavigate(Introduction)
 					}
 
 					onFailure()

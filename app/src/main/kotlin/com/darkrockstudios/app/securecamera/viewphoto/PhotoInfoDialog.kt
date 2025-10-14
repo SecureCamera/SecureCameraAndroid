@@ -82,7 +82,7 @@ private fun InfoRow(
 		style = MaterialTheme.typography.bodyLarge,
 		color = MaterialTheme.colorScheme.onSurface
 	)
-	Spacer(modifier = Modifier.Companion.height(4.dp))
+	Spacer(modifier = Modifier.height(4.dp))
 
 	Text(
 		text = value,
@@ -90,5 +90,5 @@ private fun InfoRow(
 		color = MaterialTheme.colorScheme.onSurface
 	)
 
-	Spacer(modifier = Modifier.Companion.height(16.dp))
+	Spacer(modifier = Modifier.height(16.dp))
 }

@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
 import com.darkrockstudios.app.securecamera.KeepScreenOnEffect
+import com.darkrockstudios.app.securecamera.navigation.NavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 
@@ -15,7 +15,7 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 @Composable
 internal fun CameraContent(
 	capturePhoto: MutableState<Boolean?>,
-	navController: NavHostController,
+	navController: NavController,
 	modifier: Modifier,
 	paddingValues: PaddingValues,
 ) {
@@ -53,9 +53,10 @@ internal fun CameraContent(
 	) {
 		if (permissionsState.allPermissionsGranted) {
 			val cameraState = rememberCameraState()
+
 			CameraPreview(
 				modifier = Modifier.fillMaxSize(),
-				state = cameraState
+				cameraState = cameraState,
 			)
 
 			CameraControls(

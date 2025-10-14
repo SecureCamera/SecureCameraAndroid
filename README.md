@@ -11,7 +11,9 @@ _Available on:_
 
 [![featureGraphic.png](fastlane/metadata/android/en-US/images/featureGraphic.png)](http://www.snapsafe.org)
 
-[![codebeat badge](https://codebeat.co/badges/1d47f0fa-2155-4e63-85ba-aafd01812d8c)](https://codebeat.co/projects/github-com-securecamera-securecameraandroid-main)
+[![Build](https://github.com/SecureCamera/SecureCameraAndroid/actions/workflows/build.yml/badge.svg)](https://github.com/SecureCamera/SecureCameraAndroid/actions/workflows/build.yml)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/8fc95b1f8c134ddfae9547226c753402)](https://app.codacy.com/gh/SecureCamera/SecureCameraAndroid/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+[![Crowdin](https://badges.crowdin.net/snap-safe-android/localized.svg)](https://crowdin.com/project/snap-safe-android)
 
 ----
 
@@ -48,21 +50,15 @@ Attacks come in many forms, from accidental swipes, to intrusive surveillance, a
 
 ---
 
-## Contributing
+## 🪨 Dark Rock Studios
 
-Pull requests are happily accepted.
+[**Dark Rock Studios**](https://darkrock.studio/) is all about building **Free and Open Source Software**.
 
-Start with an issue or draft PR and we can talk it through.
-
-### Automated Publishing
-
-The project uses GitHub Actions to automatically build and publish new releases to Google Play when a tag with the
-format `v*` (e.g., `v1.0.0`) is pushed. See the [GitHub Actions workflow documentation](.github/workflows/README.md) for
-details on how this works and the required setup.
-
-The project includes a pre-configured [FastLane](https://fastlane.tools/) setup for automating the deployment process.
-See the [FastLane documentation](fastlane/README.md) for details on how to use it for manual deployments or to customize
-the metadata.
+🐛 Found bugs?  
+💡 Have suggestions?  
+📚 Want to help translate?  
+🎮 Interested in our other apps?  
+👉 Join our community of Open Source enthusiasts on [**Discord**](https://discord.gg/ju2RQa5x8W)!
 
 ---
 
@@ -75,3 +71,15 @@ SnapSafe is released under the [MIT License](LICENSE). Use it, fork it, improve
 ## Privacy
 
 Our full, ultra‑brief Privacy Policy lives in [PRIVACY.md](PRIVACY.md). Spoiler: we collect nothing.
+
+---
+
+## Development
+
+See [docs/HOW-TO-RELEASE](docs/HOW-TO-RELEASE.md) on how to publish a new release.
+
+### Contributing
+
+Pull requests are happily accepted.
+
+Start with an issue or draft PR and we can talk it through.

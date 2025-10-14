@@ -7,6 +7,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowRight
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
@@ -19,13 +20,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
 import com.darkrockstudios.app.securecamera.LocationPermissionStatus
 import com.darkrockstudios.app.securecamera.R
-import com.darkrockstudios.app.securecamera.navigation.AppDestinations
-import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSource.Companion.SESSION_TIMEOUT_10_MIN
-import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSource.Companion.SESSION_TIMEOUT_1_MIN
-import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSource.Companion.SESSION_TIMEOUT_5_MIN
+import com.darkrockstudios.app.securecamera.navigation.About
+import com.darkrockstudios.app.securecamera.navigation.Introduction
+import com.darkrockstudios.app.securecamera.navigation.NavController
+import com.darkrockstudios.app.securecamera.navigation.navigateClearingBackStack
+import com.darkrockstudios.app.securecamera.preferences.PreferencesAppSettingsDataSource.Companion.SESSION_TIMEOUT_10_MIN
+import com.darkrockstudios.app.securecamera.preferences.PreferencesAppSettingsDataSource.Companion.SESSION_TIMEOUT_1_MIN
+import com.darkrockstudios.app.securecamera.preferences.PreferencesAppSettingsDataSource.Companion.SESSION_TIMEOUT_5_MIN
 import com.darkrockstudios.app.securecamera.security.SecurityLevel
 import com.darkrockstudios.app.securecamera.ui.HandleUiEvents
 import kotlinx.coroutines.launch
@@ -37,7 +40,7 @@ import org.koin.androidx.compose.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsContent(
-	navController: NavHostController,
+	navController: NavController,
 	modifier: Modifier = Modifier,
 	paddingValues: PaddingValues,
 	snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
@@ -49,9 +52,7 @@ fun SettingsContent(
 
 	LaunchedEffect(uiState.securityResetComplete) {
 		if (uiState.securityResetComplete) {
-			navController.navigate(AppDestinations.INTRODUCTION_ROUTE) {
-				popUpTo(0) { inclusive = true }
-			}
+			navController.navigateClearingBackStack(Introduction)
 		}
 	}
 
@@ -87,18 +88,6 @@ fun SettingsContent(
 					)
 				}
 			},
-			actions = {
-				IconButton(
-					onClick = { navController.navigate(AppDestinations.ABOUT_ROUTE) },
-					modifier = Modifier.padding(8.dp)
-				) {
-					Icon(
-						imageVector = Icons.Filled.Info,
-						contentDescription = stringResource(id = R.string.settings_about_button),
-						tint = MaterialTheme.colorScheme.onPrimaryContainer,
-					)
-				}
-			}
 		)
 
 		// Settings content
@@ -117,6 +106,45 @@ fun SettingsContent(
 			horizontalAlignment = Alignment.Start
 		) {
 			Spacer(modifier = Modifier.height(24.dp))
+
+			// About row
+			Row(
+				modifier = Modifier
+					.fillMaxWidth()
+					.padding(top = 8.dp, bottom = 8.dp)
+					.clickable { navController.navigate(About) },
+				verticalAlignment = Alignment.CenterVertically,
+				horizontalArrangement = Arrangement.SpaceBetween
+			) {
+				Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+					Icon(
+						imageVector = Icons.Filled.Info,
+						contentDescription = stringResource(id = R.string.settings_about_button),
+						tint = MaterialTheme.colorScheme.primary,
+						modifier = Modifier.size(24.dp)
+					)
+					Spacer(modifier = Modifier.width(12.dp))
+					Column(modifier = Modifier.weight(1f)) {
+						Text(
+							text = stringResource(id = R.string.about_title),
+							style = MaterialTheme.typography.bodyLarge
+						)
+						Text(
+							text = stringResource(id = R.string.about_button_description),
+							style = MaterialTheme.typography.bodyMedium,
+							color = MaterialTheme.colorScheme.onSurfaceVariant
+						)
+					}
+				}
+				Icon(
+					imageVector = Icons.AutoMirrored.Filled.ArrowRight,
+					contentDescription = null,
+					tint = MaterialTheme.colorScheme.onSurfaceVariant,
+					modifier = Modifier.size(20.dp)
+				)
+			}
+
+			Spacer(modifier = Modifier.height(8.dp))
 
 			// Sharing section
 			Text(

@@ -2,15 +2,11 @@ package com.darkrockstudios.app.securecamera.security.schemes
 
 import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
-import android.security.keystore.KeyProperties.BLOCK_MODE_GCM
-import android.security.keystore.KeyProperties.ENCRYPTION_PADDING_NONE
-import android.security.keystore.KeyProperties.KEY_ALGORITHM_AES
-import android.security.keystore.KeyProperties.PURPOSE_DECRYPT
-import android.security.keystore.KeyProperties.PURPOSE_ENCRYPT
+import android.security.keystore.KeyProperties.*
 import android.security.keystore.StrongBoxUnavailableException
-import com.darkrockstudios.app.securecamera.preferences.AppPreferencesDataSource
+import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
 import com.darkrockstudios.app.securecamera.preferences.HashedPin
-import com.darkrockstudios.app.securecamera.security.DeviceInfo
+import com.darkrockstudios.app.securecamera.security.DeviceInfoDataSource
 import com.darkrockstudios.app.securecamera.security.HardwareSchemeConfig
 import dev.whyoleg.cryptography.CryptographyProvider
 import dev.whyoleg.cryptography.algorithms.PBKDF2
@@ -30,9 +26,9 @@ import kotlin.time.Duration.Companion.minutes
 
 
 class HardwareBackedEncryptionScheme(
-	private val appContext: Context,
-	deviceInfo: DeviceInfo,
-	private val appPreferencesDataSource: AppPreferencesDataSource,
+    private val appContext: Context,
+    deviceInfo: DeviceInfoDataSource,
+    private val appSettingsDataSource: AppSettingsDataSource,
 ) : SoftwareEncryptionScheme(deviceInfo) {
 	private val provider = CryptographyProvider.Default
 	private val ks: KeyStore = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
@@ -42,7 +38,7 @@ class HardwareBackedEncryptionScheme(
 		plainPin: String,
 		hashedPin: HashedPin,
 	): ByteArray {
-		val config = appPreferencesDataSource.getSchemeConfig() as HardwareSchemeConfig
+		val config = appSettingsDataSource.getSchemeConfig() as HardwareSchemeConfig
 		return if (config.ephemeralKey) {
 			deriveEphemeralKey(plainPin, hashedPin)
 		} else {
@@ -60,10 +56,10 @@ class HardwareBackedEncryptionScheme(
 
 		val cipheredDsalt = dSaltFile.readBytes()
 		val plainDsalt = decryptWithHardwareBackedKey(cipheredDsalt)
-		val encodedDsalt = Base64.Default.encode(plainDsalt)
+		val encodedDsalt = Base64.encode(plainDsalt)
 
 		val deviceId = deviceInfo.getDeviceIdentifier()
-		val encodedDeviceId = Base64.Default.encode(deviceId)
+		val encodedDeviceId = Base64.encode(deviceId)
 
 		val dekInput =
 			plainPin.toByteArray(Charsets.UTF_8) + encodedDsalt.toByteArray(Charsets.UTF_8) + encodedDeviceId.toByteArray(
@@ -98,7 +94,7 @@ class HardwareBackedEncryptionScheme(
 	 * then stores it to disk.
 	 */
 	override suspend fun createKey(plainPin: String, hashedPin: HashedPin) {
-		val config = appPreferencesDataSource.getSchemeConfig() as HardwareSchemeConfig
+		val config = appSettingsDataSource.getSchemeConfig() as HardwareSchemeConfig
 
 		keyMutex.withLock {
 			// Create hardware backed KEK if it doesn't exist
@@ -134,10 +130,10 @@ class HardwareBackedEncryptionScheme(
 		SecureRandom.getInstanceStrong().nextBytes(dSalt)
 
 		// Derive the key
-		val encodedDsalt = Base64.Default.encode(dSalt)
+		val encodedDsalt = Base64.encode(dSalt)
 
 		val deviceId = deviceInfo.getDeviceIdentifier()
-		val encodedDeviceId = Base64.Default.encode(deviceId)
+		val encodedDeviceId = Base64.encode(deviceId)
 
 		val dekInput =
 			plainPin.toByteArray(Charsets.UTF_8) + encodedDsalt.toByteArray(Charsets.UTF_8) + encodedDeviceId.toByteArray(

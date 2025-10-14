@@ -6,11 +6,12 @@ import android.graphics.Rect
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.viewModelScope
+import androidx.navigation3.runtime.NavKey
 import com.darkrockstudios.app.securecamera.BaseViewModel
 import com.darkrockstudios.app.securecamera.R
 import com.darkrockstudios.app.securecamera.camera.PhotoDef
 import com.darkrockstudios.app.securecamera.camera.SecureImageRepository
-import com.darkrockstudios.app.securecamera.navigation.AppDestinations
+import com.darkrockstudios.app.securecamera.navigation.ViewPhoto
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -168,7 +169,7 @@ class ObfuscatePhotoViewModel(
 		}
 	}
 
-	fun saveAsCopy(onNavigate: (String) -> Unit) {
+	fun saveAsCopy(onNavigate: (NavKey) -> Unit) {
 		val bitmap = uiState.value.obscuredBitmap ?: return
 		uiState.value.photoDef?.let { photo ->
 			viewModelScope.launch {
@@ -180,7 +181,7 @@ class ObfuscatePhotoViewModel(
 
 					Timber.i("Saved copy of image: ${newPhotoDef.photoName}")
 					showCopySuccessMessage()
-					onNavigate(AppDestinations.createViewPhotoRoute(newPhotoDef.photoName))
+					onNavigate(ViewPhoto(newPhotoDef.photoName))
 				} catch (e: Exception) {
 					Timber.e(e, "Failed to save copy of image")
 					showSaveErrorMessage()

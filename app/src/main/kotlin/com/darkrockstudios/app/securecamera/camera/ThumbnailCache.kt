@@ -2,7 +2,7 @@ package com.darkrockstudios.app.securecamera.camera
 
 import android.graphics.Bitmap
 import android.util.LruCache
-import com.darkrockstudios.app.securecamera.withLockBlocking
+import com.darkrockstudios.app.securecamera.utils.withLockBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 

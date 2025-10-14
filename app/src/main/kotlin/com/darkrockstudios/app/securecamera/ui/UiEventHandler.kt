@@ -3,7 +3,7 @@ package com.darkrockstudios.app.securecamera.ui
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.navigation.NavController
+import com.darkrockstudios.app.securecamera.navigation.NavController
 import kotlinx.coroutines.flow.SharedFlow
 
 @Composable

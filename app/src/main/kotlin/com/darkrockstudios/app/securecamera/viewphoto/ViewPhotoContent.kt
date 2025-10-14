@@ -8,8 +8,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
@@ -25,11 +25,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import com.darkrockstudios.app.securecamera.ConfirmDeletePhotoDialog
 import com.darkrockstudios.app.securecamera.R
 import com.darkrockstudios.app.securecamera.camera.PhotoDef
-import com.darkrockstudios.app.securecamera.navigation.AppDestinations
+import com.darkrockstudios.app.securecamera.navigation.NavController
+import com.darkrockstudios.app.securecamera.navigation.ObfuscatePhoto
 import com.darkrockstudios.app.securecamera.ui.HandleUiEvents
 import net.engawapg.lib.zoomable.ExperimentalZoomableApi
 import net.engawapg.lib.zoomable.rememberZoomState
@@ -47,12 +47,9 @@ fun ViewPhotoContent(
 	snackbarHostState: SnackbarHostState,
 	paddingValues: PaddingValues
 ) {
-	val viewModel: ViewPhotoViewModel = koinViewModel { parametersOf() }
+	val viewModel: ViewPhotoViewModel =
+		koinViewModel(key = initialPhoto.photoName) { parametersOf(initialPhoto.photoName) }
 	val context = LocalContext.current
-
-	LaunchedEffect(initialPhoto) {
-		viewModel.initialize(initialPhoto)
-	}
 
 	val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -78,7 +75,7 @@ fun ViewPhotoContent(
 			onObfuscateClick = {
 				val currentPhoto = viewModel.getCurrentPhoto()
 				currentPhoto?.let {
-					navController.navigate(AppDestinations.createObfuscatePhotoRoute(it.photoName))
+					navController.navigate(ObfuscatePhoto(it.photoName))
 				}
 			},
 			onShareClick = {
@@ -106,14 +103,14 @@ fun ViewPhotoContent(
 		}
 
 		if (uiState.photos.isNotEmpty()) {
-			val listState = rememberLazyListState(initialFirstVisibleItemIndex = uiState.initialIndex)
+			val listState = remember { LazyListState(firstVisibleItemIndex = uiState.currentIndex) }
 
 			LaunchedEffect(listState) {
 				snapshotFlow {
 					listState.firstVisibleItemIndex to
 							listState.firstVisibleItemScrollOffset
 				}.collect { (idx, off) ->
-					if (listState.firstVisibleItemIndex != viewModel.currentIndex) {
+					if (listState.firstVisibleItemIndex != uiState.currentIndex) {
 						viewModel.setCurrentPhotoIndex(listState.firstVisibleItemIndex)
 					}
 				}
@@ -130,7 +127,9 @@ fun ViewPhotoContent(
 					val photo = uiState.photos[index]
 
 					ViewPhoto(
-						modifier = Modifier.fillParentMaxSize().padding(bottom = paddingValues.calculateBottomPadding()),
+						modifier = Modifier
+							.fillParentMaxSize()
+							.padding(bottom = paddingValues.calculateBottomPadding()),
 						photo = photo,
 						viewModel = viewModel,
 					)

@@ -31,15 +31,15 @@ fun SecurityContent(modifier: Modifier, viewModel: IntroductionViewModel) {
 	val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 	Box(modifier = modifier) {
 		Column(
-			modifier = Modifier.Companion
+			modifier = Modifier
 				.verticalScroll(rememberScrollState())
 				.widthIn(max = 512.dp)
-				.align(Alignment.Companion.Center),
-			horizontalAlignment = Alignment.Companion.CenterHorizontally,
+				.align(Alignment.Center),
+			horizontalAlignment = Alignment.CenterHorizontally,
 			verticalArrangement = Arrangement.Center
 		) {
 			Icon(
-				modifier = Modifier.Companion
+				modifier = Modifier
 					.size(96.dp)
 					.padding(16.dp),
 				imageVector = Icons.Filled.Lock,
@@ -50,8 +50,8 @@ fun SecurityContent(modifier: Modifier, viewModel: IntroductionViewModel) {
 			Text(
 				text = stringResource(R.string.security_intro_supported_security_label),
 				style = MaterialTheme.typography.headlineMedium,
-				textAlign = TextAlign.Companion.Center,
-				modifier = Modifier.Companion.padding(bottom = 8.dp)
+				textAlign = TextAlign.Center,
+				modifier = Modifier.padding(bottom = 8.dp)
 			)
 
 			when (uiState.securityLevel) {
@@ -78,15 +78,15 @@ fun ColumnScope.StrongSecurityContent(modifier: Modifier = Modifier, viewModel: 
 		style = MaterialTheme.typography.headlineMedium,
 		fontWeight = FontWeight.Bold,
 		color = Color.Green,
-		textAlign = TextAlign.Companion.Center,
-		modifier = Modifier.Companion.padding(bottom = 8.dp)
+		textAlign = TextAlign.Center,
+		modifier = Modifier.padding(bottom = 8.dp)
 	)
 
 	Text(
 		text = stringResource(R.string.security_intro_security_level_strong_explainer),
 		style = MaterialTheme.typography.bodyLarge,
 		fontWeight = FontWeight.Bold,
-		modifier = Modifier.Companion.padding(bottom = 8.dp)
+		modifier = Modifier.padding(bottom = 8.dp)
 	)
 
 	AdvancedHardwareSection(viewModel)
@@ -98,14 +98,14 @@ fun ColumnScope.TeeSecurityContent(viewModel: IntroductionViewModel) {
 		text = stringResource(R.string.security_intro_security_level_normal),
 		style = MaterialTheme.typography.headlineMedium,
 		fontWeight = FontWeight.Bold,
-		textAlign = TextAlign.Companion.Center,
-		modifier = Modifier.Companion.padding(bottom = 8.dp)
+		textAlign = TextAlign.Center,
+		modifier = Modifier.padding(bottom = 8.dp)
 	)
 
 	Text(
 		text = stringResource(R.string.security_intro_security_level_normal_explainer),
 		style = MaterialTheme.typography.bodyLarge,
-		modifier = Modifier.Companion.padding(bottom = 8.dp)
+		modifier = Modifier.padding(bottom = 8.dp)
 	)
 
 	AdvancedHardwareSection(viewModel)
@@ -117,16 +117,16 @@ fun ColumnScope.SoftwareSecurityContent(viewModel: IntroductionViewModel) {
 		text = stringResource(R.string.security_intro_security_level_weak),
 		style = MaterialTheme.typography.headlineMedium,
 		color = Color.Red,
-		textAlign = TextAlign.Companion.Center,
+		textAlign = TextAlign.Center,
 		fontWeight = FontWeight.Bold,
 		fontStyle = FontStyle.Italic,
-		modifier = Modifier.Companion.padding(bottom = 8.dp)
+		modifier = Modifier.padding(bottom = 8.dp)
 	)
 
 	Text(
 		text = stringResource(R.string.security_intro_security_level_weak_explainer),
 		style = MaterialTheme.typography.bodyLarge,
-		modifier = Modifier.Companion.padding(bottom = 8.dp)
+		modifier = Modifier.padding(bottom = 8.dp)
 	)
 }
 
@@ -147,7 +147,7 @@ fun ColumnScope.AdvancedHardwareSection(viewModel: IntroductionViewModel) {
 				text = stringResource(R.string.security_intro_advanced_section),
 				style = MaterialTheme.typography.bodyLarge,
 				fontWeight = FontWeight.Bold,
-				modifier = Modifier.Companion.padding(vertical = 8.dp)
+				modifier = Modifier.padding(vertical = 8.dp)
 			)
 			Icon(
 				imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
@@ -167,12 +167,12 @@ fun ColumnScope.AdvancedHardwareSection(viewModel: IntroductionViewModel) {
 				Text(
 					text = stringResource(R.string.security_intro_string_ephemeral_label),
 					style = MaterialTheme.typography.headlineSmall,
-					modifier = Modifier.Companion.padding(start = 8.dp, bottom = 16.dp, end = 8.dp),
+					modifier = Modifier.padding(start = 8.dp, bottom = 16.dp, end = 8.dp),
 				)
 
 				Row(verticalAlignment = Alignment.Top) {
 					Checkbox(
-						modifier = Modifier.Companion.padding(bottom = 8.dp),
+						modifier = Modifier.padding(bottom = 8.dp),
 						checked = uiState.ephemeralKey,
 						onCheckedChange = { viewModel.toggleEphemeralKey() },
 					)
@@ -180,18 +180,18 @@ fun ColumnScope.AdvancedHardwareSection(viewModel: IntroductionViewModel) {
 					Text(
 						text = stringResource(R.string.security_intro_string_ephemeral_explainer),
 						style = MaterialTheme.typography.bodyMedium,
-						modifier = Modifier.Companion.padding(bottom = 8.dp),
+						modifier = Modifier.padding(bottom = 8.dp),
 					)
 				}
 //				Text(
 //					text = stringResource(R.string.security_intro_string_biometric_explainer),
 //					style = MaterialTheme.typography.bodyLarge,
-//					modifier = Modifier.Companion.padding(bottom = 8.dp),
+//					modifier = Modifier.padding(bottom = 8.dp),
 //				)
 //
 //				Row(verticalAlignment = Alignment.CenterVertically) {
 //					Checkbox(
-//						modifier = Modifier.Companion.padding(bottom = 8.dp),
+//						modifier = Modifier.padding(bottom = 8.dp),
 //						checked = uiState.requireBiometrics,
 //						onCheckedChange = { viewModel.toggleBiometricsRequired() },
 //					)
@@ -199,7 +199,7 @@ fun ColumnScope.AdvancedHardwareSection(viewModel: IntroductionViewModel) {
 //					Text(
 //						text = stringResource(R.string.security_intro_string_biometric_checkbox),
 //						style = MaterialTheme.typography.bodyLarge,
-//						modifier = Modifier.Companion.padding(bottom = 8.dp),
+//						modifier = Modifier.padding(bottom = 8.dp),
 //					)
 //				}
 			}

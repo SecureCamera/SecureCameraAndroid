@@ -1,5 +1,6 @@
 package com.darkrockstudios.app.securecamera.preferences
 
+import com.darkrockstudios.app.securecamera.security.XorCipher
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
