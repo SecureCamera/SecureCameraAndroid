@@ -1,0 +1,16 @@
+name: Notify on Release
+
+on:
+  release:
+    types: [ published ]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Discord notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: '**New SnapSafe Android release:** ${{ github.event.release.name }} \n\n **Download Here:** \n\n ${{ github.event.release.html_url }}'
