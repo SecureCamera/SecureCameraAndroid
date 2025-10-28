@@ -1,0 +1,1 @@
+- Face blurring is now an oval
