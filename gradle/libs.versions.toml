@@ -1,13 +1,13 @@
 [versions]
-versionCode = "24"
-versionName = "3.5.3"
+versionCode = "25"
+versionName = "3.5.4"
 
 targetSdk = "36"
 compileSdk = "36"
 minSdk = "29"
 
 javaVersion = "17"
-agp = "8.12.3"
+agp = "8.11.2"
 workManager = "2.11.0"
 argon2kt = "1.6.0"
 bcrypt = "0.10.2"
