@@ -119,6 +119,13 @@
     <string name="camera_permissions_required">Camera permissions are required.</string>
     <string name="camera_open_settings">Open Settings</string>
     <string name="camera_shutter_button_desc">Take Photo</string>
+    <string name="camera_mode_photo">Photo</string>
+    <string name="camera_mode_video">Video</string>
+    <string name="camera_mode_toggle_description">Switch capture mode</string>
+    <string name="camera_start_recording_description">Start Recording</string>
+    <string name="camera_stop_recording_description">Stop Recording</string>
+    <string name="camera_recording_indicator">Recording</string>
+    <string name="camera_video_permissions_required">Audio recording permission is required for video.</string>
 
     <!-- Settings Screen -->
     <string name="settings_title">Settings</string>

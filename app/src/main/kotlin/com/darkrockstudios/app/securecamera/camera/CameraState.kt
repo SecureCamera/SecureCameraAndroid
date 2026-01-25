@@ -1,12 +1,15 @@
 package com.darkrockstudios.app.securecamera.camera
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.RectF
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.video.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntSize
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.coroutineScope
 import com.darkrockstudios.app.securecamera.obfuscation.FacialDetection
@@ -15,6 +18,7 @@ import kotlinx.coroutines.*
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import timber.log.Timber
+import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -78,6 +82,18 @@ class CameraState internal constructor(
 
 	var faces by mutableStateOf<List<FaceBox>>(emptyList())
 		private set
+
+	var captureMode by mutableStateOf(CaptureMode.PHOTO)
+		private set
+
+	var isRecording by mutableStateOf(false)
+		private set
+
+	var recordingDurationMs by mutableLongStateOf(0L)
+		private set
+
+	private var activeRecording: Recording? = null
+	private var videoCapture: VideoCapture<Recorder>? = null
 
 	init {
 		observePreferences()
@@ -215,6 +231,91 @@ class CameraState internal constructor(
 		)
 	}
 
+	/**
+	 * Switch between photo and video capture modes.
+	 * This will rebind the camera with the appropriate use cases.
+	 */
+	fun switchCaptureMode(mode: CaptureMode) {
+		if (mode != captureMode) {
+			// Stop any active recording before switching modes
+			if (isRecording) {
+				stopRecording()
+			}
+			captureMode = mode
+			bindCamera()
+		}
+	}
+
+	/**
+	 * Start video recording. Returns the output file path.
+	 * The video will be saved to the app's internal files directory.
+	 */
+	@SuppressLint("MissingPermission")
+	fun startRecording(context: Context): File? {
+		val videoCapture = this.videoCapture ?: run {
+			Timber.e("VideoCapture not initialized")
+			return null
+		}
+
+		if (isRecording) {
+			Timber.w("Recording already in progress")
+			return null
+		}
+
+		// Create output file in app's internal storage
+		val videosDir = File(context.filesDir, "videos")
+		if (!videosDir.exists()) {
+			videosDir.mkdirs()
+		}
+
+		val timestamp = java.text.SimpleDateFormat(
+			"yyyyMMdd_HHmmss",
+			java.util.Locale.US
+		).format(System.currentTimeMillis())
+		val outputFile = File(videosDir, "video_$timestamp.mp4")
+
+		val fileOutputOptions = FileOutputOptions.Builder(outputFile).build()
+
+		activeRecording = videoCapture.output
+			.prepareRecording(context, fileOutputOptions)
+			.withAudioEnabled()
+			.start(ContextCompat.getMainExecutor(context)) { event ->
+				when (event) {
+					is VideoRecordEvent.Start -> {
+						Timber.d("Recording started")
+						isRecording = true
+						recordingDurationMs = 0L
+					}
+
+					is VideoRecordEvent.Status -> {
+						recordingDurationMs = event.recordingStats.recordedDurationNanos / 1_000_000
+					}
+
+					is VideoRecordEvent.Finalize -> {
+						isRecording = false
+						if (event.hasError()) {
+							Timber.e("Recording error: ${event.error}, cause: ${event.cause?.message}")
+							// Delete the failed file
+							outputFile.delete()
+						} else {
+							Timber.i("Video saved to: ${event.outputResults.outputUri}")
+						}
+						activeRecording = null
+					}
+				}
+			}
+
+		return outputFile
+	}
+
+	/**
+	 * Stop the current video recording.
+	 */
+	fun stopRecording() {
+		activeRecording?.stop()
+		activeRecording = null
+	}
+
 	internal fun bindCamera() {
 		val provider = providerFuture
 
@@ -223,10 +324,6 @@ class CameraState internal constructor(
 				this.surfaceRequest = surfaceRequest
 			}
 		}
-
-		imageCapture = ImageCapture.Builder()
-			.setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-			.build()
 
 		imageAnalysis = ImageAnalysis.Builder()
 			.setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
@@ -243,17 +340,55 @@ class CameraState internal constructor(
 		provider.unbindAll()
 
 		try {
-			camera = provider.bindToLifecycle(
-				lifecycleOwner,
-				selector,
-				preview,
-				imageCapture,
-				imageAnalysis
-			).apply {
-				cameraInfo.zoomState.value?.let { zoomState ->
-					minZoom = zoomState.minZoomRatio
-					maxZoom = zoomState.maxZoomRatio
+			when (captureMode) {
+				CaptureMode.PHOTO -> {
+					// Clear video capture when in photo mode
+					videoCapture = null
+
+					imageCapture = ImageCapture.Builder()
+						.setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+						.build()
+
+					camera = provider.bindToLifecycle(
+						lifecycleOwner,
+						selector,
+						preview,
+						imageCapture,
+						imageAnalysis
+					)
 				}
+
+				CaptureMode.VIDEO -> {
+					// Clear image capture when in video mode
+					imageCapture = null
+
+					val qualitySelector = QualitySelector.fromOrderedList(
+						listOf(Quality.FHD, Quality.HD, Quality.SD),
+						FallbackStrategy.lowerQualityOrHigherThan(Quality.SD)
+					)
+
+					val recorder = Recorder.Builder()
+						.setExecutor(cameraExecutor)
+						.setQualitySelector(qualitySelector)
+						.build()
+
+					videoCapture = VideoCapture.Builder(recorder)
+						.setMirrorMode(MirrorMode.MIRROR_MODE_ON_FRONT_ONLY)
+						.build()
+
+					camera = provider.bindToLifecycle(
+						lifecycleOwner,
+						selector,
+						preview,
+						videoCapture,
+						imageAnalysis
+					)
+				}
+			}
+
+			camera?.cameraInfo?.zoomState?.value?.let { zoomState ->
+				minZoom = zoomState.minZoomRatio
+				maxZoom = zoomState.maxZoomRatio
 			}
 		} catch (e: Exception) {
 			Timber.e(e)
@@ -298,6 +433,10 @@ class CameraState internal constructor(
 	}
 
 	internal fun cleanup() {
+		// Stop any active recording
+		if (isRecording) {
+			stopRecording()
+		}
 		faceAnalyzer = null
 		imageAnalysis?.clearAnalyzer()
 		analysisScope.cancel()

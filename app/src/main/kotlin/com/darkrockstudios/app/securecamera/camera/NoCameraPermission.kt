@@ -57,7 +57,11 @@ fun NoCameraPermission(
 		BottomCameraControls(
 			modifier = Modifier.align(Alignment.BottomCenter),
 			navController = navController,
+			captureMode = CaptureMode.PHOTO,
+			isRecording = false,
 			onCapture = null,
+			onToggleRecording = null,
+			onModeChange = {},
 			isLoading = false,
 		)
 	}

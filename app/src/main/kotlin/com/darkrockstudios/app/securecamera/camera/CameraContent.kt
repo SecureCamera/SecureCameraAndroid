@@ -24,6 +24,7 @@ internal fun CameraContent(
 	val permissionsState = rememberMultiplePermissionsState(
 		permissions = listOf(
 			Manifest.permission.CAMERA,
+			Manifest.permission.RECORD_AUDIO,
 		)
 	)
 

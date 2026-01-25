@@ -63,14 +63,18 @@ private fun TopCameraControlsBarFlashOnPreview() {
 	}
 }
 
-@Preview(name = "Bottom Camera Controls - Normal", showBackground = true)
+@Preview(name = "Bottom Camera Controls - Photo Mode", showBackground = true)
 @Composable
-private fun BottomCameraControlsNormalPreview() {
+private fun BottomCameraControlsPhotoPreview() {
 	Surface(color = MaterialTheme.colorScheme.background) {
 		Box(modifier = Modifier.fillMaxSize()) {
 			BottomCameraControls(
 				modifier = Modifier.align(Alignment.BottomCenter),
+				captureMode = CaptureMode.PHOTO,
+				isRecording = false,
 				onCapture = {},
+				onToggleRecording = {},
+				onModeChange = {},
 				isLoading = false,
 				navController = DummyNavController()
 			)
@@ -78,15 +82,38 @@ private fun BottomCameraControlsNormalPreview() {
 	}
 }
 
-@Preview(name = "Bottom Camera Controls - Loading", showBackground = true)
+@Preview(name = "Bottom Camera Controls - Video Mode", showBackground = true)
 @Composable
-private fun BottomCameraControlsLoadingPreview() {
+private fun BottomCameraControlsVideoPreview() {
 	Surface(color = MaterialTheme.colorScheme.background) {
 		Box(modifier = Modifier.fillMaxSize()) {
 			BottomCameraControls(
 				modifier = Modifier.align(Alignment.BottomCenter),
+				captureMode = CaptureMode.VIDEO,
+				isRecording = false,
 				onCapture = {},
-				isLoading = true,
+				onToggleRecording = {},
+				onModeChange = {},
+				isLoading = false,
+				navController = DummyNavController()
+			)
+		}
+	}
+}
+
+@Preview(name = "Bottom Camera Controls - Recording", showBackground = true)
+@Composable
+private fun BottomCameraControlsRecordingPreview() {
+	Surface(color = MaterialTheme.colorScheme.background) {
+		Box(modifier = Modifier.fillMaxSize()) {
+			BottomCameraControls(
+				modifier = Modifier.align(Alignment.BottomCenter),
+				captureMode = CaptureMode.VIDEO,
+				isRecording = true,
+				onCapture = {},
+				onToggleRecording = {},
+				onModeChange = {},
+				isLoading = false,
 				navController = DummyNavController()
 			)
 		}
