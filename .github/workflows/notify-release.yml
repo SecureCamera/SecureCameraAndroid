@@ -13,4 +13,4 @@ jobs:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         uses: Ilshidur/action-discord@master
         with:
-          args: '**New SnapSafe Android release:** ${{ github.event.release.name }} \n\n **Download Here:** \n\n ${{ github.event.release.html_url }}'
+          args: "**New SnapSafe Android release:** {{ EVENT_PAYLOAD.release.name }}\n**Download Here:** {{ EVENT_PAYLOAD.release.html_url }}\n\n**Changelog:**\n{{ EVENT_PAYLOAD.release.body }}"
