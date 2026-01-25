@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
 	alias(libs.plugins.android.application)
 	alias(libs.plugins.kotlin.android)
@@ -62,10 +64,6 @@ android {
 		sourceCompatibility = JavaVersion.toVersion(libs.versions.javaVersion.get())
 		targetCompatibility = JavaVersion.toVersion(libs.versions.javaVersion.get())
 	}
-	kotlinOptions {
-		jvmTarget = libs.versions.javaVersion.get()
-		freeCompilerArgs = freeCompilerArgs + "-opt-in=kotlin.time.ExperimentalTime"
-	}
 	buildFeatures {
 		compose = true
 		buildConfig = true
@@ -73,6 +71,13 @@ android {
 	dependenciesInfo {
 		includeInApk = false
 		includeInBundle = false
+	}
+}
+
+kotlin {
+	compilerOptions {
+		jvmTarget.set(JvmTarget.fromTarget(libs.versions.javaVersion.get()))
+		freeCompilerArgs.add("-opt-in=kotlin.time.ExperimentalTime")
 	}
 }
 
