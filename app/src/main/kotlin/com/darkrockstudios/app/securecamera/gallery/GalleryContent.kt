@@ -33,7 +33,7 @@ import com.darkrockstudios.app.securecamera.camera.MediaType
 import com.darkrockstudios.app.securecamera.camera.PhotoDef
 import com.darkrockstudios.app.securecamera.camera.SecureImageRepository
 import com.darkrockstudios.app.securecamera.navigation.NavController
-import com.darkrockstudios.app.securecamera.navigation.ViewPhoto
+import com.darkrockstudios.app.securecamera.navigation.ViewMedia
 import com.darkrockstudios.app.securecamera.ui.HandleUiEvents
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -111,9 +111,7 @@ fun GalleryContent(
 						if (uiState.isSelectionMode) {
 							viewModel.toggleMediaSelection(mediaName)
 						} else {
-							// For now, only navigate to photo viewer for photos
-							// TODO: Add video player navigation
-							navController.navigate(ViewPhoto(mediaName))
+							navController.navigate(ViewMedia(mediaName))
 						}
 					},
 				)

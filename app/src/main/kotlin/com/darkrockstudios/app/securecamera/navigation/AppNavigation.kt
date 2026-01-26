@@ -81,19 +81,19 @@ fun AppNavHost(
 					}
 				}
 			}
-			entry<ViewPhoto> { key ->
+			entry<ViewMedia> { key ->
 				if (authManager.checkSessionValidity()) {
-					val photo = imageManager.getPhotoByName(key.photoName)
-					if (photo != null) {
+					val mediaItem = imageManager.getMediaItemByName(key.mediaName)
+					if (mediaItem != null) {
 						ViewPhotoContent(
-							initialPhoto = photo,
+							initialMedia = mediaItem,
 							navController = navController,
 							modifier = Modifier.fillMaxSize(),
 							paddingValues = paddingValues,
 							snackbarHostState = snackbarHostState,
 						)
 					} else {
-						Text(text = stringResource(R.string.photo_content_none_selected))
+						Text(text = stringResource(R.string.media_content_none_selected))
 					}
 				} else {
 					Box(modifier = Modifier.fillMaxSize()) {
@@ -176,7 +176,7 @@ fun enforceAuth(
 		currentKey !is Introduction
 	) {
 		val returnKey = when (currentKey) {
-			is ViewPhoto -> ViewPhoto(currentKey.photoName)
+			is ViewMedia -> ViewMedia(currentKey.mediaName)
 			is ObfuscatePhoto -> ObfuscatePhoto(currentKey.photoName)
 			is Gallery -> Gallery
 			is Settings -> Settings

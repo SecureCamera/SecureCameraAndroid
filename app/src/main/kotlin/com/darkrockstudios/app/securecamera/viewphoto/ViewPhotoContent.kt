@@ -24,10 +24,17 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
 import com.darkrockstudios.app.securecamera.ConfirmDeletePhotoDialog
 import com.darkrockstudios.app.securecamera.R
+import com.darkrockstudios.app.securecamera.camera.MediaItem
+import com.darkrockstudios.app.securecamera.camera.MediaType
 import com.darkrockstudios.app.securecamera.camera.PhotoDef
+import com.darkrockstudios.app.securecamera.camera.VideoDef
 import com.darkrockstudios.app.securecamera.navigation.NavController
 import com.darkrockstudios.app.securecamera.navigation.ObfuscatePhoto
 import com.darkrockstudios.app.securecamera.ui.HandleUiEvents
@@ -36,25 +43,26 @@ import net.engawapg.lib.zoomable.rememberZoomState
 import net.engawapg.lib.zoomable.zoomableWithScroll
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
+import androidx.media3.common.MediaItem as ExoMediaItem
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @OptIn(ExperimentalZoomableApi::class)
 @Composable
 fun ViewPhotoContent(
-	initialPhoto: PhotoDef,
+	initialMedia: MediaItem,
 	navController: NavController,
 	modifier: Modifier = Modifier,
 	snackbarHostState: SnackbarHostState,
 	paddingValues: PaddingValues
 ) {
 	val viewModel: ViewPhotoViewModel =
-		koinViewModel(key = initialPhoto.photoName) { parametersOf(initialPhoto.photoName) }
+		koinViewModel(key = initialMedia.mediaName) { parametersOf(initialMedia.mediaName) }
 	val context = LocalContext.current
 
 	val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-	LaunchedEffect(uiState.photoDeleted) {
-		if (uiState.photoDeleted) {
+	LaunchedEffect(uiState.mediaDeleted) {
+		if (uiState.mediaDeleted) {
 			navController.navigateUp()
 		}
 	}
@@ -66,6 +74,7 @@ fun ViewPhotoContent(
 	) {
 		ViewPhotoTopBar(
 			navController = navController,
+			mediaType = uiState.currentMediaType,
 			onDeleteClick = {
 				viewModel.showDeleteConfirmation()
 			},
@@ -81,7 +90,7 @@ fun ViewPhotoContent(
 			onShareClick = {
 				viewModel.sharePhoto(context)
 			},
-			showDecoyButton = uiState.hasPoisonPill,
+			showDecoyButton = uiState.hasPoisonPill && uiState.currentMediaType == MediaType.PHOTO,
 			isDecoy = uiState.isDecoy,
 			isDecoyLoading = uiState.isDecoyLoading,
 			onDecoyClick = {
@@ -93,7 +102,7 @@ fun ViewPhotoContent(
 			ConfirmDeletePhotoDialog(
 				selectedCount = 1,
 				onConfirm = {
-					viewModel.deleteCurrentPhoto()
+					viewModel.deleteCurrentMedia()
 					viewModel.hideDeleteConfirmation()
 				},
 				onDismiss = {
@@ -102,7 +111,7 @@ fun ViewPhotoContent(
 			)
 		}
 
-		if (uiState.photos.isNotEmpty()) {
+		if (uiState.mediaItems.isNotEmpty()) {
 			val listState = remember { LazyListState(firstVisibleItemIndex = uiState.currentIndex) }
 
 			LaunchedEffect(listState) {
@@ -111,7 +120,7 @@ fun ViewPhotoContent(
 							listState.firstVisibleItemScrollOffset
 				}.collect { (idx, off) ->
 					if (listState.firstVisibleItemIndex != uiState.currentIndex) {
-						viewModel.setCurrentPhotoIndex(listState.firstVisibleItemIndex)
+						viewModel.setCurrentMediaIndex(listState.firstVisibleItemIndex)
 					}
 				}
 			}
@@ -123,16 +132,26 @@ fun ViewPhotoContent(
 				verticalAlignment = Alignment.CenterVertically,
 				horizontalArrangement = Arrangement.spacedBy(32.dp),
 			) {
-				items(count = uiState.photos.size, key = { uiState.photos[it].photoName }) { index ->
-					val photo = uiState.photos[index]
+				items(count = uiState.mediaItems.size, key = { uiState.mediaItems[it].mediaName }) { index ->
+					val mediaItem = uiState.mediaItems[index]
 
-					ViewPhoto(
-						modifier = Modifier
-							.fillParentMaxSize()
-							.padding(bottom = paddingValues.calculateBottomPadding()),
-						photo = photo,
-						viewModel = viewModel,
-					)
+					when (mediaItem) {
+						is PhotoDef -> ViewPhoto(
+							modifier = Modifier
+								.fillParentMaxSize()
+								.padding(bottom = paddingValues.calculateBottomPadding()),
+							photo = mediaItem,
+							viewModel = viewModel,
+						)
+
+						is VideoDef -> ViewVideo(
+							modifier = Modifier
+								.fillParentMaxSize()
+								.padding(bottom = paddingValues.calculateBottomPadding()),
+							video = mediaItem,
+							isCurrentItem = index == uiState.currentIndex,
+						)
+					}
 				}
 			}
 		}
@@ -206,6 +225,60 @@ private fun ViewPhoto(
 			Text(
 				modifier = Modifier.align(alignment = Alignment.Center),
 				text = stringResource(id = R.string.photo_not_found),
+			)
+		}
+	}
+}
+
+@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+@Composable
+private fun ViewVideo(
+	modifier: Modifier,
+	video: VideoDef,
+	isCurrentItem: Boolean,
+) {
+	val context = LocalContext.current
+
+	val exoPlayer = remember(video.videoName) {
+		ExoPlayer.Builder(context).build().apply {
+			val mediaItem = ExoMediaItem.fromUri(video.videoFile.toURI().toString())
+			setMediaItem(mediaItem)
+			prepare()
+			repeatMode = Player.REPEAT_MODE_OFF
+		}
+	}
+
+	// Pause when not the current item
+	LaunchedEffect(isCurrentItem) {
+		if (!isCurrentItem) {
+			exoPlayer.pause()
+		}
+	}
+
+	DisposableEffect(video.videoName) {
+		onDispose {
+			exoPlayer.release()
+		}
+	}
+
+	Box(
+		modifier = modifier.clipToBounds(),
+		contentAlignment = Alignment.Center
+	) {
+		if (video.videoFile.exists()) {
+			AndroidView(
+				factory = { ctx ->
+					PlayerView(ctx).apply {
+						player = exoPlayer
+						useController = true
+					}
+				},
+				modifier = Modifier.fillMaxSize()
+			)
+		} else {
+			Text(
+				modifier = Modifier.align(alignment = Alignment.Center),
+				text = stringResource(id = R.string.video_not_found),
 			)
 		}
 	}

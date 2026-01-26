@@ -6,8 +6,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.viewModelScope
 import com.darkrockstudios.app.securecamera.BaseViewModel
 import com.darkrockstudios.app.securecamera.R
-import com.darkrockstudios.app.securecamera.camera.PhotoDef
-import com.darkrockstudios.app.securecamera.camera.SecureImageRepository
+import com.darkrockstudios.app.securecamera.camera.*
 import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
 import com.darkrockstudios.app.securecamera.security.pin.PinRepository
 import com.darkrockstudios.app.securecamera.share.sharePhotoWithProvider
@@ -18,12 +17,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class ViewPhotoViewModel(
-    private val appContext: Context,
-    private val imageManager: SecureImageRepository,
-    private val preferencesManager: AppSettingsDataSource,
-    private val pinRepository: PinRepository,
-    private val addDecoyPhotoUseCase: AddDecoyPhotoUseCase,
-    private val initialPhotoName: String,
+	private val appContext: Context,
+	private val imageManager: SecureImageRepository,
+	private val preferencesManager: AppSettingsDataSource,
+	private val pinRepository: PinRepository,
+	private val addDecoyPhotoUseCase: AddDecoyPhotoUseCase,
+	private val initialMediaName: String,
 ) : BaseViewModel<ViewPhotoUiState>() {
 
 	private var currentIndex: Int
@@ -35,20 +34,18 @@ class ViewPhotoViewModel(
 	override fun createState() = ViewPhotoUiState()
 
 	init {
-		val photos = imageManager.getPhotos().sortedByDescending { photoDef ->
-			photoDef.dateTaken()
-		}
-		val initialIndex = photos.indexOfFirst { it.photoName == initialPhotoName }
-		val initialPhoto = photos[initialIndex]
+		val mediaItems = imageManager.getAllMedia()
+		val initialIndex = mediaItems.indexOfFirst { it.mediaName == initialMediaName }
+		val initialMedia = mediaItems.getOrNull(initialIndex)
 
 		viewModelScope.launch {
 			val hasPoisonPill = pinRepository.hasPoisonPillPin()
-			val isDecoy = imageManager.isDecoyPhoto(initialPhoto)
+			val isDecoy = (initialMedia as? PhotoDef)?.let { imageManager.isDecoyPhoto(it) } ?: false
 
 			_uiState.update {
 				it.copy(
-					photos = photos,
-					currentIndex = initialIndex,
+					mediaItems = mediaItems,
+					currentIndex = if (initialIndex >= 0) initialIndex else 0,
 					hasPoisonPill = hasPoisonPill,
 					isDecoy = isDecoy
 				)
@@ -66,22 +63,27 @@ class ViewPhotoViewModel(
 		return@withContext imageManager.readImage(photo).asImageBitmap()
 	}
 
-	fun setCurrentPhotoIndex(index: Int) {
+	fun setCurrentMediaIndex(index: Int) {
 		currentIndex = index
 		viewModelScope.launch {
-			val isDecoy = getCurrentPhoto()?.let { imageManager.isDecoyPhoto(it) } ?: false
+			val currentMedia = getCurrentMedia()
+			val isDecoy = (currentMedia as? PhotoDef)?.let { imageManager.isDecoyPhoto(it) } ?: false
 			_uiState.update { it.copy(isDecoy = isDecoy) }
 		}
 	}
 
-	fun getCurrentPhoto(): PhotoDef? {
-		val photos = uiState.value.photos
-		return if (photos.isNotEmpty() && currentIndex >= 0 && currentIndex < photos.size) {
-			photos[currentIndex]
+	fun getCurrentMedia(): MediaItem? {
+		val mediaItems = uiState.value.mediaItems
+		return if (mediaItems.isNotEmpty() && currentIndex >= 0 && currentIndex < mediaItems.size) {
+			mediaItems[currentIndex]
 		} else {
 			null
 		}
 	}
+
+	fun getCurrentPhoto(): PhotoDef? = getCurrentMedia() as? PhotoDef
+
+	fun getCurrentVideo(): VideoDef? = getCurrentMedia() as? VideoDef
 
 	fun toggleDecoyStatus() {
 		val currentPhoto = getCurrentPhoto() ?: return
@@ -132,10 +134,10 @@ class ViewPhotoViewModel(
 		_uiState.update { it.copy(showDeleteConfirmation = false) }
 	}
 
-	fun deleteCurrentPhoto() {
-		val currentPhoto = getCurrentPhoto() ?: return
-		imageManager.deleteImage(currentPhoto)
-		_uiState.update { it.copy(photoDeleted = true) }
+	fun deleteCurrentMedia() {
+		val currentMedia = getCurrentMedia() ?: return
+		imageManager.deleteMediaItem(currentMedia)
+		_uiState.update { it.copy(mediaDeleted = true) }
 	}
 
 	fun showInfoDialog() {
@@ -159,14 +161,17 @@ class ViewPhotoViewModel(
 }
 
 data class ViewPhotoUiState(
-	val photos: List<PhotoDef> = emptyList(),
+	val mediaItems: List<MediaItem> = emptyList(),
 	val currentIndex: Int = 0,
 	val hasPoisonPill: Boolean = false,
 	val isDecoy: Boolean = false,
 	val isDecoyLoading: Boolean = false,
 	val showDeleteConfirmation: Boolean = false,
 	val showInfoDialog: Boolean = false,
-	val photoDeleted: Boolean = false,
+	val mediaDeleted: Boolean = false,
 	val sanitizeFileName: Boolean = false,
 	val sanitizeMetadata: Boolean = false
-)
+) {
+	val currentMediaType: MediaType?
+		get() = mediaItems.getOrNull(currentIndex)?.mediaType
+}

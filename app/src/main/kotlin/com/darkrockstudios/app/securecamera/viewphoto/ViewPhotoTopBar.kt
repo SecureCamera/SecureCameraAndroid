@@ -10,12 +10,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.darkrockstudios.app.securecamera.R
+import com.darkrockstudios.app.securecamera.camera.MediaType
 import com.darkrockstudios.app.securecamera.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ViewPhotoTopBar(
 	navController: NavController,
+	mediaType: MediaType?,
 	onDeleteClick: () -> Unit,
 	onShareClick: () -> Unit,
 	onInfoClick: () -> Unit,
@@ -25,10 +27,11 @@ fun ViewPhotoTopBar(
 	isDecoyLoading: Boolean = false,
 	onDecoyClick: () -> Unit = {},
 ) {
+	val isPhoto = mediaType == MediaType.PHOTO
 	TopAppBar(
 		title = {
 			Text(
-				stringResource(id = R.string.photo_title),
+				stringResource(id = if (isPhoto) R.string.photo_title else R.string.video_title),
 				color = MaterialTheme.colorScheme.onPrimaryContainer,
 			)
 		},
@@ -49,22 +52,24 @@ fun ViewPhotoTopBar(
 			}
 		},
 		actions = {
-			if (showDecoyButton && isDecoyLoading) {
+			if (isPhoto && showDecoyButton && isDecoyLoading) {
 				CircularProgressIndicator(
 					modifier = Modifier.size(24.dp),
 					color = MaterialTheme.colorScheme.onPrimaryContainer,
 					strokeWidth = 2.dp
 				)
 			}
-			IconButton(
-				onClick = onShareClick,
-				modifier = Modifier.padding(8.dp)
-			) {
-				Icon(
-					imageVector = Icons.Filled.Share,
-					contentDescription = stringResource(id = R.string.share_photo_content_description),
-					tint = MaterialTheme.colorScheme.onPrimaryContainer,
-				)
+			if (isPhoto) {
+				IconButton(
+					onClick = onShareClick,
+					modifier = Modifier.padding(8.dp)
+				) {
+					Icon(
+						imageVector = Icons.Filled.Share,
+						contentDescription = stringResource(id = R.string.share_photo_content_description),
+						tint = MaterialTheme.colorScheme.onPrimaryContainer,
+					)
+				}
 			}
 
 			var showMoreMenu by remember { mutableStateOf(false) }
@@ -84,55 +89,56 @@ fun ViewPhotoTopBar(
 				expanded = showMoreMenu,
 				onDismissRequest = { showMoreMenu = false }
 			) {
-				DropdownMenuItem(
-					text = { Text(stringResource(id = R.string.info_button)) },
-					onClick = {
-						onInfoClick()
-						showMoreMenu = false
-					},
-					leadingIcon = {
-						Icon(
-							imageVector = Icons.Filled.Info,
-							contentDescription = null
-						)
-					}
-				)
-				if (showDecoyButton) {
+				if (isPhoto) {
 					DropdownMenuItem(
-						text = {
-							if (isDecoy) {
-								Text(stringResource(id = R.string.decoy_photo_remove_menu_item))
-							} else {
-								Text(stringResource(id = R.string.decoy_photo_set_menu_item))
-							}
-						},
-						enabled = isDecoyLoading.not(),
+						text = { Text(stringResource(id = R.string.info_button)) },
 						onClick = {
-							onDecoyClick()
+							onInfoClick()
 							showMoreMenu = false
 						},
 						leadingIcon = {
 							Icon(
-								imageVector = if (isDecoy) Icons.Filled.RemoveCircleOutline else Icons.Filled.AddCircle,
+								imageVector = Icons.Filled.Info,
+								contentDescription = null
+							)
+						}
+					)
+					if (showDecoyButton) {
+						DropdownMenuItem(
+							text = {
+								if (isDecoy) {
+									Text(stringResource(id = R.string.decoy_photo_remove_menu_item))
+								} else {
+									Text(stringResource(id = R.string.decoy_photo_set_menu_item))
+								}
+							},
+							enabled = isDecoyLoading.not(),
+							onClick = {
+								onDecoyClick()
+								showMoreMenu = false
+							},
+							leadingIcon = {
+								Icon(
+									imageVector = if (isDecoy) Icons.Filled.RemoveCircleOutline else Icons.Filled.AddCircle,
+									contentDescription = null
+								)
+							}
+						)
+					}
+					DropdownMenuItem(
+						text = { Text(stringResource(id = R.string.obfuscate_photo_button)) },
+						onClick = {
+							onObfuscateClick()
+							showMoreMenu = false
+						},
+						leadingIcon = {
+							Icon(
+								imageVector = Icons.Filled.BlurOn,
 								contentDescription = null
 							)
 						}
 					)
 				}
-
-				DropdownMenuItem(
-					text = { Text(stringResource(id = R.string.obfuscate_photo_button)) },
-					onClick = {
-						onObfuscateClick()
-						showMoreMenu = false
-					},
-					leadingIcon = {
-						Icon(
-							imageVector = Icons.Filled.BlurOn,
-							contentDescription = null
-						)
-					}
-				)
 				DropdownMenuItem(
 					text = { Text(stringResource(id = R.string.delete_button)) },
 					onClick = {

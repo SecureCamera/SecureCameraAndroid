@@ -51,6 +51,14 @@
     <string name="share_photo_content_description">Share Photos</string>
     <string name="delete_photo_content_description">Delete Photos</string>
     <string name="photo_content_none_selected">No photo selected</string>
+    <string name="media_content_none_selected">No media selected</string>
+
+    <!-- View Video Screen -->
+    <string name="video_title">Video</string>
+    <string name="video_not_found">Video not found</string>
+    <string name="video_content_description">Video</string>
+    <string name="video_content_loading">Loading video…</string>
+    <string name="video_playback_error">Error playing video</string>
     <string name="unauthorized">Unauthorized</string>
     <string name="mark_as_decoy">Mark as Decoy</string>
     <string name="unmark_as_decoy">Unmark as Decoy</string>

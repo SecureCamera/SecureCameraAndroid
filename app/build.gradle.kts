@@ -122,6 +122,8 @@ dependencies {
 	implementation(libs.accompanist.permissions)
 	implementation(libs.androidx.lifecycle.runtime.compose)
 	implementation(libs.zoomable)
+	implementation(libs.media3.exoplayer)
+	implementation(libs.media3.ui)
 	implementation(libs.androidx.runtime.livedata)
 	implementation(libs.bcrypt)
 	implementation(libs.androidx.work.runtime.ktx)

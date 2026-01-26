@@ -11,7 +11,7 @@ import com.darkrockstudios.app.securecamera.BaseViewModel
 import com.darkrockstudios.app.securecamera.R
 import com.darkrockstudios.app.securecamera.camera.PhotoDef
 import com.darkrockstudios.app.securecamera.camera.SecureImageRepository
-import com.darkrockstudios.app.securecamera.navigation.ViewPhoto
+import com.darkrockstudios.app.securecamera.navigation.ViewMedia
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -181,7 +181,7 @@ class ObfuscatePhotoViewModel(
 
 					Timber.i("Saved copy of image: ${newPhotoDef.photoName}")
 					showCopySuccessMessage()
-					onNavigate(ViewPhoto(newPhotoDef.photoName))
+					onNavigate(ViewMedia(newPhotoDef.photoName))
 				} catch (e: Exception) {
 					Timber.e(e, "Failed to save copy of image")
 					showSaveErrorMessage()

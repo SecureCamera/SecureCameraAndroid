@@ -16,7 +16,7 @@ object Camera : DestinationKey
 object Gallery : DestinationKey
 
 @Serializable
-data class ViewPhoto(val photoName: String) : DestinationKey
+data class ViewMedia(val mediaName: String) : DestinationKey
 
 @Serializable
 data class ObfuscatePhoto(val photoName: String) : DestinationKey

@@ -36,6 +36,7 @@ cryptographyBom = "0.5.0"
 datastorePreferences = "1.2.0"
 timber = "5.0.1"
 zoomable = "2.9.0"
+media3 = "1.5.1"
 cameraCamera2 = "1.5.2"
 cameraView = "1.5.2"
 foundation = "1.10.1"
@@ -94,6 +95,8 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
 ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 zoomable = { module = "net.engawapg.lib:zoomable", version.ref = "zoomable" }
+media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "media3" }
+media3-ui = { module = "androidx.media3:media3-ui", version.ref = "media3" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workManager" }
 androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNav3" }
 androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "navigation3" }
