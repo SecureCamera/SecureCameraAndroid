@@ -104,6 +104,7 @@
     <string name="gallery_share_selected_content_description">Share Selected</string>
     <string name="gallery_select_all_content_description">Select All</string>
     <string name="gallery_decoy_indicator">Is Decoy Photo</string>
+    <string name="gallery_video_indicator">Video</string>
 
     <!-- Camera Screen -->
     <string name="camera_more_options_content_description">More Options</string>

@@ -18,15 +18,15 @@ class ThumbnailCache {
 	}
 	private val cacheMutex = Mutex()
 
-	suspend fun getThumbnail(photo: PhotoDef): Bitmap? {
+	suspend fun getThumbnail(mediaItem: MediaItem): Bitmap? {
 		return cacheMutex.withLock {
-			thumbnailCache.get(photo.photoName)
+			thumbnailCache.get(mediaItem.mediaName)
 		}
 	}
 
-	fun evictThumbnail(photo: PhotoDef) {
+	fun evictThumbnail(mediaItem: MediaItem) {
 		cacheMutex.withLockBlocking {
-			thumbnailCache.remove(photo.photoName)
+			thumbnailCache.remove(mediaItem.mediaName)
 		}
 	}
 
@@ -36,9 +36,9 @@ class ThumbnailCache {
 		}
 	}
 
-	suspend fun putThumbnail(photo: PhotoDef, thumbnailBitmap: Bitmap) {
+	suspend fun putThumbnail(mediaItem: MediaItem, thumbnailBitmap: Bitmap) {
 		cacheMutex.withLock {
-			thumbnailCache.put(photo.photoName, thumbnailBitmap)
+			thumbnailCache.put(mediaItem.mediaName, thumbnailBitmap)
 		}
 	}
 }

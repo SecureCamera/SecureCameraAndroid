@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Bitmap.CompressFormat
 import android.graphics.BitmapFactory
+import android.media.MediaMetadataRetriever
 import android.util.Size
 import com.ashampoo.kim.Kim
 import com.ashampoo.kim.common.convertToPhotoMetadata
@@ -15,8 +16,7 @@ import timber.log.Timber
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.util.*
 import kotlin.time.toJavaInstant
 
 
@@ -332,6 +332,173 @@ class SecureImageRepository(
 			} ?: emptyList()
 	}
 
+	fun getVideosDirectory(): File = File(appContext.filesDir, VIDEOS_DIR)
+
+	fun getVideos(): List<VideoDef> {
+		val dir = getVideosDirectory()
+		if (!dir.exists()) {
+			return emptyList()
+		}
+
+		return dir.listFiles()
+			?.filter { it.isFile && it.name.endsWith(".mp4") }
+			?.map { file ->
+				val name = file.name
+				val format = name.substringAfterLast('.', "mp4")
+				VideoDef(
+					videoName = name,
+					videoFormat = format,
+					videoFile = file
+				)
+			} ?: emptyList()
+	}
+
+	/**
+	 * Returns all media items (photos and videos) sorted by date taken (newest first).
+	 */
+	fun getAllMedia(): List<MediaItem> {
+		val photos = getPhotos()
+		val videos = getVideos()
+		return (photos + videos).sortedByDescending { it.dateTaken() }
+	}
+
+	fun getVideoByName(videoName: String): VideoDef? {
+		val dir = getVideosDirectory()
+		if (!dir.exists()) {
+			return null
+		}
+
+		val videoFile = File(dir, videoName)
+		if (!videoFile.exists() || !videoFile.isFile) {
+			return null
+		}
+
+		val format = videoName.substringAfterLast('.', "mp4")
+		return VideoDef(
+			videoName = videoName,
+			videoFormat = format,
+			videoFile = videoFile
+		)
+	}
+
+	/**
+	 * Reads a thumbnail for a video by extracting a frame.
+	 * For now, videos are not encrypted, so we read directly from the file.
+	 */
+	suspend fun readVideoThumbnail(video: VideoDef): Bitmap? {
+		thumbnailCache.getThumbnail(video)?.let { return it }
+
+		val thumbFile = getVideoThumbnail(video)
+
+		val thumbnailBitmap = if (thumbFile.exists()) {
+			// Decrypt the cached thumbnail
+			val plainBytes = encryptionScheme.decryptFile(thumbFile)
+			BitmapFactory.decodeByteArray(plainBytes, 0, plainBytes.size)
+		} else if (!video.videoFile.exists()) {
+			Timber.w("Video no longer exists! ${video.videoName}")
+			null
+		} else {
+			// Extract a frame from the video
+			extractVideoFrame(video.videoFile)?.let { frameBitmap ->
+				// Scale down for thumbnail
+				val scaledBitmap = Bitmap.createScaledBitmap(
+					frameBitmap,
+					frameBitmap.width / 4,
+					frameBitmap.height / 4,
+					true
+				)
+				if (scaledBitmap != frameBitmap) {
+					frameBitmap.recycle()
+				}
+
+				// Compress and encrypt the thumbnail
+				val thumbnailBytes = ByteArrayOutputStream().use { outputStream ->
+					scaledBitmap.compress(CompressFormat.JPEG, 75, outputStream)
+					outputStream.toByteArray()
+				}
+				encryptionScheme.encryptToFile(
+					plain = thumbnailBytes,
+					targetFile = thumbFile,
+				)
+
+				scaledBitmap
+			}
+		}
+
+		if (thumbnailBitmap != null) {
+			thumbnailCache.putThumbnail(video, thumbnailBitmap)
+		}
+
+		return thumbnailBitmap
+	}
+
+	private fun extractVideoFrame(videoFile: File): Bitmap? {
+		return try {
+			MediaMetadataRetriever().use { retriever ->
+				retriever.setDataSource(videoFile.absolutePath)
+				// Get frame at 1 second (or first frame if video is shorter)
+				retriever.getFrameAtTime(1_000_000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
+			}
+		} catch (e: Exception) {
+			Timber.e(e, "Failed to extract video frame")
+			null
+		}
+	}
+
+	private fun getVideoThumbnail(video: VideoDef): File {
+		val dir = getThumbnailsDir()
+		return File(dir, video.videoName + ".thumb")
+	}
+
+	fun deleteVideo(video: VideoDef): Boolean {
+		thumbnailCache.evictThumbnail(video)
+		getVideoThumbnail(video).delete()
+
+		return if (video.videoFile.exists()) {
+			video.videoFile.delete()
+		} else {
+			false
+		}
+	}
+
+	fun deleteVideos(videos: List<VideoDef>): Boolean {
+		return videos.map { deleteVideo(it) }.all { it }
+	}
+
+	/**
+	 * Deletes a media item (photo or video) based on its type.
+	 */
+	fun deleteMediaItem(mediaItem: MediaItem): Boolean {
+		return when (mediaItem) {
+			is PhotoDef -> deleteImage(mediaItem)
+			is VideoDef -> deleteVideo(mediaItem)
+		}
+	}
+
+	/**
+	 * Deletes multiple media items (photos and videos).
+	 */
+	fun deleteMediaItems(items: List<MediaItem>): Boolean {
+		return items.map { deleteMediaItem(it) }.all { it }
+	}
+
+	/**
+	 * Reads a thumbnail for any media item type.
+	 */
+	suspend fun readMediaThumbnail(mediaItem: MediaItem): Bitmap? {
+		return when (mediaItem) {
+			is PhotoDef -> readThumbnail(mediaItem)
+			is VideoDef -> readVideoThumbnail(mediaItem)
+		}
+	}
+
+	/**
+	 * Gets a media item by name, checking both photos and videos.
+	 */
+	fun getMediaItemByName(mediaName: String): MediaItem? {
+		return getPhotoByName(mediaName) ?: getVideoByName(mediaName)
+	}
+
 	fun deleteImage(photoDef: PhotoDef, deleteDecoy: Boolean = true): Boolean {
 		thumbnailCache.evictThumbnail(photoDef)
 		if (deleteDecoy && isDecoyPhoto(photoDef)) {
@@ -465,6 +632,7 @@ class SecureImageRepository(
 
 	companion object {
 		const val PHOTOS_DIR = "photos"
+		const val VIDEOS_DIR = "videos"
 		const val DECOYS_DIR = "decoys"
 		const val THUMBNAILS_DIR = ".thumbnails"
 		const val MAX_DECOY_PHOTOS = 10

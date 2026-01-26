@@ -7,9 +7,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -26,6 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.darkrockstudios.app.securecamera.ConfirmDeletePhotoDialog
 import com.darkrockstudios.app.securecamera.R
+import com.darkrockstudios.app.securecamera.camera.MediaItem
+import com.darkrockstudios.app.securecamera.camera.MediaType
 import com.darkrockstudios.app.securecamera.camera.PhotoDef
 import com.darkrockstudios.app.securecamera.camera.SecureImageRepository
 import com.darkrockstudios.app.securecamera.navigation.NavController
@@ -51,11 +55,11 @@ fun GalleryContent(
 	val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
 	LaunchedEffect(Unit) {
-		viewModel.loadPhotos()
+		viewModel.loadMedia()
 	}
 
-	val startSelectionWithVibration = { photoName: String ->
-		viewModel.startSelectionMode(photoName)
+	val startSelectionWithVibration = { mediaName: String ->
+		viewModel.startSelectionMode(mediaName)
 		vibrateDevice(context)
 	}
 
@@ -68,16 +72,16 @@ fun GalleryContent(
 			navController = navController,
 			onDeleteClick = { viewModel.showDeleteConfirmation() },
 			onShareClick = { viewModel.shareSelectedPhotos(context) },
-			onSelectAll = { viewModel.selectAllPhotos() },
+			onSelectAll = { viewModel.selectAllMedia() },
 			isSelectionMode = uiState.isSelectionMode,
-			selectedCount = uiState.selectedPhotos.size,
+			selectedCount = uiState.selectedMedia.size,
 			onCancelSelection = { viewModel.clearSelection() }
 		)
 
 		if (uiState.showDeleteConfirmation) {
 			ConfirmDeletePhotoDialog(
-				selectedCount = uiState.selectedPhotos.size,
-				onConfirm = { viewModel.deleteSelectedPhotos() },
+				selectedCount = uiState.selectedMedia.size,
+				onConfirm = { viewModel.deleteSelectedMedia() },
 				onDismiss = { viewModel.dismissDeleteConfirmation() }
 			)
 		}
@@ -95,19 +99,21 @@ fun GalleryContent(
 		) {
 			if (uiState.isLoading) {
 				Text(text = stringResource(id = R.string.gallery_loading))
-			} else if (uiState.photos.isEmpty()) {
+			} else if (uiState.mediaItems.isEmpty()) {
 				Text(text = stringResource(id = R.string.gallery_empty))
 			} else {
-				PhotoGrid(
-					photos = uiState.photos,
+				MediaGrid(
+					mediaItems = uiState.mediaItems,
 					paddingValues = paddingValues,
-					selectedPhotoNames = uiState.selectedPhotos,
-					onPhotoLongClick = startSelectionWithVibration,
-					onPhotoClick = { photoName ->
+					selectedMediaNames = uiState.selectedMedia,
+					onMediaLongClick = startSelectionWithVibration,
+					onMediaClick = { mediaName ->
 						if (uiState.isSelectionMode) {
-							viewModel.togglePhotoSelection(photoName)
+							viewModel.toggleMediaSelection(mediaName)
 						} else {
-							navController.navigate(ViewPhoto(photoName))
+							// For now, only navigate to photo viewer for photos
+							// TODO: Add video player navigation
+							navController.navigate(ViewPhoto(mediaName))
 						}
 					},
 				)
@@ -119,13 +125,13 @@ fun GalleryContent(
 }
 
 @Composable
-private fun PhotoGrid(
-	photos: List<PhotoDef>,
+private fun MediaGrid(
+	mediaItems: List<MediaItem>,
 	modifier: Modifier = Modifier,
 	paddingValues: PaddingValues,
-	selectedPhotoNames: Set<String> = emptySet(),
-	onPhotoLongClick: (String) -> Unit = {},
-	onPhotoClick: (String) -> Unit = {},
+	selectedMediaNames: Set<String> = emptySet(),
+	onMediaLongClick: (String) -> Unit = {},
+	onMediaClick: (String) -> Unit = {},
 ) {
 	val limitedDispatcher = remember {
 		Dispatchers.IO.limitedParallelism(4) // Limit to 4 concurrent thumbnail loads
@@ -145,15 +151,15 @@ private fun PhotoGrid(
 		verticalArrangement = Arrangement.spacedBy(8.dp),
 		modifier = modifier.fillMaxSize()
 	) {
-		items(items = photos, key = { it.photoName }) { photo ->
-			PhotoItem(
-				photo = photo,
+		items(items = mediaItems, key = { it.mediaName }) { mediaItem ->
+			MediaGridItem(
+				mediaItem = mediaItem,
 				imageManager = imageManager,
 				scope = scope,
 				limitedDispatcher = limitedDispatcher,
-				isSelected = selectedPhotoNames.contains(photo.photoName),
-				onLongClick = { onPhotoLongClick(photo.photoName) },
-				onClick = { onPhotoClick(photo.photoName) }
+				isSelected = selectedMediaNames.contains(mediaItem.mediaName),
+				onLongClick = { onMediaLongClick(mediaItem.mediaName) },
+				onClick = { onMediaClick(mediaItem.mediaName) }
 			)
 		}
 	}
@@ -161,8 +167,8 @@ private fun PhotoGrid(
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-private fun PhotoItem(
-	photo: PhotoDef,
+private fun MediaGridItem(
+	mediaItem: MediaItem,
 	imageManager: SecureImageRepository,
 	scope: CoroutineScope,
 	limitedDispatcher: CoroutineDispatcher,
@@ -171,8 +177,10 @@ private fun PhotoItem(
 	onClick: () -> Unit = {},
 	modifier: Modifier = Modifier
 ) {
-	var thumbnailBitmap by remember(photo.photoName) { mutableStateOf<ImageBitmap?>(null) }
-	val isDecoy = remember(photo) { imageManager.isDecoyPhoto(photo) }
+	var thumbnailBitmap by remember(mediaItem.mediaName) { mutableStateOf<ImageBitmap?>(null) }
+	val isDecoy = remember(mediaItem) {
+		(mediaItem as? PhotoDef)?.let { imageManager.isDecoyPhoto(it) } ?: false
+	}
 
 	val imageAlpha by animateFloatAsState(
 		targetValue = if (thumbnailBitmap != null) 1f else 0f,
@@ -180,10 +188,10 @@ private fun PhotoItem(
 		label = "imageAlpha"
 	)
 
-	LaunchedEffect(photo.photoName) {
+	LaunchedEffect(mediaItem.mediaName) {
 		if (thumbnailBitmap == null) {
 			scope.launch(limitedDispatcher) {
-				thumbnailBitmap = imageManager.readThumbnail(photo)?.asImageBitmap()
+				thumbnailBitmap = imageManager.readMediaThumbnail(mediaItem)?.asImageBitmap()
 			}
 		}
 	}
@@ -211,7 +219,7 @@ private fun PhotoItem(
 						bitmap = it,
 						contentDescription = stringResource(
 							id = R.string.gallery_photo_content_description,
-							photo.photoName
+							mediaItem.mediaName
 						),
 						contentScale = ContentScale.Crop,
 						modifier = Modifier
@@ -229,6 +237,25 @@ private fun PhotoItem(
 						.padding(8.dp)
 						.fillMaxSize()
 				) {
+					// Video play indicator
+					if (mediaItem.mediaType == MediaType.VIDEO) {
+						Box(
+							modifier = Modifier
+								.size(32.dp)
+								.background(Color.Black.copy(alpha = 0.6f), CircleShape)
+								.align(Alignment.Center)
+						) {
+							Icon(
+								imageVector = Icons.Filled.PlayArrow,
+								contentDescription = stringResource(R.string.gallery_video_indicator),
+								tint = Color.White,
+								modifier = Modifier
+									.size(24.dp)
+									.align(Alignment.Center)
+							)
+						}
+					}
+
 					if (isDecoy) {
 						Icon(
 							imageVector = Icons.Filled.Warning,

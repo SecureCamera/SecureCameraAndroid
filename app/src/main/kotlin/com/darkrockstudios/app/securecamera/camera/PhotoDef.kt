@@ -10,8 +10,13 @@ data class PhotoDef(
 	val photoName: String,
 	val photoFormat: String,
 	val photoFile: File,
-) {
-	fun dateTaken(): Date {
+) : MediaItem {
+
+	override val mediaName: String get() = photoName
+	override val mediaFile: File get() = photoFile
+	override val mediaType: MediaType get() = MediaType.PHOTO
+
+	override fun dateTaken(): Date {
 		try {
 			val dateString = photoName.removePrefix("photo_").removeSuffix(".jpg")
 			val dateFormat = SimpleDateFormat("yyyyMMdd_HHmmss_SS", Locale.US)

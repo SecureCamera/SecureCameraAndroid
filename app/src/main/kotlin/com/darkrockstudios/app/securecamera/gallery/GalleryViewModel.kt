@@ -3,7 +3,7 @@ package com.darkrockstudios.app.securecamera.gallery
 import android.content.Context
 import androidx.lifecycle.viewModelScope
 import com.darkrockstudios.app.securecamera.BaseViewModel
-import com.darkrockstudios.app.securecamera.camera.PhotoDef
+import com.darkrockstudios.app.securecamera.camera.MediaItem
 import com.darkrockstudios.app.securecamera.camera.SecureImageRepository
 import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
 import com.darkrockstudios.app.securecamera.share.sharePhotosWithProvider
@@ -23,11 +23,11 @@ class GalleryViewModel(
 		observePreferences()
 	}
 
-	fun loadPhotos() {
+	fun loadMedia() {
 		viewModelScope.launch {
 			_uiState.update { it.copy(isLoading = true) }
-			val photos = imageManager.getPhotos().sortedByDescending { it.dateTaken() }
-			_uiState.update { it.copy(photos = photos, isLoading = false) }
+			val media = imageManager.getAllMedia()
+			_uiState.update { it.copy(mediaItems = media, isLoading = false) }
 		}
 	}
 
@@ -45,27 +45,27 @@ class GalleryViewModel(
 		}
 	}
 
-	fun togglePhotoSelection(photoName: String) {
-		val currentSelectedPhotos = uiState.value.selectedPhotos
-		val newSelectedPhotos = if (currentSelectedPhotos.contains(photoName)) {
-			currentSelectedPhotos - photoName
+	fun toggleMediaSelection(mediaName: String) {
+		val currentSelected = uiState.value.selectedMedia
+		val newSelected = if (currentSelected.contains(mediaName)) {
+			currentSelected - mediaName
 		} else {
-			currentSelectedPhotos + photoName
+			currentSelected + mediaName
 		}
 
 		_uiState.update {
 			it.copy(
-				selectedPhotos = newSelectedPhotos,
-				isSelectionMode = newSelectedPhotos.isNotEmpty()
+				selectedMedia = newSelected,
+				isSelectionMode = newSelected.isNotEmpty()
 			)
 		}
 	}
 
-	fun startSelectionMode(photoName: String) {
+	fun startSelectionMode(mediaName: String) {
 		_uiState.update {
 			it.copy(
 				isSelectionMode = true,
-				selectedPhotos = setOf(photoName)
+				selectedMedia = setOf(mediaName)
 			)
 		}
 	}
@@ -74,7 +74,7 @@ class GalleryViewModel(
 		_uiState.update {
 			it.copy(
 				isSelectionMode = false,
-				selectedPhotos = emptySet()
+				selectedMedia = emptySet()
 			)
 		}
 	}
@@ -87,15 +87,15 @@ class GalleryViewModel(
 		_uiState.update { it.copy(showDeleteConfirmation = false) }
 	}
 
-	fun deleteSelectedPhotos() {
-		val photoDefs = uiState.value.selectedPhotos.mapNotNull { imageManager.getPhotoByName(it) }
-		imageManager.deleteImages(photoDefs)
+	fun deleteSelectedMedia() {
+		val mediaItems = uiState.value.selectedMedia.mapNotNull { imageManager.getMediaItemByName(it) }
+		imageManager.deleteMediaItems(mediaItems)
 
-		val updatedPhotos = uiState.value.photos.filter { it !in photoDefs }
+		val updatedMedia = uiState.value.mediaItems.filter { it.mediaName !in uiState.value.selectedMedia }
 		_uiState.update {
 			it.copy(
-				photos = updatedPhotos,
-				selectedPhotos = emptySet(),
+				mediaItems = updatedMedia,
+				selectedMedia = emptySet(),
 				isSelectionMode = false,
 				showDeleteConfirmation = false
 			)
@@ -103,7 +103,8 @@ class GalleryViewModel(
 	}
 
 	fun shareSelectedPhotos(context: Context) {
-		val photoDefs = uiState.value.selectedPhotos.mapNotNull { imageManager.getPhotoByName(it) }
+		// For now, only share photos (video sharing not implemented yet)
+		val photoDefs = uiState.value.selectedMedia.mapNotNull { imageManager.getPhotoByName(it) }
 		if (photoDefs.isNotEmpty()) {
 			viewModelScope.launch(Dispatchers.IO) {
 				sharePhotosWithProvider(
@@ -117,23 +118,23 @@ class GalleryViewModel(
 		}
 	}
 
-	fun selectAllPhotos() {
-		val allPhotoNames = uiState.value.photos.map { it.photoName }.toSet()
+	fun selectAllMedia() {
+		val allMediaNames = uiState.value.mediaItems.map { it.mediaName }.toSet()
 		_uiState.update {
 			it.copy(
-				selectedPhotos = allPhotoNames,
-				isSelectionMode = allPhotoNames.isNotEmpty()
+				selectedMedia = allMediaNames,
+				isSelectionMode = allMediaNames.isNotEmpty()
 			)
 		}
 	}
 }
 
 data class GalleryUiState(
-	val photos: List<PhotoDef> = emptyList(),
+	val mediaItems: List<MediaItem> = emptyList(),
 	val isLoading: Boolean = true,
 	val isSelectionMode: Boolean = false,
-	val selectedPhotos: Set<String> = emptySet(),
+	val selectedMedia: Set<String> = emptySet(),
 	val showDeleteConfirmation: Boolean = false,
 	val sanitizeFileName: Boolean = true,
-	val sanitizeMetadata: Boolean = true
+	val sanitizeMetadata: Boolean = true,
 )
