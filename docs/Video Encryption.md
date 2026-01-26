@@ -147,7 +147,7 @@ eventual garbage collection. "Secure deletion" via overwriting is ineffective on
 
 **Actual mitigations**:
 
-1. **App-private storage**: Only accessible to SnapSafe (unless device is rooted).
+1. **App-private storage**: Only accessible to SnapSafe (unless device is rooted or compromised).
 2. **Android FBE (File-Based Encryption)**: On devices with FBE (Android 7+), app storage is encrypted with a key
    derived from the user's lock screen credential. When the device is locked, app files are cryptographically
    inaccessible - including any remnant temp file blocks.
@@ -174,12 +174,11 @@ key is never written to disk in plaintext.
 
 ## File Extension
 
-Encrypted videos use the `.secv` extension (Secure Encrypted Camera Video). The gallery recognizes both `.secv` (
-encrypted) and `.mp4` (legacy/fallback) files.
+Encrypted videos use the `.secv` extension (Secure Encrypted Camera Video). The gallery recognizes only `.secv` files
+as ready-to-play videos. It detects unencrypted mp4, and partially encrypted `secv.encryption` files in order to show
+encryption status.
 
 ## Future Considerations
 
-- **Hardware-accelerated encryption**: Could reduce encryption time on supported devices.
-- **Thumbnail embedding**: Store an encrypted thumbnail in the header to avoid decrypting video data for gallery
-  previews.
-- **Streaming during recording**: If CameraX adds byte-stream access, we could encrypt during capture.
+- **Streaming during recording**: If CameraX adds byte-stream access, we could encrypt during capture and close the
+  only security hole that currently exists.

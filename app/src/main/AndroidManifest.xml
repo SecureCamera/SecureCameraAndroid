@@ -12,6 +12,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
 
 	<!-- Prevent dependencies from adding these permissions -->
 	<uses-permission android:name="android.permission.INTERNET" tools:node="remove"/>
@@ -74,8 +76,17 @@
                 android:name=".auth.SessionService"
                 android:exported="false"/>
 
+        <service
+                android:name=".encryption.VideoEncryptionService"
+                android:exported="false"
+                android:foregroundServiceType="dataSync"/>
+
         <receiver
                 android:name=".import.ImportCancelReceiver"
+                android:exported="false"/>
+
+        <receiver
+                android:name=".encryption.VideoEncryptionCancelReceiver"
                 android:exported="false"/>
     </application>
 

@@ -26,12 +26,14 @@ class VideoEncryptionHelper(
 	 * @param tempFile The unencrypted temporary video file
 	 * @param outputFile The target encrypted .secv file
 	 * @param chunkSize Size of encryption chunks (default 1MB)
+	 * @param isCancelled Callback to check if encryption should be cancelled
 	 * @return true if encryption was successful, false otherwise
 	 */
 	suspend fun encryptVideoFile(
 		tempFile: File,
 		outputFile: File,
-		chunkSize: Int = SecvFileFormat.DEFAULT_CHUNK_SIZE
+		chunkSize: Int = SecvFileFormat.DEFAULT_CHUNK_SIZE,
+		isCancelled: () -> Boolean = { false }
 	): Boolean = withContext(Dispatchers.IO) {
 		try {
 			_encryptionProgress.value = EncryptionProgress.Starting
@@ -56,6 +58,13 @@ class VideoEncryptionHelper(
 					val buffer = ByteArray(chunkSize)
 
 					while (bytesProcessed < totalSize) {
+						// Check for cancellation between chunks
+						if (isCancelled()) {
+							Timber.d("Encryption cancelled by user")
+							_encryptionProgress.value = EncryptionProgress.Error("Cancelled")
+							return@withContext false
+						}
+
 						val bytesToRead = minOf(chunkSize.toLong(), totalSize - bytesProcessed).toInt()
 						raf.readFully(buffer, 0, bytesToRead)
 
@@ -99,9 +108,6 @@ class VideoEncryptionHelper(
 		}
 	}
 
-	/**
-	 * Resets the encryption progress state to Idle.
-	 */
 	fun resetProgress() {
 		_encryptionProgress.value = EncryptionProgress.Idle
 	}

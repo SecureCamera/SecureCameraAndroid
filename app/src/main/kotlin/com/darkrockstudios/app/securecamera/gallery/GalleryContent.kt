@@ -32,6 +32,7 @@ import com.darkrockstudios.app.securecamera.camera.MediaItem
 import com.darkrockstudios.app.securecamera.camera.MediaType
 import com.darkrockstudios.app.securecamera.camera.PhotoDef
 import com.darkrockstudios.app.securecamera.camera.SecureImageRepository
+import com.darkrockstudios.app.securecamera.encryption.VideoEncryptionService
 import com.darkrockstudios.app.securecamera.navigation.NavController
 import com.darkrockstudios.app.securecamera.navigation.ViewMedia
 import com.darkrockstudios.app.securecamera.ui.HandleUiEvents
@@ -53,8 +54,14 @@ fun GalleryContent(
 	val context = LocalContext.current
 	val viewModel: GalleryViewModel = koinViewModel()
 	val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+	val encryptionState by VideoEncryptionService.encryptionState.collectAsStateWithLifecycle()
 
 	LaunchedEffect(Unit) {
+		viewModel.loadMedia()
+	}
+
+	// Reload media when encryption state changes (new video completed)
+	LaunchedEffect(encryptionState) {
 		viewModel.loadMedia()
 	}
 
@@ -106,6 +113,7 @@ fun GalleryContent(
 					mediaItems = uiState.mediaItems,
 					paddingValues = paddingValues,
 					selectedMediaNames = uiState.selectedMedia,
+					encryptionState = encryptionState,
 					onMediaLongClick = startSelectionWithVibration,
 					onMediaClick = { mediaName ->
 						if (uiState.isSelectionMode) {
@@ -128,6 +136,7 @@ private fun MediaGrid(
 	modifier: Modifier = Modifier,
 	paddingValues: PaddingValues,
 	selectedMediaNames: Set<String> = emptySet(),
+	encryptionState: Map<String, Float?> = emptyMap(),
 	onMediaLongClick: (String) -> Unit = {},
 	onMediaClick: (String) -> Unit = {},
 ) {
@@ -150,12 +159,14 @@ private fun MediaGrid(
 		modifier = modifier.fillMaxSize()
 	) {
 		items(items = mediaItems, key = { it.mediaName }) { mediaItem ->
+			val encryptionProgress = encryptionState[mediaItem.mediaName]
 			MediaGridItem(
 				mediaItem = mediaItem,
 				imageManager = imageManager,
 				scope = scope,
 				limitedDispatcher = limitedDispatcher,
 				isSelected = selectedMediaNames.contains(mediaItem.mediaName),
+				encryptionProgress = encryptionProgress,
 				onLongClick = { onMediaLongClick(mediaItem.mediaName) },
 				onClick = { onMediaClick(mediaItem.mediaName) }
 			)
@@ -171,10 +182,12 @@ private fun MediaGridItem(
 	scope: CoroutineScope,
 	limitedDispatcher: CoroutineDispatcher,
 	isSelected: Boolean = false,
+	encryptionProgress: Float? = null, // null means not encrypting, Float value is progress 0.0-1.0
 	onLongClick: () -> Unit = {},
 	onClick: () -> Unit = {},
 	modifier: Modifier = Modifier
 ) {
+	val isEncrypting = encryptionProgress != null
 	var thumbnailBitmap by remember(mediaItem.mediaName) { mutableStateOf<ImageBitmap?>(null) }
 	val isDecoy = remember(mediaItem) {
 		(mediaItem as? PhotoDef)?.let { imageManager.isDecoyPhoto(it) } ?: false
@@ -186,8 +199,9 @@ private fun MediaGridItem(
 		label = "imageAlpha"
 	)
 
-	LaunchedEffect(mediaItem.mediaName) {
-		if (thumbnailBitmap == null) {
+	// Only load thumbnail if not currently encrypting
+	LaunchedEffect(mediaItem.mediaName, isEncrypting) {
+		if (thumbnailBitmap == null && !isEncrypting) {
 			scope.launch(limitedDispatcher) {
 				thumbnailBitmap = imageManager.readMediaThumbnail(mediaItem)?.asImageBitmap()
 			}
@@ -212,68 +226,109 @@ private fun MediaGridItem(
 				),
 		) {
 			Box(modifier = Modifier.fillMaxSize()) {
-				thumbnailBitmap?.let {
-					Image(
-						bitmap = it,
-						contentDescription = stringResource(
-							id = R.string.gallery_photo_content_description,
-							mediaItem.mediaName
-						),
-						contentScale = ContentScale.Crop,
-						modifier = Modifier
-							.fillMaxSize()
-							.alpha(imageAlpha)
-					)
-				} ?: run {
-					Box(modifier = Modifier.fillMaxSize()) {
-						CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+				when {
+					// Show encryption progress for videos being encrypted
+					isEncrypting -> {
+						Box(
+							modifier = Modifier
+								.fillMaxSize()
+								.background(MaterialTheme.colorScheme.surfaceVariant),
+							contentAlignment = Alignment.Center
+						) {
+							val progress = encryptionProgress
+							if (progress != null && progress > 0f) {
+								CircularProgressIndicator(
+									progress = { progress },
+									modifier = Modifier.size(48.dp),
+									strokeWidth = 4.dp,
+								)
+								Text(
+									text = "${(progress * 100).toInt()}%",
+									style = MaterialTheme.typography.labelSmall,
+									modifier = Modifier.padding(top = 64.dp)
+								)
+							} else {
+								CircularProgressIndicator(
+									modifier = Modifier.size(48.dp),
+									strokeWidth = 4.dp,
+								)
+								Text(
+									text = stringResource(R.string.encryption_notification_preparing),
+									style = MaterialTheme.typography.labelSmall,
+									modifier = Modifier.padding(top = 64.dp)
+								)
+							}
+						}
+					}
+					// Show thumbnail if loaded
+					thumbnailBitmap != null -> {
+						Image(
+							bitmap = thumbnailBitmap!!,
+							contentDescription = stringResource(
+								id = R.string.gallery_photo_content_description,
+								mediaItem.mediaName
+							),
+							contentScale = ContentScale.Crop,
+							modifier = Modifier
+								.fillMaxSize()
+								.alpha(imageAlpha)
+						)
+					}
+					// Show loading spinner while thumbnail loads
+					else -> {
+						Box(modifier = Modifier.fillMaxSize()) {
+							CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+						}
 					}
 				}
 
-				Box(
-					modifier = Modifier
-						.padding(8.dp)
-						.fillMaxSize()
-				) {
-					// Video play indicator
-					if (mediaItem.mediaType == MediaType.VIDEO) {
-						Box(
-							modifier = Modifier
-								.size(32.dp)
-								.background(Color.Black.copy(alpha = 0.6f), CircleShape)
-								.align(Alignment.Center)
-						) {
+				// Overlay indicators (only show when not encrypting)
+				if (!isEncrypting) {
+					Box(
+						modifier = Modifier
+							.padding(8.dp)
+							.fillMaxSize()
+					) {
+						// Video play indicator
+						if (mediaItem.mediaType == MediaType.VIDEO) {
+							Box(
+								modifier = Modifier
+									.size(32.dp)
+									.background(Color.Black.copy(alpha = 0.6f), CircleShape)
+									.align(Alignment.Center)
+							) {
+								Icon(
+									imageVector = Icons.Filled.PlayArrow,
+									contentDescription = stringResource(R.string.gallery_video_indicator),
+									tint = Color.White,
+									modifier = Modifier
+										.size(24.dp)
+										.align(Alignment.Center)
+								)
+							}
+						}
+
+						if (isDecoy) {
 							Icon(
-								imageVector = Icons.Filled.PlayArrow,
-								contentDescription = stringResource(R.string.gallery_video_indicator),
-								tint = Color.White,
+								imageVector = Icons.Filled.Warning,
+								contentDescription = stringResource(R.string.gallery_decoy_indicator),
+								tint = Color.LightGray,
 								modifier = Modifier
 									.size(24.dp)
-									.align(Alignment.Center)
+									.align(Alignment.BottomEnd)
 							)
 						}
-					}
 
-					if (isDecoy) {
-						Icon(
-							imageVector = Icons.Filled.Warning,
-							contentDescription = stringResource(R.string.gallery_decoy_indicator),
-							tint = Color.LightGray,
-							modifier = Modifier
-								.size(24.dp)
-								.align(Alignment.BottomEnd)
-						)
-					}
-
-					if (isSelected) {
-						Icon(
-							imageVector = Icons.Filled.CheckCircle,
-							contentDescription = stringResource(R.string.gallery_decoy_indicator),
-							tint = MaterialTheme.colorScheme.primary,
-							modifier = Modifier
-								.size(24.dp)
-								.align(Alignment.TopEnd)
-						)
+						if (isSelected) {
+							Icon(
+								imageVector = Icons.Filled.CheckCircle,
+								contentDescription = stringResource(R.string.gallery_decoy_indicator),
+								tint = MaterialTheme.colorScheme.primary,
+								modifier = Modifier
+									.size(24.dp)
+									.align(Alignment.TopEnd)
+							)
+						}
 					}
 				}
 			}

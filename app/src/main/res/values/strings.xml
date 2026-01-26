@@ -103,6 +103,21 @@
     <string name="session_worker_channel_description">Shows when SnapSafe is active</string>
     <string name="session_worker_notification_close">Close</string>
 
+    <!-- Video Encryption Service -->
+    <string name="encryption_channel_name">Video Encryption</string>
+    <string name="encryption_channel_description">Shows video encryption progress</string>
+    <string name="encryption_notification_title">Encrypting Video</string>
+    <string name="encryption_notification_title_plural">Encrypting Videos</string>
+    <string name="encryption_notification_preparing">Preparing…</string>
+    <string name="encryption_notification_progress">Encrypting: %1$d%%</string>
+    <string name="encryption_notification_queue">%1$d of %2$d - %3$d%%</string>
+    <string name="encryption_complete_title">Encryption Complete</string>
+    <string name="encryption_complete_content">Video saved securely</string>
+    <string name="encryption_error_title">Encryption Failed</string>
+    <string name="encryption_cancelled_title">Encryption Cancelled</string>
+    <string name="encryption_action_cancel">Cancel</string>
+    <string name="encryption_action_cancel_all">Cancel All</string>
+
     <!-- Gallery Screen -->
     <string name="gallery_title">Gallery</string>
     <string name="gallery_selected_count">%1$d Selected</string>
