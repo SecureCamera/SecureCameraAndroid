@@ -35,6 +35,8 @@ class VideoEncryptionHelper(
 		chunkSize: Int = SecvFileFormat.DEFAULT_CHUNK_SIZE,
 		isCancelled: () -> Boolean = { false }
 	): Boolean = withContext(Dispatchers.IO) {
+		val encryptingFile = File(outputFile.absolutePath + ENCRYPTING_SUFFIX)
+
 		try {
 			_encryptionProgress.value = EncryptionProgress.Starting
 
@@ -50,7 +52,7 @@ class VideoEncryptionHelper(
 			_encryptionProgress.value = EncryptionProgress.InProgress(0f)
 
 			// Create the streaming encryptor
-			val encryptor = streamingScheme.createStreamingEncryptor(outputFile, chunkSize)
+			val encryptor = streamingScheme.createStreamingEncryptor(encryptingFile, chunkSize)
 
 			try {
 				// Read the temp file in chunks and write to encryptor
@@ -82,10 +84,18 @@ class VideoEncryptionHelper(
 				encryptor.close()
 			}
 
-			// Verify the output file was created
-			if (!outputFile.exists() || outputFile.length() == 0L) {
+			// Verify the encrypting file was created
+			if (!encryptingFile.exists() || encryptingFile.length() == 0L) {
 				Timber.e("Encrypted output file is empty or missing")
 				_encryptionProgress.value = EncryptionProgress.Error("Encryption failed")
+				return@withContext false
+			}
+
+			// Rename .encrypting to final .secv
+			if (!encryptingFile.renameTo(outputFile)) {
+				Timber.e("Failed to rename encrypting file to final output")
+				_encryptionProgress.value = EncryptionProgress.Error("Failed to finalize encryption")
+				encryptingFile.delete()
 				return@withContext false
 			}
 
@@ -99,13 +109,17 @@ class VideoEncryptionHelper(
 			Timber.e(e, "Failed to encrypt video file")
 			_encryptionProgress.value = EncryptionProgress.Error(e.message ?: "Unknown error")
 
-			// Clean up partial output file on error
-			if (outputFile.exists()) {
-				outputFile.delete()
+			// Clean up partial encrypting file on error
+			if (encryptingFile.exists()) {
+				encryptingFile.delete()
 			}
 
 			return@withContext false
 		}
+	}
+
+	companion object {
+		const val ENCRYPTING_SUFFIX = ".encrypting"
 	}
 
 	fun resetProgress() {

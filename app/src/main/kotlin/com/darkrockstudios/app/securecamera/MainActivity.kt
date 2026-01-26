@@ -16,6 +16,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import com.darkrockstudios.app.securecamera.auth.AuthorizationRepository
+import com.darkrockstudios.app.securecamera.encryption.VideoEncryptionService
 import com.darkrockstudios.app.securecamera.navigation.*
 import com.darkrockstudios.app.securecamera.navigation.Camera
 import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
@@ -68,6 +69,9 @@ class MainActivity : ComponentActivity() {
 				Camera
 			}
 			if (authorizationRepository.checkSessionValidity()) {
+				// Session is valid - recover any stranded temp video files immediately
+				// This ensures unencrypted videos are encrypted ASAP
+				VideoEncryptionService.recoverStrandedFiles(this)
 				targetKey
 			} else {
 				PinVerification(targetKey)

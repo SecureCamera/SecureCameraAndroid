@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation3.runtime.NavKey
 import com.darkrockstudios.app.securecamera.BaseViewModel
 import com.darkrockstudios.app.securecamera.R
+import com.darkrockstudios.app.securecamera.encryption.VideoEncryptionService
 import com.darkrockstudios.app.securecamera.gallery.vibrateDevice
 import com.darkrockstudios.app.securecamera.navigation.Introduction
 import com.darkrockstudios.app.securecamera.usecases.InvalidateSessionUseCase
@@ -110,6 +111,10 @@ class PinVerificationViewModel(
 			val isValid = verifyPinUseCase.verifyPin(pin)
 
 			if (isValid) {
+				// Recover any stranded temp video files immediately after auth
+				// This ensures unencrypted videos are encrypted ASAP
+				VideoEncryptionService.recoverStrandedFiles(appContext)
+
 				withContext(Dispatchers.Main) {
 					_uiState.update {
 						it.copy(

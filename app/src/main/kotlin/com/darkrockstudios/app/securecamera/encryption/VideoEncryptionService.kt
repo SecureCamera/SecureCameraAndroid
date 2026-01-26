@@ -11,6 +11,7 @@ import androidx.core.app.NotificationCompat
 import com.darkrockstudios.app.securecamera.MainActivity
 import com.darkrockstudios.app.securecamera.R
 import com.darkrockstudios.app.securecamera.security.schemes.EncryptionScheme
+import com.darkrockstudios.app.securecamera.security.streaming.SecvFileFormat
 import com.darkrockstudios.app.securecamera.security.streaming.VideoEncryptionHelper
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -120,6 +121,71 @@ class VideoEncryptionService : Service() {
 				action = ACTION_CANCEL_ALL
 			}
 			context.startService(intent)
+		}
+
+		/**
+		 * Recover stranded temp files that were left behind due to a crash.
+		 * This should be called after user authentication to ensure any unencrypted
+		 * video files are immediately encrypted.
+		 *
+		 * Handles:
+		 * - temp_*.mp4 files (unencrypted recordings)
+		 * - *.secv.encrypting files (partial encryptions - deleted)
+		 */
+		fun recoverStrandedFiles(context: Context) {
+			val videosDir = File(context.filesDir, "videos")
+			if (!videosDir.exists()) {
+				Timber.d("Videos directory doesn't exist, nothing to recover")
+				return
+			}
+
+			// Find and delete any partial .encrypting files
+			val encryptingFiles = videosDir.listFiles { file ->
+				file.name.endsWith(VideoEncryptionHelper.ENCRYPTING_SUFFIX)
+			} ?: emptyArray()
+
+			encryptingFiles.forEach { file ->
+				Timber.w("Deleting partial encryption file: ${file.name}")
+				file.delete()
+			}
+
+			// Find stranded temp files
+			val tempFiles = videosDir.listFiles { file ->
+				file.name.startsWith("temp_") && file.name.endsWith(".mp4")
+			} ?: emptyArray()
+
+			if (tempFiles.isEmpty()) {
+				Timber.d("No stranded temp files found")
+				return
+			}
+
+			Timber.w("Found ${tempFiles.size} stranded temp file(s), recovering...")
+
+			// Get set of files currently being processed
+			val currentlyProcessing = _encryptionState.value.keys
+
+			tempFiles.forEach { tempFile ->
+				// Derive the expected output file name
+				val outputName = tempFile.name
+					.replace("temp_", "video_")
+					.replace(".mp4", ".${SecvFileFormat.FILE_EXTENSION}")
+				val outputFile = File(videosDir, outputName)
+
+				// Skip if already being processed
+				if (currentlyProcessing.contains(outputName)) {
+					Timber.d("Skipping ${tempFile.name} - already being processed")
+					return@forEach
+				}
+
+				// Delete any existing partial output (shouldn't exist if .encrypting is used, but safety check)
+				if (outputFile.exists()) {
+					Timber.w("Deleting existing partial output: ${outputFile.name}")
+					outputFile.delete()
+				}
+
+				Timber.i("Recovering stranded video: ${tempFile.name} -> ${outputFile.name}")
+				enqueueEncryption(context, tempFile, outputFile)
+			}
 		}
 	}
 
@@ -299,7 +365,6 @@ class VideoEncryptionService : Service() {
 		if (job.tempFile.exists()) {
 			job.tempFile.delete()
 		}
-		showCompletionNotification()
 	}
 
 	private fun handleJobCancelled(job: VideoEncryptionJob) {
@@ -434,20 +499,6 @@ class VideoEncryptionService : Service() {
 			val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 			notificationManager.notify(NOTIFICATION_ID, builder.build())
 		}
-	}
-
-	private fun showCompletionNotification() {
-		val builder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
-			.setSmallIcon(android.R.drawable.ic_menu_save)
-			.setContentTitle(getString(R.string.encryption_complete_title))
-			.setContentText(getString(R.string.encryption_complete_content))
-			.setPriority(NotificationCompat.PRIORITY_LOW)
-			.setAutoCancel(true)
-			.setContentIntent(createContentPendingIntent())
-
-		val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-		// Use a different notification ID for completion so it doesn't interfere with ongoing
-		notificationManager.notify(NOTIFICATION_ID + 100, builder.build())
 	}
 
 	private fun showErrorNotification(message: String) {
