@@ -16,6 +16,7 @@ import com.darkrockstudios.app.securecamera.security.schemes.EncryptionScheme
 import com.darkrockstudios.app.securecamera.security.streaming.SecvFileFormat
 import com.darkrockstudios.app.securecamera.security.streaming.StreamingDecryptor
 import com.darkrockstudios.app.securecamera.security.streaming.StreamingEncryptionScheme
+import com.darkrockstudios.app.securecamera.security.streaming.VideoEncryptionHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -42,19 +43,22 @@ class SecureImageRepository(
 
 	/**
 	 * Resets all security-related data when a security failure occurs.
-	 * Deletes all images and thumbnails and evicts all in-memory data.
+	 * Deletes all images, videos, temp files, thumbnails, and evicts all in-memory data.
 	 */
 	fun securityFailureReset() {
 		deleteAllImages()
+		deleteAllVideos()
 		clearAllThumbnails()
 		evictKey()
 	}
 
 	/**
-	 * Deleted all images that haven't been flagged as benign
+	 * Deletes all images that haven't been flagged as benign, plus all videos.
+	 * Videos don't have a decoy system, so they are all deleted.
 	 */
 	fun activatePoisonPill() {
 		deleteNonDecoyImages()
+		deleteAllVideos()
 		clearAllThumbnails()
 		evictKey()
 	}
@@ -531,6 +535,38 @@ class SecureImageRepository(
 
 	fun deleteVideos(videos: List<VideoDef>): Boolean {
 		return videos.map { deleteVideo(it) }.all { it }
+	}
+
+	/**
+	 * Deletes all videos, including:
+	 * - Encrypted videos (.secv)
+	 * - Legacy unencrypted videos (.mp4)
+	 * - Temp recording files (temp_*.mp4)
+	 * - Partial encryption files (.encrypting)
+	 */
+	fun deleteAllVideos() {
+		val videosDir = getVideosDirectory()
+		if (!videosDir.exists()) {
+			return
+		}
+
+		// Delete all video-related files
+		videosDir.listFiles()?.forEach { file ->
+			if (file.isFile) {
+				val name = file.name
+				val shouldDelete = name.endsWith(".${SecvFileFormat.FILE_EXTENSION}") ||
+						name.endsWith(".mp4") ||
+						name.endsWith(VideoEncryptionHelper.ENCRYPTING_SUFFIX)
+
+				if (shouldDelete) {
+					Timber.d("Deleting video file: $name")
+					file.delete()
+				}
+			}
+		}
+
+		// Clear video thumbnails from cache
+		thumbnailCache.clear()
 	}
 
 	/**
