@@ -58,7 +58,10 @@
     <string name="video_not_found">Video not found</string>
     <string name="video_content_description">Video</string>
     <string name="video_content_loading">Loading video…</string>
+    <string name="video_loading">Loading…</string>
+    <string name="video_load_error">Failed to load video</string>
     <string name="video_playback_error">Error playing video</string>
+    <string name="video_encrypting">Encrypting video…</string>
     <string name="unauthorized">Unauthorized</string>
     <string name="mark_as_decoy">Mark as Decoy</string>
     <string name="unmark_as_decoy">Unmark as Decoy</string>

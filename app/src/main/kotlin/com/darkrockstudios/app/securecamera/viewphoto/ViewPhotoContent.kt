@@ -28,21 +28,25 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.media3.ui.PlayerView
 import com.darkrockstudios.app.securecamera.ConfirmDeletePhotoDialog
 import com.darkrockstudios.app.securecamera.R
-import com.darkrockstudios.app.securecamera.camera.MediaItem
-import com.darkrockstudios.app.securecamera.camera.MediaType
-import com.darkrockstudios.app.securecamera.camera.PhotoDef
-import com.darkrockstudios.app.securecamera.camera.VideoDef
+import com.darkrockstudios.app.securecamera.camera.*
 import com.darkrockstudios.app.securecamera.navigation.NavController
 import com.darkrockstudios.app.securecamera.navigation.ObfuscatePhoto
+import com.darkrockstudios.app.securecamera.playback.EncryptedVideoDataSourceFactory
+import com.darkrockstudios.app.securecamera.security.streaming.StreamingDecryptor
 import com.darkrockstudios.app.securecamera.ui.HandleUiEvents
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.engawapg.lib.zoomable.ExperimentalZoomableApi
 import net.engawapg.lib.zoomable.rememberZoomState
 import net.engawapg.lib.zoomable.zoomableWithScroll
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
+import timber.log.Timber
 import androidx.media3.common.MediaItem as ExoMediaItem
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
@@ -238,13 +242,61 @@ private fun ViewVideo(
 	isCurrentItem: Boolean,
 ) {
 	val context = LocalContext.current
+	val repository: SecureImageRepository = koinInject()
+
+	var isLoading by remember { mutableStateOf(video.isEncrypted) }
+	var loadError by remember { mutableStateOf<String?>(null) }
+
+	var decryptor by remember { mutableStateOf<StreamingDecryptor?>(null) }
 
 	val exoPlayer = remember(video.videoName) {
 		ExoPlayer.Builder(context).build().apply {
-			val mediaItem = ExoMediaItem.fromUri(video.videoFile.toURI().toString())
-			setMediaItem(mediaItem)
-			prepare()
 			repeatMode = Player.REPEAT_MODE_OFF
+		}
+	}
+
+	// Setup the media source
+	LaunchedEffect(video.videoName) {
+		try {
+			if (video.isEncrypted) {
+				isLoading = true
+				loadError = null
+
+				// Create decryptor for encrypted video
+				val streamingScheme = repository.getStreamingEncryptionScheme()
+				if (streamingScheme == null) {
+					loadError = "Encryption not available"
+					isLoading = false
+					return@LaunchedEffect
+				}
+
+				val newDecryptor = withContext(Dispatchers.IO) {
+					streamingScheme.createStreamingDecryptor(video.videoFile)
+				}
+				decryptor = newDecryptor
+
+				// Create data source factory for encrypted video
+				val dataSourceFactory = EncryptedVideoDataSourceFactory(newDecryptor)
+				val mediaItem = ExoMediaItem.Builder()
+					.setUri(video.videoFile.toURI().toString())
+					.build()
+				val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
+					.createMediaSource(mediaItem)
+
+				exoPlayer.setMediaSource(mediaSource)
+				exoPlayer.prepare()
+				isLoading = false
+			} else {
+				// Unencrypted video - use direct file access
+				val mediaItem = ExoMediaItem.fromUri(video.videoFile.toURI().toString())
+				exoPlayer.setMediaItem(mediaItem)
+				exoPlayer.prepare()
+				isLoading = false
+			}
+		} catch (e: Exception) {
+			Timber.e(e, "Failed to load video")
+			loadError = e.message ?: "Failed to load video"
+			isLoading = false
 		}
 	}
 
@@ -258,6 +310,8 @@ private fun ViewVideo(
 	DisposableEffect(video.videoName) {
 		onDispose {
 			exoPlayer.release()
+			decryptor?.close()
+			decryptor = null
 		}
 	}
 
@@ -265,21 +319,50 @@ private fun ViewVideo(
 		modifier = modifier.clipToBounds(),
 		contentAlignment = Alignment.Center
 	) {
-		if (video.videoFile.exists()) {
-			AndroidView(
-				factory = { ctx ->
-					PlayerView(ctx).apply {
-						player = exoPlayer
-						useController = true
-					}
-				},
-				modifier = Modifier.fillMaxSize()
-			)
-		} else {
-			Text(
-				modifier = Modifier.align(alignment = Alignment.Center),
-				text = stringResource(id = R.string.video_not_found),
-			)
+		when {
+			!video.videoFile.exists() -> {
+				Text(
+					modifier = Modifier.align(alignment = Alignment.Center),
+					text = stringResource(id = R.string.video_not_found),
+				)
+			}
+
+			isLoading -> {
+				Row(
+					modifier = Modifier.align(Alignment.Center),
+					verticalAlignment = Alignment.CenterVertically
+				) {
+					CircularProgressIndicator(
+						modifier = Modifier.size(16.dp),
+						color = MaterialTheme.colorScheme.onPrimaryContainer,
+						strokeWidth = 2.dp
+					)
+					Spacer(modifier = Modifier.size(16.dp))
+					Text(
+						text = stringResource(R.string.video_loading),
+					)
+				}
+			}
+
+			loadError != null -> {
+				Text(
+					modifier = Modifier.align(alignment = Alignment.Center),
+					text = loadError ?: stringResource(R.string.video_load_error),
+					color = MaterialTheme.colorScheme.error
+				)
+			}
+
+			else -> {
+				AndroidView(
+					factory = { ctx ->
+						PlayerView(ctx).apply {
+							player = exoPlayer
+							useController = true
+						}
+					},
+					modifier = Modifier.fillMaxSize()
+				)
+			}
 		}
 	}
 }

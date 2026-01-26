@@ -1,6 +1,7 @@
 package com.darkrockstudios.app.securecamera.security.schemes
 
 import com.darkrockstudios.app.securecamera.preferences.HashedPin
+import com.darkrockstudios.app.securecamera.security.streaming.StreamingEncryptionScheme
 import java.io.File
 
 /**
@@ -60,4 +61,12 @@ interface EncryptionScheme {
 	suspend fun securityFailureReset()
 
 	fun activatePoisonPill(oldPin: HashedPin?)
+
+	/**
+	 * Returns a streaming encryption scheme for encrypting/decrypting large files
+	 * (like videos) in chunks without loading the entire file into memory.
+	 *
+	 * @return StreamingEncryptionScheme if supported, null otherwise
+	 */
+	fun getStreamingCapability(): StreamingEncryptionScheme?
 }

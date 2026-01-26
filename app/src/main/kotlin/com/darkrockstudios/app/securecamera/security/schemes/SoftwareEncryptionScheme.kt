@@ -5,6 +5,8 @@ import com.darkrockstudios.app.securecamera.preferences.HashedPin
 import com.darkrockstudios.app.securecamera.security.DeviceInfoDataSource
 import com.darkrockstudios.app.securecamera.security.KeyParams
 import com.darkrockstudios.app.securecamera.security.ShardedKey
+import com.darkrockstudios.app.securecamera.security.streaming.SoftwareStreamingEncryptionScheme
+import com.darkrockstudios.app.securecamera.security.streaming.StreamingEncryptionScheme
 import dev.whyoleg.cryptography.CryptographyProvider
 import dev.whyoleg.cryptography.algorithms.AES
 import dev.whyoleg.cryptography.algorithms.PBKDF2
@@ -112,5 +114,9 @@ open class SoftwareEncryptionScheme(
 		val dekInput = plainPin.toByteArray(Charsets.UTF_8) + encodedDeviceId.toByteArray(Charsets.UTF_8)
 
 		return secretDeriver.deriveSecret(dekInput).toByteArray()
+	}
+
+	override fun getStreamingCapability(): StreamingEncryptionScheme {
+		return SoftwareStreamingEncryptionScheme(this)
 	}
 }

@@ -14,7 +14,11 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.coroutineScope
 import com.darkrockstudios.app.securecamera.obfuscation.FacialDetection
 import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
+import com.darkrockstudios.app.securecamera.security.schemes.EncryptionScheme
+import com.darkrockstudios.app.securecamera.security.streaming.SecvFileFormat
+import com.darkrockstudios.app.securecamera.security.streaming.VideoEncryptionHelper
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collectLatest
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import timber.log.Timber
@@ -43,8 +47,10 @@ class CameraState internal constructor(
 	private val clock: Clock by inject()
 	private val facialDetection: FacialDetection by inject()
 	private val preferences: AppSettingsDataSource by inject()
+	private val encryptionScheme: EncryptionScheme by inject()
 
 	private var faceAnalyzer: FacialDetectionAnalyzer? = null
+	private var videoEncryptionHelper: VideoEncryptionHelper? = null
 	private val cameraExecutor: ExecutorService = Executors.newSingleThreadExecutor()
 	private val analysisExecutor: ExecutorService = Executors.newSingleThreadExecutor()
 	private val analysisScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -92,11 +98,66 @@ class CameraState internal constructor(
 	var recordingDurationMs by mutableLongStateOf(0L)
 		private set
 
+	var isEncryptingVideo by mutableStateOf(false)
+		private set
+
+	var encryptionProgress by mutableFloatStateOf(0f)
+		private set
+
 	private var activeRecording: Recording? = null
 	private var videoCapture: VideoCapture<Recorder>? = null
+	private var pendingTempFile: File? = null
+	private var pendingOutputFile: File? = null
 
 	init {
 		observePreferences()
+		initializeEncryptionHelper()
+	}
+
+	private fun initializeEncryptionHelper() {
+		val streamingScheme = encryptionScheme.getStreamingCapability()
+		if (streamingScheme != null) {
+			videoEncryptionHelper = VideoEncryptionHelper(streamingScheme)
+			observeEncryptionProgress()
+		} else {
+			Timber.w("Streaming encryption not available")
+		}
+	}
+
+	private fun observeEncryptionProgress() {
+		lifecycleOwner.lifecycle.coroutineScope.launch {
+			videoEncryptionHelper?.encryptionProgress?.collectLatest { progress ->
+				when (progress) {
+					is VideoEncryptionHelper.EncryptionProgress.Idle -> {
+						isEncryptingVideo = false
+						encryptionProgress = 0f
+					}
+
+					is VideoEncryptionHelper.EncryptionProgress.Starting -> {
+						isEncryptingVideo = true
+						encryptionProgress = 0f
+					}
+
+					is VideoEncryptionHelper.EncryptionProgress.InProgress -> {
+						isEncryptingVideo = true
+						encryptionProgress = progress.progress
+					}
+
+					is VideoEncryptionHelper.EncryptionProgress.Completed -> {
+						isEncryptingVideo = false
+						encryptionProgress = 0f
+						videoEncryptionHelper?.resetProgress()
+					}
+
+					is VideoEncryptionHelper.EncryptionProgress.Error -> {
+						isEncryptingVideo = false
+						encryptionProgress = 0f
+						Timber.e("Encryption error: ${progress.message}")
+						videoEncryptionHelper?.resetProgress()
+					}
+				}
+			}
+		}
 	}
 
 	private fun observePreferences() {
@@ -247,8 +308,13 @@ class CameraState internal constructor(
 	}
 
 	/**
-	 * Start video recording. Returns the output file path.
-	 * The video will be saved to the app's internal files directory.
+	 * Start video recording. Returns the final encrypted output file path (.secv).
+	 * The video will be saved to the app's internal files directory after encryption.
+	 *
+	 * Recording flow:
+	 * 1. CameraX writes to a temporary .mp4 file
+	 * 2. On recording complete, the temp file is encrypted to .secv format
+	 * 3. The temp file is securely deleted after encryption
 	 */
 	@SuppressLint("MissingPermission")
 	fun startRecording(context: Context): File? {
@@ -257,12 +323,12 @@ class CameraState internal constructor(
 			return null
 		}
 
-		if (isRecording) {
-			Timber.w("Recording already in progress")
+		if (isRecording || isEncryptingVideo) {
+			Timber.w("Recording or encryption already in progress")
 			return null
 		}
 
-		// Create output file in app's internal storage
+		// Create output directories
 		val videosDir = File(context.filesDir, "videos")
 		if (!videosDir.exists()) {
 			videosDir.mkdirs()
@@ -272,9 +338,16 @@ class CameraState internal constructor(
 			"yyyyMMdd_HHmmss",
 			java.util.Locale.US
 		).format(System.currentTimeMillis())
-		val outputFile = File(videosDir, "video_$timestamp.mp4")
 
-		val fileOutputOptions = FileOutputOptions.Builder(outputFile).build()
+		// Temp file for CameraX recording (unencrypted)
+		val tempFile = File(videosDir, "temp_$timestamp.mp4")
+		// Final encrypted output file
+		val outputFile = File(videosDir, "video_$timestamp.${SecvFileFormat.FILE_EXTENSION}")
+
+		pendingTempFile = tempFile
+		pendingOutputFile = outputFile
+
+		val fileOutputOptions = FileOutputOptions.Builder(tempFile).build()
 
 		activeRecording = videoCapture.output
 			.prepareRecording(context, fileOutputOptions)
@@ -293,19 +366,53 @@ class CameraState internal constructor(
 
 					is VideoRecordEvent.Finalize -> {
 						isRecording = false
+						activeRecording = null
+
 						if (event.hasError()) {
 							Timber.e("Recording error: ${event.error}, cause: ${event.cause?.message}")
-							// Delete the failed file
-							outputFile.delete()
+							// Delete the failed temp file
+							tempFile.delete()
+							pendingTempFile = null
+							pendingOutputFile = null
 						} else {
-							Timber.i("Video saved to: ${event.outputResults.outputUri}")
+							Timber.i("Recording complete, starting encryption...")
+							// Start encryption in background
+							lifecycleOwner.lifecycle.coroutineScope.launch {
+								encryptRecordedVideo(tempFile, outputFile)
+							}
 						}
-						activeRecording = null
 					}
 				}
 			}
 
 		return outputFile
+	}
+
+	/**
+	 * Encrypts the recorded video from temp file to final encrypted file.
+	 */
+	private suspend fun encryptRecordedVideo(tempFile: File, outputFile: File) {
+		val helper = videoEncryptionHelper
+		if (helper == null) {
+			Timber.e("Video encryption helper not available")
+			// Fall back to keeping the unencrypted file (rename to .mp4)
+			val fallbackFile = File(outputFile.parent, outputFile.nameWithoutExtension + ".mp4")
+			tempFile.renameTo(fallbackFile)
+			return
+		}
+
+		val success = helper.encryptVideoFile(tempFile, outputFile)
+		if (success) {
+			Timber.i("Video encrypted successfully: ${outputFile.absolutePath}")
+		} else {
+			Timber.e("Video encryption failed")
+			// Keep the temp file as fallback (rename to .mp4)
+			val fallbackFile = File(outputFile.parent, outputFile.nameWithoutExtension + ".mp4")
+			tempFile.renameTo(fallbackFile)
+		}
+
+		pendingTempFile = null
+		pendingOutputFile = null
 	}
 
 	/**
@@ -437,6 +544,16 @@ class CameraState internal constructor(
 		if (isRecording) {
 			stopRecording()
 		}
+
+		// Clean up any pending temp files
+		pendingTempFile?.let { file ->
+			if (file.exists()) {
+				file.delete()
+			}
+		}
+		pendingTempFile = null
+		pendingOutputFile = null
+
 		faceAnalyzer = null
 		imageAnalysis?.clearAnalyzer()
 		analysisScope.cancel()

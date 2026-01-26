@@ -6,15 +6,22 @@ import android.graphics.Bitmap.CompressFormat
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.util.Size
+import androidx.core.graphics.scale
 import com.ashampoo.kim.Kim
 import com.ashampoo.kim.common.convertToPhotoMetadata
 import com.ashampoo.kim.model.GpsCoordinates
 import com.ashampoo.kim.model.MetadataUpdate
 import com.ashampoo.kim.model.TiffOrientation
 import com.darkrockstudios.app.securecamera.security.schemes.EncryptionScheme
+import com.darkrockstudios.app.securecamera.security.streaming.SecvFileFormat
+import com.darkrockstudios.app.securecamera.security.streaming.StreamingDecryptor
+import com.darkrockstudios.app.securecamera.security.streaming.StreamingEncryptionScheme
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.time.toJavaInstant
@@ -334,14 +341,27 @@ class SecureImageRepository(
 
 	fun getVideosDirectory(): File = File(appContext.filesDir, VIDEOS_DIR)
 
+	/**
+	 * Returns the streaming encryption scheme for video decryption.
+	 */
+	fun getStreamingEncryptionScheme(): StreamingEncryptionScheme? {
+		return encryptionScheme.getStreamingCapability()
+	}
+
 	fun getVideos(): List<VideoDef> {
 		val dir = getVideosDirectory()
 		if (!dir.exists()) {
 			return emptyList()
 		}
 
+		// Include both encrypted (.secv) and legacy unencrypted (.mp4) videos
 		return dir.listFiles()
-			?.filter { it.isFile && it.name.endsWith(".mp4") }
+			?.filter { file ->
+				file.isFile && (
+						file.name.endsWith(".${SecvFileFormat.FILE_EXTENSION}") ||
+								file.name.endsWith(".mp4")
+						) && !file.name.startsWith("temp_") // Exclude temp files
+			}
 			?.map { file ->
 				val name = file.name
 				val format = name.substringAfterLast('.', "mp4")
@@ -373,7 +393,7 @@ class SecureImageRepository(
 			return null
 		}
 
-		val format = videoName.substringAfterLast('.', "mp4")
+		val format = videoName.substringAfterLast('.', SecvFileFormat.FILE_EXTENSION)
 		return VideoDef(
 			videoName = videoName,
 			videoFormat = format,
@@ -383,7 +403,7 @@ class SecureImageRepository(
 
 	/**
 	 * Reads a thumbnail for a video by extracting a frame.
-	 * For now, videos are not encrypted, so we read directly from the file.
+	 * For encrypted videos, temporarily decrypts enough data to extract a frame.
 	 */
 	suspend fun readVideoThumbnail(video: VideoDef): Bitmap? {
 		thumbnailCache.getThumbnail(video)?.let { return it }
@@ -399,16 +419,17 @@ class SecureImageRepository(
 			null
 		} else {
 			// Extract a frame from the video
-			extractVideoFrame(video.videoFile)?.let { frameBitmap ->
+			val frameBitmap = if (video.isEncrypted) {
+				extractEncryptedVideoFrame(video)
+			} else {
+				extractVideoFrame(video.videoFile)
+			}
+
+			frameBitmap?.let { bitmap ->
 				// Scale down for thumbnail
-				val scaledBitmap = Bitmap.createScaledBitmap(
-					frameBitmap,
-					frameBitmap.width / 4,
-					frameBitmap.height / 4,
-					true
-				)
-				if (scaledBitmap != frameBitmap) {
-					frameBitmap.recycle()
+				val scaledBitmap = bitmap.scale(bitmap.width / 4, bitmap.height / 4)
+				if (scaledBitmap != bitmap) {
+					bitmap.recycle()
 				}
 
 				// Compress and encrypt the thumbnail
@@ -430,6 +451,53 @@ class SecureImageRepository(
 		}
 
 		return thumbnailBitmap
+	}
+
+	/**
+	 * Extracts a video frame from an encrypted video file.
+	 * Temporarily decrypts the video content to extract a frame.
+	 */
+	private suspend fun extractEncryptedVideoFrame(video: VideoDef): Bitmap? {
+		val streamingScheme = encryptionScheme.getStreamingCapability() ?: run {
+			Timber.e("Streaming encryption not available for thumbnail extraction")
+			return null
+		}
+
+		var decryptor: StreamingDecryptor? = null
+		var tempFile: File? = null
+
+		return try {
+			decryptor = streamingScheme.createStreamingDecryptor(video.videoFile)
+
+			// Create a temporary file with decrypted video content
+			// We need enough data for MediaMetadataRetriever to extract a frame
+			// Typically the first few MB are sufficient
+			val bytesToRead = minOf(decryptor.totalSize, THUMBNAIL_EXTRACTION_BYTES)
+			val buffer = ByteArray(bytesToRead.toInt())
+			val bytesRead = decryptor.read(0, buffer, 0, buffer.size)
+
+			if (bytesRead <= 0) {
+				Timber.w("Could not read video data for thumbnail")
+				return null
+			}
+
+			// Write to a temp file for MediaMetadataRetriever
+			tempFile = File(appContext.cacheDir, "thumb_temp_${video.videoName}.mp4")
+			withContext(Dispatchers.IO) {
+				FileOutputStream(tempFile).use { fos ->
+					fos.write(buffer, 0, bytesRead)
+				}
+			}
+
+			// Extract frame from temp file
+			extractVideoFrame(tempFile)
+		} catch (e: Exception) {
+			Timber.e(e, "Failed to extract encrypted video frame")
+			null
+		} finally {
+			decryptor?.close()
+			tempFile?.delete()
+		}
 	}
 
 	private fun extractVideoFrame(videoFile: File): Bitmap? {
@@ -636,6 +704,9 @@ class SecureImageRepository(
 		const val DECOYS_DIR = "decoys"
 		const val THUMBNAILS_DIR = ".thumbnails"
 		const val MAX_DECOY_PHOTOS = 10
+
+		// Amount of video data to decrypt for thumbnail extraction (5MB should be enough for moov atom)
+		private const val THUMBNAIL_EXTRACTION_BYTES = 5L * 1024 * 1024
 
         internal fun generateCopyName(dir: File, originalName: String): String {
             val base = originalName.substringBeforeLast(".")
