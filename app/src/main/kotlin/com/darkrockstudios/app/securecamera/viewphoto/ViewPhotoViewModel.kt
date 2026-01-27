@@ -10,6 +10,7 @@ import com.darkrockstudios.app.securecamera.camera.*
 import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
 import com.darkrockstudios.app.securecamera.security.pin.PinRepository
 import com.darkrockstudios.app.securecamera.share.sharePhotoWithProvider
+import com.darkrockstudios.app.securecamera.share.shareVideoWithProvider
 import com.darkrockstudios.app.securecamera.usecases.AddDecoyPhotoUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
@@ -148,14 +149,21 @@ class ViewPhotoViewModel(
 		_uiState.update { it.copy(showInfoDialog = false) }
 	}
 
-	fun sharePhoto(context: Context) {
-		val currentPhoto = getCurrentPhoto() ?: return
+	fun shareMedia(context: Context) {
+		val currentMedia = getCurrentMedia() ?: return
 
 		viewModelScope.launch {
-			sharePhotoWithProvider(
-				photo = currentPhoto,
-				context = context
-			)
+			when (currentMedia) {
+				is PhotoDef -> sharePhotoWithProvider(
+					photo = currentMedia,
+					context = context
+				)
+
+				is VideoDef -> shareVideoWithProvider(
+					video = currentMedia,
+					context = context
+				)
+			}
 		}
 	}
 }

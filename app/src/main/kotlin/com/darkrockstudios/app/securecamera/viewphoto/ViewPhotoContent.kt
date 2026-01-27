@@ -92,7 +92,7 @@ fun ViewPhotoContent(
 				}
 			},
 			onShareClick = {
-				viewModel.sharePhoto(context)
+				viewModel.shareMedia(context)
 			},
 			showDecoyButton = uiState.hasPoisonPill && uiState.currentMediaType == MediaType.PHOTO,
 			isDecoy = uiState.isDecoy,

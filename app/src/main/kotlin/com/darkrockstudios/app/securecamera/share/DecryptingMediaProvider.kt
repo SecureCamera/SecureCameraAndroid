@@ -15,7 +15,9 @@ import android.os.storage.StorageManager
 import android.provider.OpenableColumns
 import com.darkrockstudios.app.securecamera.camera.PhotoDef
 import com.darkrockstudios.app.securecamera.camera.SecureImageRepository
+import com.darkrockstudios.app.securecamera.camera.VideoDef
 import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
+import com.darkrockstudios.app.securecamera.security.streaming.StreamingDecryptor
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.koin.core.component.KoinComponent
@@ -26,11 +28,12 @@ import kotlin.uuid.Uuid
 
 
 /**
- * A ContentProvider that decrypts and streams images on-demand without writing decrypted data to disk.
+ * A ContentProvider that decrypts and streams photos and videos on-demand without writing decrypted data to disk.
  * This provider handles URIs in the format:
- * content://com.darkrockstudios.app.securecamera.decryptingprovider/photos/[photo_name]
+ * - content://com.darkrockstudios.app.securecamera.decryptingprovider/photos/[photo_name]
+ * - content://com.darkrockstudios.app.securecamera.decryptingprovider/videos/[video_name]
  */
-class DecryptingImageProvider : ContentProvider(), KoinComponent {
+class DecryptingMediaProvider : ContentProvider(), KoinComponent {
 
 	private val imageManager: SecureImageRepository by inject()
 	private val preferencesManager: AppSettingsDataSource by inject()
@@ -42,8 +45,20 @@ class DecryptingImageProvider : ContentProvider(), KoinComponent {
 		return true
 	}
 
+	companion object {
+		const val PATH_PHOTOS = "photos"
+		const val PATH_VIDEOS = "videos"
+	}
+
 	override fun getStreamTypes(uri: Uri, mimeTypeFilter: String): Array<String> {
-		return arrayOf(MIME_TYPE)
+		val segments = uri.pathSegments
+		if (segments.size < 2) return emptyArray()
+
+		return when (segments[0]) {
+			PATH_PHOTOS -> arrayOf("image/jpeg")
+			PATH_VIDEOS -> arrayOf("video/mp4")
+			else -> emptyArray()
+		}
 	}
 
 	override fun openFile(uri: Uri, mode: String): ParcelFileDescriptor? {
@@ -51,17 +66,34 @@ class DecryptingImageProvider : ContentProvider(), KoinComponent {
 
 		val segments = uri.pathSegments
 		if (segments.size < 2) return null
-		val photoName = segments.last()
-		val photoDef = imageManager.getPhotoByName(photoName) ?: return null
-		val sanitizeMetadata = runBlocking { preferencesManager.sanitizeMetadata.first() }
 
-		val ropc = ReadOnlyPhotoCallback(photoDef, sanitizeMetadata, imageManager)
+		val mediaType = segments[0]  // "photos" or "videos"
+		val mediaName = segments.last()
+
 		val storage = context!!.getSystemService(StorageManager::class.java)
-		return storage.openProxyFileDescriptor(
-			ParcelFileDescriptor.MODE_READ_ONLY,
-			ropc,
-			Handler(Looper.getMainLooper())
-		)
+
+		return when (mediaType) {
+			PATH_PHOTOS -> {
+				val photoDef = imageManager.getPhotoByName(mediaName) ?: return null
+				val sanitizeMetadata = runBlocking { preferencesManager.sanitizeMetadata.first() }
+				val ropc = ReadOnlyPhotoCallback(photoDef, sanitizeMetadata, imageManager)
+				storage.openProxyFileDescriptor(
+					ParcelFileDescriptor.MODE_READ_ONLY,
+					ropc,
+					Handler(Looper.getMainLooper())
+				)
+			}
+			PATH_VIDEOS -> {
+				val videoDef = imageManager.getVideoByName(mediaName) ?: return null
+				val rovc = ReadOnlyVideoCallback(videoDef, imageManager)
+				storage.openProxyFileDescriptor(
+					ParcelFileDescriptor.MODE_READ_ONLY,
+					rovc,
+					Handler(Looper.getMainLooper())
+				)
+			}
+			else -> null
+		}
 	}
 
 	/**
@@ -79,17 +111,35 @@ class DecryptingImageProvider : ContentProvider(), KoinComponent {
 		val segments = uri.pathSegments
 		if (segments.size < 2) return null
 
-		val photoName = segments.last()
-		val photoDef = imageManager.getPhotoByName(photoName) ?: return null
+		val mediaType = segments[0]
+		val mediaName = segments.last()
 
 		val sanitizeName = runBlocking { preferencesManager.sanitizeFileName.first() }
-		val sanitizeMetadata = runBlocking { preferencesManager.sanitizeMetadata.first() }
 
-		val size = runBlocking {
-			if (sanitizeMetadata)
-				stripMetadataInMemory(imageManager.decryptJpg(photoDef)).size
-			else
-				imageManager.decryptJpg(photoDef).size
+		val (displayName, size) = when (mediaType) {
+			PATH_PHOTOS -> {
+				val photoDef = imageManager.getPhotoByName(mediaName) ?: return null
+				val sanitizeMetadata = runBlocking { preferencesManager.sanitizeMetadata.first() }
+				val photoSize = runBlocking {
+					if (sanitizeMetadata)
+						stripMetadataInMemory(imageManager.decryptJpg(photoDef)).size
+					else
+						imageManager.decryptJpg(photoDef).size
+				}
+				Pair(getPhotoFileName(photoDef, sanitizeName), photoSize)
+			}
+			PATH_VIDEOS -> {
+				val videoDef = imageManager.getVideoByName(mediaName) ?: return null
+				val videoSize = runBlocking {
+					val scheme = imageManager.getStreamingEncryptionScheme()!!
+					val decryptor = scheme.createStreamingDecryptor(videoDef.videoFile)
+					val size = decryptor.totalSize
+					decryptor.close()
+					size
+				}
+				Pair(getVideoFileName(videoDef, sanitizeName), videoSize)
+			}
+			else -> return null
 		}
 
 		val columnNames = projection ?: arrayOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE)
@@ -97,7 +147,7 @@ class DecryptingImageProvider : ContentProvider(), KoinComponent {
 		for (i in columnNames.indices) {
 			when (columnNames[i]) {
 				OpenableColumns.DISPLAY_NAME -> {
-					row[i] = getFileName(photoDef, sanitizeName)
+					row[i] = displayName
 				}
 
 				OpenableColumns.SIZE -> {
@@ -111,7 +161,16 @@ class DecryptingImageProvider : ContentProvider(), KoinComponent {
 		return cursor
 	}
 
-	override fun getType(uri: Uri): String = MIME_TYPE
+	override fun getType(uri: Uri): String {
+		val segments = uri.pathSegments
+		if (segments.size < 2) return "application/octet-stream"
+
+		return when (segments[0]) {
+			PATH_PHOTOS -> "image/jpeg"
+			PATH_VIDEOS -> "video/mp4"
+			else -> "application/octet-stream"
+		}
+	}
 
 	override fun insert(uri: Uri, values: ContentValues?): Uri? = error("insert Unsupported")
 	override fun delete(uri: Uri, selection: String?, selectionArgs: Array<out String>?): Int =
@@ -121,17 +180,21 @@ class DecryptingImageProvider : ContentProvider(), KoinComponent {
 		error("update Unsupported")
 
 	@OptIn(ExperimentalUuidApi::class)
-	private fun getFileName(photoDef: PhotoDef, sanitizeName: Boolean): String {
+	private fun getPhotoFileName(photoDef: PhotoDef, sanitizeName: Boolean): String {
 		return if (sanitizeName) {
 			"image_" + uuid.toHexString() + ".jpg"
-
 		} else {
 			photoDef.photoName
 		}
 	}
 
-	companion object {
-		private const val MIME_TYPE = "image/jpeg"
+	@OptIn(ExperimentalUuidApi::class)
+	private fun getVideoFileName(videoDef: VideoDef, sanitizeName: Boolean): String {
+		return if (sanitizeName) {
+			"video_" + uuid.toHexString() + ".mp4"
+		} else {
+			videoDef.videoName
+		}
 	}
 }
 
@@ -161,6 +224,30 @@ private class ReadOnlyPhotoCallback(
 
 	override fun onRelease() {
 		decryptedBytes.fill(0)
+	}
+}
+
+private class ReadOnlyVideoCallback(
+	private val videoDef: VideoDef,
+	private val imageManager: SecureImageRepository,
+) : ProxyFileDescriptorCallback() {
+
+	private val decryptor: StreamingDecryptor = runBlocking {
+		val scheme = imageManager.getStreamingEncryptionScheme()!!
+		scheme.createStreamingDecryptor(videoDef.videoFile)
+	}
+
+	override fun onGetSize(): Long = decryptor.totalSize
+
+	override fun onRead(offset: Long, size: Int, data: ByteArray): Int {
+		if (offset >= decryptor.totalSize) return 0
+		return runBlocking {
+			decryptor.read(offset, data, 0, size)
+		}
+	}
+
+	override fun onRelease() {
+		decryptor.close()
 	}
 }
 

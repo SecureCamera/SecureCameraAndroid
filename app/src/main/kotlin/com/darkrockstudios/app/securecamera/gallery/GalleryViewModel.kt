@@ -6,7 +6,7 @@ import com.darkrockstudios.app.securecamera.BaseViewModel
 import com.darkrockstudios.app.securecamera.camera.MediaItem
 import com.darkrockstudios.app.securecamera.camera.SecureImageRepository
 import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
-import com.darkrockstudios.app.securecamera.share.sharePhotosWithProvider
+import com.darkrockstudios.app.securecamera.share.shareMediaWithProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -102,13 +102,14 @@ class GalleryViewModel(
 		}
 	}
 
-	fun shareSelectedPhotos(context: Context) {
-		// For now, only share photos (video sharing not implemented yet)
-		val photoDefs = uiState.value.selectedMedia.mapNotNull { imageManager.getPhotoByName(it) }
-		if (photoDefs.isNotEmpty()) {
+	fun shareSelectedMedia(context: Context) {
+		val mediaItems = uiState.value.selectedMedia.mapNotNull {
+			imageManager.getMediaItemByName(it)
+		}
+		if (mediaItems.isNotEmpty()) {
 			viewModelScope.launch(Dispatchers.IO) {
-				sharePhotosWithProvider(
-					photos = photoDefs,
+				shareMediaWithProvider(
+					mediaItems = mediaItems,
 					context = context
 				)
 				withContext(Dispatchers.Main) {

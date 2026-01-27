@@ -59,17 +59,15 @@ fun ViewPhotoTopBar(
 					strokeWidth = 2.dp
 				)
 			}
-			if (isPhoto) {
-				IconButton(
-					onClick = onShareClick,
-					modifier = Modifier.padding(8.dp)
-				) {
-					Icon(
-						imageVector = Icons.Filled.Share,
-						contentDescription = stringResource(id = R.string.share_photo_content_description),
-						tint = MaterialTheme.colorScheme.onPrimaryContainer,
-					)
-				}
+			IconButton(
+				onClick = onShareClick,
+				modifier = Modifier.padding(8.dp)
+			) {
+				Icon(
+					imageVector = Icons.Filled.Share,
+					contentDescription = stringResource(id = R.string.share_photo_content_description),
+					tint = MaterialTheme.colorScheme.onPrimaryContainer,
+				)
 			}
 
 			var showMoreMenu by remember { mutableStateOf(false) }
