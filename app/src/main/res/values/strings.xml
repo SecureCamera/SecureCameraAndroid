@@ -51,6 +51,17 @@
     <string name="share_photo_content_description">Share Photos</string>
     <string name="delete_photo_content_description">Delete Photos</string>
     <string name="photo_content_none_selected">No photo selected</string>
+    <string name="media_content_none_selected">No media selected</string>
+
+    <!-- View Video Screen -->
+    <string name="video_title">Video</string>
+    <string name="video_not_found">Video not found</string>
+    <string name="video_content_description">Video</string>
+    <string name="video_content_loading">Loading video…</string>
+    <string name="video_loading">Loading…</string>
+    <string name="video_load_error">Failed to load video</string>
+    <string name="video_playback_error">Error playing video</string>
+    <string name="video_encrypting">Encrypting video…</string>
     <string name="unauthorized">Unauthorized</string>
     <string name="mark_as_decoy">Mark as Decoy</string>
     <string name="unmark_as_decoy">Unmark as Decoy</string>
@@ -92,6 +103,19 @@
     <string name="session_worker_channel_description">Shows when SnapSafe is active</string>
     <string name="session_worker_notification_close">Close</string>
 
+    <!-- Video Encryption Service -->
+    <string name="encryption_channel_name">Video Encryption</string>
+    <string name="encryption_channel_description">Shows video encryption progress</string>
+    <string name="encryption_notification_title">Encrypting Video</string>
+    <string name="encryption_notification_title_plural">Encrypting Videos</string>
+    <string name="encryption_notification_preparing">Preparing…</string>
+    <string name="encryption_notification_progress">Encrypting: %1$d%%</string>
+    <string name="encryption_notification_queue">%1$d of %2$d - %3$d%%</string>
+    <string name="encryption_error_title">Encryption Failed</string>
+    <string name="encryption_cancelled_title">Encryption Cancelled</string>
+    <string name="encryption_action_cancel">Cancel</string>
+    <string name="encryption_action_cancel_all">Cancel All</string>
+
     <!-- Gallery Screen -->
     <string name="gallery_title">Gallery</string>
     <string name="gallery_selected_count">%1$d Selected</string>
@@ -104,6 +128,7 @@
     <string name="gallery_share_selected_content_description">Share Selected</string>
     <string name="gallery_select_all_content_description">Select All</string>
     <string name="gallery_decoy_indicator">Is Decoy Photo</string>
+    <string name="gallery_video_indicator">Video</string>
 
     <!-- Camera Screen -->
     <string name="camera_more_options_content_description">More Options</string>
@@ -119,6 +144,13 @@
     <string name="camera_permissions_required">Camera permissions are required.</string>
     <string name="camera_open_settings">Open Settings</string>
     <string name="camera_shutter_button_desc">Take Photo</string>
+    <string name="camera_mode_photo">Photo</string>
+    <string name="camera_mode_video">Video</string>
+    <string name="camera_mode_toggle_description">Switch capture mode</string>
+    <string name="camera_start_recording_description">Start Recording</string>
+    <string name="camera_stop_recording_description">Stop Recording</string>
+    <string name="camera_recording_indicator">Recording</string>
+    <string name="camera_video_permissions_required">Audio recording permission is required for video.</string>
 
     <!-- Settings Screen -->
     <string name="settings_title">Settings</string>
