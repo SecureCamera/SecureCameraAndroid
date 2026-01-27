@@ -118,7 +118,8 @@ class PinVerificationViewModel(
 				withContext(Dispatchers.Main) {
 					_uiState.update {
 						it.copy(
-							failedAttempts = 0
+							failedAttempts = 0,
+							isVerifying = false
 						)
 					}
 					onNavigate(returnKey)
