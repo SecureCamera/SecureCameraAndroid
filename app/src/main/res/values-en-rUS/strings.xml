@@ -149,7 +149,7 @@
     <string name="settings_sanitize_filename_description">Remove identifying information from file names when sharing
         photos
     </string>
-    <string name="settings_sanitize_metadata">Sanitize metadata</string>
+    <string name="settings_sanitize_metadata">Sanitize photo metadata</string>
     <string name="settings_sanitize_metadata_description">Strip metadata (location, device info, etc.) when sharing
         photos
     </string>
@@ -169,6 +169,22 @@
     <string name="settings_session_timeout_1_min">1 Minute</string>
     <string name="settings_session_timeout_5_min">5 Minutes</string>
     <string name="settings_session_timeout_10_min">10 Minutes</string>
+    <string name="settings_media_security">Media Security</string>
+    <string name="settings_media_security_description">Security strength by media type</string>
+    <string name="media_security_dialog_title">Media Security</string>
+    <string name="media_security_photos_title">Photos</string>
+    <string name="media_security_photos_rating">10/10</string>
+    <string name="media_security_photos_description">Photos taken and stored with SnapSafe are as safe as is technically
+        possible. They are never written to the disk unencrypted, even for brief moments.
+    </string>
+    <string name="media_security_videos_title">Videos</string>
+    <string name="media_security_videos_rating">9/10</string>
+    <string name="media_security_videos_description">Videos taken with SnapSafe are incredibly secure, however, due to a
+        limitation with Android\'s video recording, they are first written to SnapSafe\'s private encrypted directory
+        while they are being recorded. Immediately after the recording ends, they are themselves encrypted and are
+        thereafter just as secure as photos taken with SnapSafe.
+    </string>
+    <string name="media_security_dialog_button">Got it</string>
     <!-- Security Reset -->
     <string name="settings_security_reset">Security Reset</string>
     <string name="settings_security_reset_description">Wipe all data and create a new PIN</string>
