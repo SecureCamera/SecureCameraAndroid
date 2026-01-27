@@ -114,6 +114,14 @@ class SettingsViewModel(
 		_uiState.update { it.copy(showSecurityResetDialog = false) }
 	}
 
+	fun showMediaSecurityDialog() {
+		_uiState.update { it.copy(showMediaSecurityDialog = true) }
+	}
+
+	fun dismissMediaSecurityDialog() {
+		_uiState.update { it.copy(showMediaSecurityDialog = false) }
+	}
+
 	fun performSecurityReset() {
 		viewModelScope.launch {
 			securityResetUseCase.reset()
@@ -210,6 +218,7 @@ data class SettingsUiState(
 	val showPoisonPillPinCreationDialog: Boolean = false,
 	val showDecoyPhotoExplanationDialog: Boolean = false,
 	val showRemovePoisonPillDialog: Boolean = false,
+	val showMediaSecurityDialog: Boolean = false,
 	val securityResetComplete: Boolean = false,
 	val poisonPillRemoved: Boolean = false,
 	val securityLevel: SecurityLevel = SecurityLevel.SOFTWARE,

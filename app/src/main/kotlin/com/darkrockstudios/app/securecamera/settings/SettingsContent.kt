@@ -9,6 +9,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowRight
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,14 +20,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation3.runtime.NavKey
 import com.darkrockstudios.app.securecamera.LocationPermissionStatus
 import com.darkrockstudios.app.securecamera.R
-import com.darkrockstudios.app.securecamera.navigation.About
-import com.darkrockstudios.app.securecamera.navigation.Introduction
-import com.darkrockstudios.app.securecamera.navigation.NavController
-import com.darkrockstudios.app.securecamera.navigation.navigateClearingBackStack
+import com.darkrockstudios.app.securecamera.navigation.*
 import com.darkrockstudios.app.securecamera.preferences.PreferencesAppSettingsDataSource.Companion.SESSION_TIMEOUT_10_MIN
 import com.darkrockstudios.app.securecamera.preferences.PreferencesAppSettingsDataSource.Companion.SESSION_TIMEOUT_1_MIN
 import com.darkrockstudios.app.securecamera.preferences.PreferencesAppSettingsDataSource.Companion.SESSION_TIMEOUT_5_MIN
@@ -290,6 +291,93 @@ fun SettingsContent(
 
 			Spacer(modifier = Modifier.height(16.dp))
 
+			// Media Security row
+			Row(
+				modifier = Modifier
+					.fillMaxWidth()
+					.padding(top = 8.dp, bottom = 8.dp)
+					.clickable { viewModel.showMediaSecurityDialog() },
+				verticalAlignment = Alignment.Top
+			) {
+				Column(modifier = Modifier.weight(1f)) {
+					Text(
+						text = stringResource(id = R.string.settings_media_security),
+						style = MaterialTheme.typography.bodyLarge
+					)
+					Text(
+						text = stringResource(id = R.string.settings_media_security_description),
+						style = MaterialTheme.typography.bodyMedium,
+						color = MaterialTheme.colorScheme.onSurfaceVariant
+					)
+					Spacer(modifier = Modifier.height(12.dp))
+					// Photos rating
+					Row(
+						modifier = Modifier.fillMaxWidth(),
+						verticalAlignment = Alignment.CenterVertically
+					) {
+						Icon(
+							imageVector = Icons.Filled.PhotoCamera,
+							contentDescription = null,
+							tint = Color.Green,
+							modifier = Modifier.size(20.dp)
+						)
+						Spacer(modifier = Modifier.width(4.dp))
+						Text(
+							text = stringResource(id = R.string.media_security_photos_title),
+							style = MaterialTheme.typography.bodyMedium,
+							modifier = Modifier.width(60.dp)
+						)
+						LinearProgressIndicator(
+							progress = { 1.0f },
+							modifier = Modifier
+								.weight(1f)
+								.height(8.dp),
+							color = Color.Green,
+						)
+						Text(
+							text = stringResource(id = R.string.media_security_photos_rating),
+							style = MaterialTheme.typography.bodyMedium,
+							fontWeight = FontWeight.Bold,
+							modifier = Modifier.padding(start = 8.dp)
+						)
+					}
+					Spacer(modifier = Modifier.height(8.dp))
+					// Videos rating
+					Row(
+						modifier = Modifier.fillMaxWidth(),
+						verticalAlignment = Alignment.CenterVertically
+					) {
+						Icon(
+							imageVector = Icons.Filled.Videocam,
+							contentDescription = null,
+							tint = MaterialTheme.colorScheme.primary,
+							modifier = Modifier.size(20.dp)
+						)
+						Spacer(modifier = Modifier.width(4.dp))
+						Text(
+							text = stringResource(id = R.string.media_security_videos_title),
+							style = MaterialTheme.typography.bodyMedium,
+							modifier = Modifier.width(60.dp)
+						)
+						LinearProgressIndicator(
+							progress = { 0.9f },
+							modifier = Modifier
+								.weight(1f)
+								.height(8.dp),
+							color = MaterialTheme.colorScheme.primary,
+						)
+						Text(
+							text = stringResource(id = R.string.media_security_videos_rating),
+							style = MaterialTheme.typography.bodyMedium,
+							fontWeight = FontWeight.Bold,
+							modifier = Modifier.padding(start = 8.dp)
+						)
+					}
+				}
+			}
+
+			Spacer(modifier = Modifier.height(16.dp))
+
 			// Session timeout dropdown
 			Row(
 				modifier = Modifier
@@ -492,5 +580,128 @@ fun SettingsContent(
 		)
 	}
 
+	if (uiState.showMediaSecurityDialog) {
+		MediaSecurityDialog(
+			onDismiss = { viewModel.dismissMediaSecurityDialog() }
+		)
+	}
+
 	HandleUiEvents(viewModel.events, snackbarHostState, navController)
+}
+
+@Composable
+private fun MediaSecurityDialog(
+	onDismiss: () -> Unit
+) {
+	AlertDialog(
+		onDismissRequest = onDismiss,
+		title = {
+			Text(
+				text = stringResource(id = R.string.media_security_dialog_title),
+				style = MaterialTheme.typography.headlineSmall
+			)
+		},
+		text = {
+			Column(
+				modifier = Modifier.fillMaxWidth(),
+				verticalArrangement = Arrangement.spacedBy(24.dp)
+			) {
+				// Photos section
+				Column(
+					modifier = Modifier.fillMaxWidth(),
+					verticalArrangement = Arrangement.spacedBy(8.dp)
+				) {
+					Row(
+						verticalAlignment = Alignment.CenterVertically,
+						horizontalArrangement = Arrangement.spacedBy(12.dp)
+					) {
+						Icon(
+							imageVector = Icons.Filled.PhotoCamera,
+							contentDescription = null,
+							tint = Color.Green,
+							modifier = Modifier.size(32.dp)
+						)
+						Column(modifier = Modifier.weight(1f)) {
+							Text(
+								text = stringResource(id = R.string.media_security_photos_title),
+								style = MaterialTheme.typography.titleMedium,
+								fontWeight = FontWeight.Bold
+							)
+							Text(
+								text = stringResource(id = R.string.media_security_photos_rating),
+								style = MaterialTheme.typography.bodyMedium,
+								fontWeight = FontWeight.Bold,
+								color = Color.Green
+							)
+						}
+					}
+					Text(
+						text = stringResource(id = R.string.media_security_photos_description),
+						style = MaterialTheme.typography.bodyMedium,
+						color = MaterialTheme.colorScheme.onSurfaceVariant
+					)
+				}
+
+				HorizontalDivider()
+
+				// Videos section
+				Column(
+					modifier = Modifier.fillMaxWidth(),
+					verticalArrangement = Arrangement.spacedBy(8.dp)
+				) {
+					Row(
+						verticalAlignment = Alignment.CenterVertically,
+						horizontalArrangement = Arrangement.spacedBy(12.dp)
+					) {
+						Icon(
+							imageVector = Icons.Filled.Videocam,
+							contentDescription = null,
+							tint = MaterialTheme.colorScheme.primary,
+							modifier = Modifier.size(32.dp)
+						)
+						Column(modifier = Modifier.weight(1f)) {
+							Text(
+								text = stringResource(id = R.string.media_security_videos_title),
+								style = MaterialTheme.typography.titleMedium,
+								fontWeight = FontWeight.Bold
+							)
+							Text(
+								text = stringResource(id = R.string.media_security_videos_rating),
+								style = MaterialTheme.typography.bodyMedium,
+								fontWeight = FontWeight.Bold,
+								color = MaterialTheme.colorScheme.primary
+							)
+						}
+					}
+					Text(
+						text = stringResource(id = R.string.media_security_videos_description),
+						style = MaterialTheme.typography.bodyMedium,
+						color = MaterialTheme.colorScheme.onSurfaceVariant
+					)
+				}
+			}
+		},
+		confirmButton = {
+			TextButton(onClick = onDismiss) {
+				Text(stringResource(id = R.string.media_security_dialog_button))
+			}
+		}
+	)
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun SettingsContentPreview() {
+	val mockNavController = object : NavController {
+		override fun navigate(key: NavKey, builder: (NavOptions.() -> Unit)?) {}
+		override fun navigate(key: NavKey) {}
+		override fun navigateUp(): Boolean = false
+	}
+
+	MaterialTheme {
+		SettingsContent(
+			navController = mockNavController,
+			paddingValues = PaddingValues(0.dp)
+		)
+	}
 }
