@@ -49,6 +49,16 @@
     <string name="share_photo_content_description">Поділитися фотографіями</string>
     <string name="delete_photo_content_description">Видалити фото</string>
     <string name="photo_content_none_selected">Фото не обрано</string>
+    <string name="media_content_none_selected">Медіаелемент не вибрано</string>
+    <!-- View Video Screen -->
+    <string name="video_title">Відео</string>
+    <string name="video_not_found">Відео не знайдено</string>
+    <string name="video_content_description">Відео</string>
+    <string name="video_content_loading">Завантаження відео…</string>
+    <string name="video_loading">Завантаження…</string>
+    <string name="video_load_error">Не вдалося завантажити відео</string>
+    <string name="video_playback_error">Помилка при відтворенні відео</string>
+    <string name="video_encrypting">Encrypting video…</string>
     <string name="unauthorized">Неавторизовано</string>
     <string name="mark_as_decoy">Позначити як обману</string>
     <string name="unmark_as_decoy">Зняти позначку як обману</string>
@@ -85,6 +95,18 @@
     <string name="session_worker_channel_name">Статус сесії</string>
     <string name="session_worker_channel_description">Показувати, коли SnapSafe активний</string>
     <string name="session_worker_notification_close">Закрити</string>
+    <!-- Video Encryption Service -->
+    <string name="encryption_channel_name">Шифрування відео</string>
+    <string name="encryption_channel_description">Відображає стан шифрування відео</string>
+    <string name="encryption_notification_title">Шифрування відео</string>
+    <string name="encryption_notification_title_plural">Шифрування відео</string>
+    <string name="encryption_notification_preparing">Preparing…</string>
+    <string name="encryption_notification_progress">Шифрування: %1$d%%</string>
+    <string name="encryption_notification_queue">%1$d %2$d - %3$d%%</string>
+    <string name="encryption_error_title">Шифрування не вдалось</string>
+    <string name="encryption_cancelled_title">Шифрування скасовано</string>
+    <string name="encryption_action_cancel">Скасувати</string>
+    <string name="encryption_action_cancel_all">Скасувати все</string>
     <!-- Gallery Screen -->
     <string name="gallery_title">Галерея</string>
     <string name="gallery_selected_count">%1$d Selected</string>
@@ -97,6 +119,7 @@
     <string name="gallery_share_selected_content_description">Поділитися вибраним</string>
     <string name="gallery_select_all_content_description">Виділити все</string>
     <string name="gallery_decoy_indicator">Є фотографією для обмани</string>
+    <string name="gallery_video_indicator">Відео</string>
     <!-- Camera Screen -->
     <string name="camera_more_options_content_description">Інші налаштування</string>
     <string name="camera_settings_button">Налаштування</string>
@@ -111,6 +134,13 @@
     <string name="camera_permissions_required">Потрібні дозволи камери.</string>
     <string name="camera_open_settings">Відкрити налаштування</string>
     <string name="camera_shutter_button_desc">Зробити фото</string>
+    <string name="camera_mode_photo">Фотографія</string>
+    <string name="camera_mode_video">Відео</string>
+    <string name="camera_mode_toggle_description">Перемкнути режим захоплення</string>
+    <string name="camera_start_recording_description">Розпочати запис</string>
+    <string name="camera_stop_recording_description">Зупинити запис</string>
+    <string name="camera_recording_indicator">Запис</string>
+    <string name="camera_video_permissions_required">Дозвіл на запис звуку необхідний для відео.</string>
     <!-- Settings Screen -->
     <string name="settings_title">Налаштування</string>
     <string name="settings_back_description">Відмінити</string>
