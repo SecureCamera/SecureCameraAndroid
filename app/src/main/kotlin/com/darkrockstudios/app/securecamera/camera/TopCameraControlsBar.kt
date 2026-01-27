@@ -1,11 +1,8 @@
 package com.darkrockstudios.app.securecamera.camera
 
-import androidx.annotation.StringRes
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cameraswitch
@@ -49,78 +46,52 @@ fun TopCameraControlsBar(
 	) {
 		Surface(
 			modifier = Modifier
-				.fillMaxWidth()
 				.padding(
-					start = 16.dp,
 					end = 16.dp,
 					top = paddingValues?.calculateTopPadding()?.plus(16.dp) ?: 16.dp,
-					bottom = 16.dp
 				),
 			color = Color.Black.copy(alpha = 0.6f),
 			shape = RoundedCornerShape(16.dp)
 		) {
 			Column(
-				modifier = Modifier
-					.fillMaxWidth()
-					.padding(16.dp),
+				modifier = Modifier.padding(12.dp),
+				horizontalAlignment = Alignment.CenterHorizontally,
+				verticalArrangement = Arrangement.spacedBy(8.dp),
 			) {
-				Row(
-					modifier = Modifier.fillMaxWidth(),
-					horizontalArrangement = Arrangement.SpaceBetween,
-					verticalAlignment = Alignment.CenterVertically
-				) {
-					FilledTonalButton(
-						onClick = onLensToggle,
-						modifier = Modifier
-							.background(MaterialTheme.colorScheme.primary, CircleShape),
-						colors = ButtonDefaults.filledTonalButtonColors(
-							containerColor = MaterialTheme.colorScheme.primary
-						)
-					) {
-						Icon(
-							imageVector = Icons.Filled.Cameraswitch,
-							contentDescription = stringResource(id = R.string.camera_toggle_content_description),
-							tint = MaterialTheme.colorScheme.onPrimary,
-							modifier = Modifier.rotate(iconRotation),
-						)
-					}
-
-					FilledTonalButton(
-						onClick = onClose,
-						modifier = Modifier
-							.background(MaterialTheme.colorScheme.primary, CircleShape),
-						colors = ButtonDefaults.filledTonalButtonColors(
-							containerColor = MaterialTheme.colorScheme.primary
-						)
-					) {
-						Icon(
-							imageVector = Icons.Filled.Close,
-							contentDescription = stringResource(id = R.string.camera_close_controls_content_description),
-							tint = MaterialTheme.colorScheme.onPrimary,
-							modifier = Modifier.rotate(iconRotation),
-						)
-					}
-				}
-
-				Spacer(Modifier.height(16.dp))
-
-				CameraControlSwitch(
-					icon = if (isFlashOn) Flashlight else FlashlightOff,
-					label = R.string.camera_flash_text,
-					checked = isFlashOn,
-					onCheckedChange = onFlashToggle,
-					testTage = "flash-switch",
+				CompactControlButton(
+					onClick = onClose,
+					icon = Icons.Filled.Close,
+					contentDescription = stringResource(id = R.string.camera_close_controls_content_description),
 					iconRotation = iconRotation,
 				)
 
-				Spacer(Modifier.height(16.dp))
+				CompactControlButton(
+					onClick = onLensToggle,
+					icon = Icons.Filled.Cameraswitch,
+					contentDescription = stringResource(id = R.string.camera_toggle_content_description),
+					iconRotation = iconRotation,
+				)
 
-				CameraControlSwitch(
-					icon = if (isFaceTrackingWorker) FaceTrackingOn else FaceTrackingOff,
-					label = R.string.camera_face_tracking,
+				HorizontalDivider(
+					modifier = Modifier.width(40.dp),
+					color = Color.White.copy(alpha = 0.3f),
+				)
+
+				CompactToggleButton(
+					checked = isFlashOn,
+					onCheckedChange = onFlashToggle,
+					icon = if (isFlashOn) Flashlight else FlashlightOff,
+					contentDescription = stringResource(id = R.string.camera_flash_text),
+					testTag = "flash-switch",
+					iconRotation = iconRotation,
+				)
+
+				CompactToggleButton(
 					checked = isFaceTrackingWorker,
 					onCheckedChange = onFaceTrackingToggle,
-					testTage = "face-switch",
+					icon = if (isFaceTrackingWorker) FaceTrackingOn else FaceTrackingOff,
+					contentDescription = stringResource(id = R.string.camera_face_tracking),
+					testTag = "face-switch",
 					iconRotation = iconRotation,
 				)
 			}
@@ -129,44 +100,59 @@ fun TopCameraControlsBar(
 }
 
 @Composable
-private fun CameraControlSwitch(
+private fun CompactControlButton(
+	onClick: () -> Unit,
 	icon: ImageVector,
-	@StringRes label: Int,
-	checked: Boolean,
-	testTage: String,
-	onCheckedChange: (Boolean) -> Unit,
-	iconRotation: Float = 0f,
+	contentDescription: String,
+	iconRotation: Float,
 ) {
-	Row(
-		verticalAlignment = Alignment.CenterVertically,
-		modifier = Modifier.padding(horizontal = 8.dp)
+	FilledTonalButton(
+		onClick = onClick,
+		modifier = Modifier.size(48.dp),
+		contentPadding = PaddingValues(0.dp),
+		colors = ButtonDefaults.filledTonalButtonColors(
+			containerColor = MaterialTheme.colorScheme.primary
+		)
 	) {
 		Icon(
 			imageVector = icon,
-			contentDescription = null,
-			tint = Color.White,
+			contentDescription = contentDescription,
+			tint = MaterialTheme.colorScheme.onPrimary,
 			modifier = Modifier
 				.size(24.dp)
 				.rotate(iconRotation),
 		)
-		Spacer(modifier = Modifier.width(8.dp))
+	}
+}
 
-		Switch(
-			modifier = Modifier.testTag(testTage),
-			checked = checked,
-			onCheckedChange = onCheckedChange,
-			colors = SwitchDefaults.colors(
-				checkedThumbColor = MaterialTheme.colorScheme.primary,
-				checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
-			)
-		)
-
-		Spacer(modifier = Modifier.width(8.dp))
-
-		Text(
-			text = stringResource(id = label),
-			color = Color.White,
-			style = MaterialTheme.typography.bodyMedium
+@Composable
+private fun CompactToggleButton(
+	checked: Boolean,
+	onCheckedChange: (Boolean) -> Unit,
+	icon: ImageVector,
+	contentDescription: String,
+	testTag: String,
+	iconRotation: Float,
+) {
+	FilledIconToggleButton(
+		checked = checked,
+		onCheckedChange = onCheckedChange,
+		modifier = Modifier
+			.size(48.dp)
+			.testTag(testTag),
+		colors = IconButtonDefaults.filledIconToggleButtonColors(
+			containerColor = Color.White.copy(alpha = 0.2f),
+			contentColor = Color.White,
+			checkedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+			checkedContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+		),
+	) {
+		Icon(
+			imageVector = icon,
+			contentDescription = contentDescription,
+			modifier = Modifier
+				.size(24.dp)
+				.rotate(iconRotation),
 		)
 	}
 }

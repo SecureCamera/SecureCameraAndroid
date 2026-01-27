@@ -190,21 +190,26 @@ fun CameraControls(
 			)
 		}
 
-		TopCameraControlsBar(
-			isFlashOn = isFlashOn,
-			isFaceTrackingWorker = cameraController.faceTracking == true,
-			isVisible = isTopControlsVisible && !isRecording,
-			onFlashToggle = {
-				isFlashOn = !isFlashOn
-			},
-			onFaceTrackingToggle = { enabled ->
-				cameraController.setEnableFaceTracking(enabled)
-			},
-			onLensToggle = { cameraController.toggleLens() },
-			onClose = { isTopControlsVisible = false },
-			paddingValues = paddingValues,
-			iconRotation = iconRotation,
-		)
+		Box(
+			modifier = Modifier
+				.align(Alignment.TopEnd)
+		) {
+			TopCameraControlsBar(
+				isFlashOn = isFlashOn,
+				isFaceTrackingWorker = cameraController.faceTracking == true,
+				isVisible = isTopControlsVisible && !isRecording,
+				onFlashToggle = {
+					isFlashOn = !isFlashOn
+				},
+				onFaceTrackingToggle = { enabled ->
+					cameraController.setEnableFaceTracking(enabled)
+				},
+				onLensToggle = { cameraController.toggleLens() },
+				onClose = { isTopControlsVisible = false },
+				paddingValues = paddingValues,
+				iconRotation = iconRotation,
+			)
+		}
 
 		BottomCameraControls(
 			modifier = Modifier
