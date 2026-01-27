@@ -189,6 +189,7 @@ private fun MediaGridItem(
 ) {
 	val isEncrypting = encryptionProgress != null
 	var thumbnailBitmap by remember(mediaItem.mediaName) { mutableStateOf<ImageBitmap?>(null) }
+	var thumbnailFailed by remember(mediaItem.mediaName) { mutableStateOf(false) }
 	val isDecoy = remember(mediaItem) {
 		(mediaItem as? PhotoDef)?.let { imageManager.isDecoyPhoto(it) } ?: false
 	}
@@ -204,6 +205,7 @@ private fun MediaGridItem(
 		if (thumbnailBitmap == null && !isEncrypting) {
 			scope.launch(limitedDispatcher) {
 				thumbnailBitmap = imageManager.readMediaThumbnail(mediaItem)?.asImageBitmap()
+				thumbnailFailed = (thumbnailBitmap == null)
 			}
 		}
 	}
@@ -273,6 +275,25 @@ private fun MediaGridItem(
 								.fillMaxSize()
 								.alpha(imageAlpha)
 						)
+					}
+					// Show placeholder for failed thumbnails
+					thumbnailFailed -> {
+						Box(
+							modifier = Modifier
+								.fillMaxSize()
+								.background(MaterialTheme.colorScheme.surfaceVariant),
+							contentAlignment = Alignment.Center
+						) {
+							Icon(
+								imageVector = if (mediaItem.mediaType == MediaType.VIDEO)
+									Icons.Filled.PlayArrow
+								else
+									Icons.Filled.Warning,
+								contentDescription = null,
+								tint = MaterialTheme.colorScheme.onSurfaceVariant,
+								modifier = Modifier.size(48.dp)
+							)
+						}
 					}
 					// Show loading spinner while thumbnail loads
 					else -> {

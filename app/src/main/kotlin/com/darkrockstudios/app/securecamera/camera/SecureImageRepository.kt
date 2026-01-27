@@ -471,12 +471,25 @@ class SecureImageRepository(
 		var tempFile: File? = null
 
 		return try {
+			if (!video.videoFile.exists()) {
+				Timber.e("Video file does not exist: ${video.videoFile.absolutePath}")
+				return null
+			}
+
+			Timber.d("Video file size: ${video.videoFile.length()} bytes")
+
 			decryptor = streamingScheme.createStreamingDecryptor(video.videoFile)
 
 			// Create a temporary file with decrypted video content
-			// We need enough data for MediaMetadataRetriever to extract a frame
-			// Typically the first few MB are sufficient
-			val bytesToRead = minOf(decryptor.totalSize, THUMBNAIL_EXTRACTION_BYTES)
+			// MP4 files often have moov atom at the end, so we need enough data
+			// For smaller videos, read the whole file to ensure we get the moov atom
+			val bytesToRead = if (decryptor.totalSize <= SMALL_VIDEO_THRESHOLD) {
+				Timber.d("Small video, reading entire file for thumbnail")
+				decryptor.totalSize
+			} else {
+				Timber.d("Large video, reading first $THUMBNAIL_EXTRACTION_BYTES bytes")
+				minOf(decryptor.totalSize, THUMBNAIL_EXTRACTION_BYTES)
+			}
 			val buffer = ByteArray(bytesToRead.toInt())
 			val bytesRead = decryptor.read(0, buffer, 0, buffer.size)
 
@@ -508,11 +521,30 @@ class SecureImageRepository(
 		return try {
 			MediaMetadataRetriever().use { retriever ->
 				retriever.setDataSource(videoFile.absolutePath)
-				// Get frame at 1 second (or first frame if video is shorter)
-				retriever.getFrameAtTime(1_000_000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
+
+				// Try frame at 1 second first
+				var frame = retriever.getFrameAtTime(1_000_000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
+
+				// If that fails, try frame at 0 (first frame)
+				if (frame == null) {
+					Timber.d("Frame at 1s not found, trying first frame")
+					frame = retriever.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
+				}
+
+				// Last resort: try any frame
+				if (frame == null) {
+					Timber.d("Specific frames not found, trying any frame")
+					frame = retriever.frameAtTime
+				}
+
+				if (frame == null) {
+					Timber.w("Could not extract any frame from video: ${videoFile.name}")
+				}
+
+				frame
 			}
 		} catch (e: Exception) {
-			Timber.e(e, "Failed to extract video frame")
+			Timber.e(e, "Failed to extract video frame from: ${videoFile.name}")
 			null
 		}
 	}
@@ -741,8 +773,11 @@ class SecureImageRepository(
 		const val THUMBNAILS_DIR = ".thumbnails"
 		const val MAX_DECOY_PHOTOS = 10
 
-		// Amount of video data to decrypt for thumbnail extraction (5MB should be enough for moov atom)
-		private const val THUMBNAIL_EXTRACTION_BYTES = 5L * 1024 * 1024
+		// Amount of video data to decrypt for thumbnail extraction
+		// MP4 files may have moov atom at the end, so we need to read more data
+		// For videos under 50MB, we read the whole file; otherwise we read 20MB
+		private const val THUMBNAIL_EXTRACTION_BYTES = 20L * 1024 * 1024
+		private const val SMALL_VIDEO_THRESHOLD = 50L * 1024 * 1024
 
         internal fun generateCopyName(dir: File, originalName: String): String {
             val base = originalName.substringBeforeLast(".")
