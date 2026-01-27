@@ -149,7 +149,7 @@
     <string name="settings_sanitize_filename_description">Rimuovere le informazioni identificative dai nomi dei file quando si condividono le foto
 
     </string>
-    <string name="settings_sanitize_metadata">Sanitizza i metadati</string>
+    <string name="settings_sanitize_metadata">Sanitizza i metadati delle foto</string>
     <string name="settings_sanitize_metadata_description">Striscia i metadati (posizione, informazioni sul dispositivo, ecc.) quando si condividono le foto
 
     </string>
@@ -169,6 +169,22 @@
     <string name="settings_session_timeout_1_min">1 Minuto</string>
     <string name="settings_session_timeout_5_min">5 Minuti</string>
     <string name="settings_session_timeout_10_min">10 Minuti</string>
+    <string name="settings_media_security">Sicurezza Media</string>
+    <string name="settings_media_security_description">Forza di sicurezza per tipo di media</string>
+    <string name="media_security_dialog_title">Sicurezza Media</string>
+    <string name="media_security_photos_title">Foto</string>
+    <string name="media_security_photos_rating">10/10</string>
+    <string name="media_security_photos_description">Le foto scattate e memorizzate con SnapSafe sono sicure quanto tecnicamente
+        possibile. Non sono mai scritti sul disco non crittografati, anche per brevi momenti.
+    </string>
+    <string name="media_security_videos_title">Video</string>
+    <string name="media_security_videos_rating">9/10</string>
+    <string name="media_security_videos_description">I video scattati con SnapSafe sono incredibilmente sicuri, tuttavia, a causa di una limitazione
+        con la registrazione video di Android, sono scritti per la prima volta nella directory privata crittografata di SnapSafe
+        durante la registrazione. Subito dopo la fine della registrazione, sono essi stessi crittografati e sono
+        in seguito altrettanto sicuri delle foto scattate con SnapSafe.
+    </string>
+    <string name="media_security_dialog_button">Ho capito</string>
     <!-- Security Reset -->
     <string name="settings_security_reset">Ripristino Sicurezza</string>
     <string name="settings_security_reset_description">Cancella tutti i dati e crea un nuovo PIN</string>
