@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -21,6 +22,7 @@ import kotlinx.coroutines.delay
 fun ZoomMeter(
 	cameraState: CameraState,
 	modifier: Modifier = Modifier.Companion,
+	textRotation: Float = 0f,
 ) {
 	val zoom = cameraState.getZoomState() ?: return
 	val zoomState by zoom.observeAsState()
@@ -133,6 +135,7 @@ fun ZoomMeter(
 					modifier = Modifier
 						.align(Alignment.BottomStart)
 						.padding(start = 8.dp)
+						.rotate(textRotation)
 				)
 
 				// Max zoom text
@@ -143,6 +146,7 @@ fun ZoomMeter(
 					modifier = Modifier
 						.align(Alignment.BottomEnd)
 						.padding(end = 8.dp)
+						.rotate(textRotation)
 				)
 
 				// Current zoom text
@@ -153,6 +157,7 @@ fun ZoomMeter(
 					modifier = Modifier
 						.align(Alignment.TopCenter)
 						.padding(top = 4.dp)
+						.rotate(textRotation)
 				)
 			}
 		}

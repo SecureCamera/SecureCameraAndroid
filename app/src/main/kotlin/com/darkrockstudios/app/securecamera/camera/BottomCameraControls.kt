@@ -10,7 +10,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -31,6 +33,7 @@ fun BottomCameraControls(
 	onModeChange: (CaptureMode) -> Unit,
 	isLoading: Boolean,
 	navController: NavController,
+	iconRotation: Float = 0f,
 ) {
 	val context = LocalContext.current
 
@@ -40,36 +43,26 @@ fun BottomCameraControls(
 			.padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
 		horizontalAlignment = Alignment.CenterHorizontally,
 	) {
-		// Mode toggle chips
+		// Mode toggle buttons
 		Row(
 			modifier = Modifier.padding(bottom = 16.dp),
+			horizontalArrangement = Arrangement.spacedBy(12.dp),
 		) {
-			FilterChip(
+			ModeToggleButton(
 				selected = captureMode == CaptureMode.PHOTO,
 				onClick = { onModeChange(CaptureMode.PHOTO) },
 				enabled = !isRecording && !isLoading,
-				label = { Text(stringResource(R.string.camera_mode_photo)) },
-				leadingIcon = {
-					Icon(
-						imageVector = Icons.Filled.Camera,
-						contentDescription = null,
-						modifier = Modifier.size(18.dp),
-					)
-				}
+				icon = Icons.Filled.Camera,
+				contentDescription = stringResource(R.string.camera_mode_photo),
+				iconRotation = iconRotation,
 			)
-			Spacer(modifier = Modifier.width(8.dp))
-			FilterChip(
+			ModeToggleButton(
 				selected = captureMode == CaptureMode.VIDEO,
 				onClick = { onModeChange(CaptureMode.VIDEO) },
 				enabled = !isRecording && !isLoading,
-				label = { Text(stringResource(R.string.camera_mode_video)) },
-				leadingIcon = {
-					Icon(
-						imageVector = Icons.Filled.Videocam,
-						contentDescription = null,
-						modifier = Modifier.size(18.dp),
-					)
-				}
+				icon = Icons.Filled.Videocam,
+				contentDescription = stringResource(R.string.camera_mode_video),
+				iconRotation = iconRotation,
 			)
 		}
 
@@ -85,7 +78,9 @@ fun BottomCameraControls(
 				Icon(
 					imageVector = Icons.Filled.Settings,
 					contentDescription = stringResource(R.string.camera_settings_button),
-					modifier = Modifier.size(32.dp),
+					modifier = Modifier
+						.size(32.dp)
+						.rotate(iconRotation),
 				)
 			}
 
@@ -110,7 +105,9 @@ fun BottomCameraControls(
 								imageVector = Icons.Filled.Camera,
 								contentDescription = stringResource(id = R.string.camera_capture_content_description),
 								tint = MaterialTheme.colorScheme.onPrimary,
-								modifier = Modifier.size(32.dp),
+								modifier = Modifier
+									.size(32.dp)
+									.rotate(iconRotation),
 							)
 						}
 					}
@@ -146,7 +143,9 @@ fun BottomCameraControls(
 								imageVector = if (isRecording) Icons.Filled.Stop else Icons.Filled.FiberManualRecord,
 								contentDescription = null,
 								tint = Color.White,
-								modifier = Modifier.size(32.dp),
+								modifier = Modifier
+									.size(32.dp)
+									.rotate(iconRotation),
 							)
 						}
 					}
@@ -161,9 +160,42 @@ fun BottomCameraControls(
 				Icon(
 					imageVector = Icons.Filled.PhotoLibrary,
 					contentDescription = stringResource(id = R.string.camera_gallery_content_description),
-					modifier = Modifier.size(32.dp),
+					modifier = Modifier
+						.size(32.dp)
+						.rotate(iconRotation),
 				)
 			}
 		}
+	}
+}
+
+@Composable
+private fun ModeToggleButton(
+	selected: Boolean,
+	onClick: () -> Unit,
+	enabled: Boolean,
+	icon: ImageVector,
+	contentDescription: String,
+	iconRotation: Float,
+) {
+	FilledIconToggleButton(
+		checked = selected,
+		onCheckedChange = { onClick() },
+		enabled = enabled,
+		modifier = Modifier.size(48.dp),
+		colors = IconButtonDefaults.filledIconToggleButtonColors(
+			containerColor = Color.Transparent,
+			contentColor = Color.White.copy(alpha = 0.6f),
+			checkedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+			checkedContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+		),
+	) {
+		Icon(
+			imageVector = icon,
+			contentDescription = contentDescription,
+			modifier = Modifier
+				.size(24.dp)
+				.rotate(iconRotation),
+		)
 	}
 }

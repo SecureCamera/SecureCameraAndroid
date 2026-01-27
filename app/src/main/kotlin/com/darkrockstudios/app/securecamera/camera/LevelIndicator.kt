@@ -1,7 +1,6 @@
 package com.darkrockstudios.app.securecamera.camera
 
 import android.content.Context
-import android.content.res.Configuration
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -13,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -24,8 +24,17 @@ import kotlin.math.tan
 
 @Composable
 fun LevelIndicator(
-	modifier: Modifier = Modifier
+	modifier: Modifier = Modifier,
+	deviceRotation: Float = 0f,
 ) {
+	// Snap to discrete rotation values (animated values may not be exactly 0/90/180/270)
+	val snappedRotation = when {
+		(deviceRotation - 90f).absoluteValue < 45f -> 90f
+		(deviceRotation - 180f).absoluteValue < 45f -> 180f
+		(deviceRotation - 270f).absoluteValue < 45f -> 270f
+		else -> 0f
+	}
+	val isLandscapeDevice = snappedRotation == 90f || snappedRotation == 270f
 	val maxAngle = 15f
 	val lineWidth = 128.dp
 
@@ -56,7 +65,6 @@ fun LevelIndicator(
 		}
 	}
 
-	// Register and unregister the sensor listener
 	DisposableEffect(Unit) {
 		sensorManager.registerListener(
 			sensorEventListener,
@@ -69,16 +77,12 @@ fun LevelIndicator(
 		}
 	}
 
-	val isLandscape = context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-	val orientationAdjustedAngle = when {
-		// Landscape left (rotation 90)
-		isLandscape && deviceAngle > 0 -> deviceAngle - 90f
-		// Landscape right (rotation 270)
-		isLandscape && deviceAngle < 0 -> deviceAngle + 90f
-		// Portrait upside down (rotation 180)
-		!isLandscape && deviceAngle.absoluteValue > 90f -> deviceAngle + 180f
-		// Normal portrait (rotation 0)
-		else -> deviceAngle
+	// Use the snapped device rotation to determine angle adjustment
+	val orientationAdjustedAngle = when (snappedRotation) {
+		270f -> deviceAngle - 90f  // Landscape left
+		90f -> deviceAngle + 90f   // Landscape right
+		180f -> deviceAngle + 180f // Portrait upside down
+		else -> deviceAngle        // Normal portrait
 	}
 	val rawAdjustedAngle = orientationAdjustedAngle - 90f
 
@@ -91,12 +95,23 @@ fun LevelIndicator(
 	if (adjustedAngle.absoluteValue < maxAngle) {
 		Box(
 			modifier = modifier
-				.fillMaxWidth()
-				.height(100.dp)
-				.padding(top = 30.dp)
+				.then(
+					if (isLandscapeDevice) {
+						Modifier
+							.fillMaxHeight()
+							.width(100.dp)
+							.padding(end = 64.dp)
+							.rotate(deviceRotation)
+					} else {
+						Modifier
+							.fillMaxWidth()
+							.height(100.dp)
+							.padding(top = 64.dp)
+					}
+				)
 		) {
 			Canvas(
-				modifier = Modifier.Companion.fillMaxSize()
+				modifier = Modifier.fillMaxSize()
 			) {
 				val canvasWidth = size.width
 				val canvasHeight = size.height
@@ -111,7 +126,7 @@ fun LevelIndicator(
 					start = Offset(startX, centerY),
 					end = Offset(endX, centerY),
 					strokeWidth = 2.dp.toPx(),
-					cap = StrokeCap.Companion.Round
+					cap = StrokeCap.Round
 				)
 
 				val color = when {
@@ -132,16 +147,17 @@ fun LevelIndicator(
 					start = Offset(startX, centerY + yOffset),
 					end = Offset(endX, centerY - yOffset),
 					strokeWidth = 2.dp.toPx(),
-					cap = StrokeCap.Companion.Round
+					cap = StrokeCap.Round
 				)
 			}
 
 			Text(
 				text = "${adjustedAngle.toInt()}°",
-				color = Color.Companion.White,
+				color = Color.White,
 				style = MaterialTheme.typography.bodyMedium,
-				modifier = Modifier.Companion
-					.align(Alignment.Companion.Center)
+				modifier = Modifier
+					.align(Alignment.Center)
+					.padding(top = 16.dp)
 			)
 		}
 	}

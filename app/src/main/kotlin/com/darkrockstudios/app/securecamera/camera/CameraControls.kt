@@ -18,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -47,6 +48,7 @@ fun CameraControls(
 	capturePhoto: MutableState<Boolean?>,
 	navController: NavController,
 	paddingValues: PaddingValues,
+	iconRotation: Float = 0f,
 ) {
 	val scope = rememberCoroutineScope()
 	var isFlashOn by rememberSaveable(cameraController.flashMode) { mutableStateOf(cameraController.flashMode == ImageCapture.FLASH_MODE_ON) }
@@ -139,13 +141,15 @@ fun CameraControls(
 			cameraController,
 			modifier = Modifier
 				.align(Alignment.TopCenter)
-				.padding(top = paddingValues.calculateTopPadding().plus(64.dp))
+				.padding(top = paddingValues.calculateTopPadding().plus(64.dp)),
+			textRotation = iconRotation,
 		)
 
 		LevelIndicator(
 			modifier = Modifier
 				.align(Alignment.Center)
-				.padding(top = paddingValues.calculateTopPadding().plus(16.dp))
+				.padding(top = paddingValues.calculateTopPadding().plus(16.dp)),
+			deviceRotation = iconRotation,
 		)
 
 		if (isRecording) {
@@ -171,6 +175,7 @@ fun CameraControls(
 				Icon(
 					imageVector = Icons.Filled.MoreVert,
 					contentDescription = stringResource(id = R.string.camera_more_options_content_description),
+					modifier = Modifier.rotate(iconRotation),
 				)
 			}
 		}
@@ -197,7 +202,8 @@ fun CameraControls(
 			},
 			onLensToggle = { cameraController.toggleLens() },
 			onClose = { isTopControlsVisible = false },
-			paddingValues = paddingValues
+			paddingValues = paddingValues,
+			iconRotation = iconRotation,
 		)
 
 		BottomCameraControls(
@@ -210,7 +216,8 @@ fun CameraControls(
 			navController = navController,
 			onCapture = { doCapturePhoto() },
 			onToggleRecording = { doToggleRecording() },
-			onModeChange = { mode -> cameraController.switchCaptureMode(mode) }
+			onModeChange = { mode -> cameraController.switchCaptureMode(mode) },
+			iconRotation = iconRotation,
 		)
 	}
 }

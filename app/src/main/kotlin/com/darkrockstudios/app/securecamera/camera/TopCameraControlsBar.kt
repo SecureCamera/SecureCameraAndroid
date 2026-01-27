@@ -14,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
@@ -32,7 +33,8 @@ fun TopCameraControlsBar(
 	onFaceTrackingToggle: (Boolean) -> Unit,
 	onLensToggle: () -> Unit,
 	onClose: () -> Unit,
-	paddingValues: PaddingValues? = null
+	paddingValues: PaddingValues? = null,
+	iconRotation: Float = 0f,
 ) {
 	AnimatedVisibility(
 		visible = isVisible,
@@ -79,6 +81,7 @@ fun TopCameraControlsBar(
 							imageVector = Icons.Filled.Cameraswitch,
 							contentDescription = stringResource(id = R.string.camera_toggle_content_description),
 							tint = MaterialTheme.colorScheme.onPrimary,
+							modifier = Modifier.rotate(iconRotation),
 						)
 					}
 
@@ -94,6 +97,7 @@ fun TopCameraControlsBar(
 							imageVector = Icons.Filled.Close,
 							contentDescription = stringResource(id = R.string.camera_close_controls_content_description),
 							tint = MaterialTheme.colorScheme.onPrimary,
+							modifier = Modifier.rotate(iconRotation),
 						)
 					}
 				}
@@ -105,7 +109,8 @@ fun TopCameraControlsBar(
 					label = R.string.camera_flash_text,
 					checked = isFlashOn,
 					onCheckedChange = onFlashToggle,
-					testTage = "flash-switch"
+					testTage = "flash-switch",
+					iconRotation = iconRotation,
 				)
 
 				Spacer(Modifier.height(16.dp))
@@ -115,7 +120,8 @@ fun TopCameraControlsBar(
 					label = R.string.camera_face_tracking,
 					checked = isFaceTrackingWorker,
 					onCheckedChange = onFaceTrackingToggle,
-					testTage = "face-switch"
+					testTage = "face-switch",
+					iconRotation = iconRotation,
 				)
 			}
 		}
@@ -128,7 +134,8 @@ private fun CameraControlSwitch(
 	@StringRes label: Int,
 	checked: Boolean,
 	testTage: String,
-	onCheckedChange: (Boolean) -> Unit
+	onCheckedChange: (Boolean) -> Unit,
+	iconRotation: Float = 0f,
 ) {
 	Row(
 		verticalAlignment = Alignment.CenterVertically,
@@ -138,7 +145,9 @@ private fun CameraControlSwitch(
 			imageVector = icon,
 			contentDescription = null,
 			tint = Color.White,
-			modifier = Modifier.size(24.dp)
+			modifier = Modifier
+				.size(24.dp)
+				.rotate(iconRotation),
 		)
 		Spacer(modifier = Modifier.width(8.dp))
 
