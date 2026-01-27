@@ -13,6 +13,7 @@ import javax.crypto.spec.SecretKeySpec
 /**
  * Implementation of StreamingDecryptor that decrypts SECV files chunk by chunk.
  * Supports random access for video seeking by using the chunk index table.
+ * Reads the trailer format with trailer and index at the end of the file.
  *
  * Thread-safe via mutex for all read operations.
  */
@@ -22,10 +23,10 @@ class ChunkedStreamingDecryptor(
 ) : StreamingDecryptor {
 
 	private val mutex = Mutex()
-	private var randomAccessFile: RandomAccessFile? = null
+	private val randomAccessFile: RandomAccessFile
 	private var isClosed = false
 
-	private val header: SecvFileFormat.SecvHeader
+	private val trailer: SecvFileFormat.SecvTrailer
 	private val chunkIndex: List<SecvFileFormat.ChunkIndexEntry>
 
 	// Cache for the most recently decrypted chunk to avoid re-decryption on sequential reads
@@ -33,31 +34,36 @@ class ChunkedStreamingDecryptor(
 	private var cachedChunkData: ByteArray? = null
 
 	override val totalSize: Long
-		get() = header.originalSize
+		get() = trailer.originalSize
 
 	override val chunkSize: Int
-		get() = header.chunkSize
+		get() = trailer.chunkSize
 
 	init {
 		require(encryptedFile.exists()) { "Encrypted file does not exist: ${encryptedFile.absolutePath}" }
 
-		randomAccessFile = RandomAccessFile(encryptedFile, "r")
+		randomAccessFile = RandomAccessFile(encryptedFile, "r") ?: error("Failed to open file for reading")
+		val fileLength = randomAccessFile.length()
 
-		// Read and validate header
-		val headerBytes = ByteArray(SecvFileFormat.HEADER_SIZE)
-		randomAccessFile!!.readFully(headerBytes)
-		header = SecvFileFormat.SecvHeader.fromByteArray(headerBytes)
+		// Read trailer from end of file
+		val trailerPosition = SecvFileFormat.calculateTrailerPosition(fileLength)
+		randomAccessFile.seek(trailerPosition)
+		val trailerBytes = ByteArray(SecvFileFormat.TRAILER_SIZE)
+		randomAccessFile.readFully(trailerBytes)
+		trailer = SecvFileFormat.SecvTrailer.fromByteArray(trailerBytes)
 
-		require(header.version == SecvFileFormat.VERSION) {
-			"Unsupported SECV version: ${header.version}"
+		require(trailer.version == SecvFileFormat.VERSION) {
+			"Unsupported SECV version: ${trailer.version}"
 		}
 
-		// Read chunk index table
-		val indexTableSize = header.totalChunks * SecvFileFormat.CHUNK_INDEX_ENTRY_SIZE
+		// Read chunk index table (just before trailer)
+		val indexPosition = SecvFileFormat.calculateIndexTablePosition(fileLength, trailer.totalChunks)
+		randomAccessFile.seek(indexPosition)
+		val indexTableSize = trailer.totalChunks * SecvFileFormat.CHUNK_INDEX_ENTRY_SIZE
 		val indexBytes = ByteArray(indexTableSize.toInt())
-		randomAccessFile!!.readFully(indexBytes)
+		randomAccessFile.readFully(indexBytes)
 
-		chunkIndex = (0 until header.totalChunks).map { i ->
+		chunkIndex = (0 until trailer.totalChunks).map { i ->
 			SecvFileFormat.ChunkIndexEntry.fromByteArray(
 				indexBytes,
 				(i * SecvFileFormat.CHUNK_INDEX_ENTRY_SIZE).toInt()
@@ -111,11 +117,11 @@ class ChunkedStreamingDecryptor(
 	 */
 	private suspend fun getDecryptedChunk(chunkIdx: Long): ByteArray {
 		// Return cached chunk if available
-		if (chunkIdx == cachedChunkIndex && cachedChunkData != null) {
-			return cachedChunkData!!
+		val cachedData = cachedChunkData
+		if (chunkIdx == cachedChunkIndex && cachedData != null) {
+			return cachedData
 		}
 
-		// Decrypt the chunk
 		val decrypted = decryptChunk(chunkIdx)
 
 		// Update cache
@@ -156,8 +162,7 @@ class ChunkedStreamingDecryptor(
 	override fun close() {
 		if (isClosed) return
 
-		randomAccessFile?.close()
-		randomAccessFile = null
+		randomAccessFile.close()
 		isClosed = true
 
 		// Clear cache

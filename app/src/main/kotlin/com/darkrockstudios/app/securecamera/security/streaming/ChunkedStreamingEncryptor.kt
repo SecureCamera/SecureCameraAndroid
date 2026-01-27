@@ -14,10 +14,10 @@ import javax.crypto.spec.SecretKeySpec
 /**
  * Implementation of StreamingEncryptor that encrypts data in chunks using AES-GCM.
  *
- * This encryptor writes data in the SECV format:
- * 1. First, data is collected and encrypted in chunks
- * 2. Each chunk is written to a temporary area
- * 3. On close/flush, the header and index table are written
+ * This encryptor writes data in the SECV trailer format:
+ * 1. Encrypted chunks are written sequentially as data arrives
+ * 2. On close, the index table and trailer are appended to the end
+ * 3. No file rewriting needed, preventing memory spikes on large videos
  *
  * Thread-safe via mutex for all write operations.
  */
@@ -39,19 +39,15 @@ class ChunkedStreamingEncryptor(
 	private var isFlushed = false
 
 	// Track current position in file where we're writing chunk data
-	// We'll reserve space for header and index table, then write chunks
 	private var currentChunkDataOffset = 0L
 
 	init {
-		// Create parent directories if needed
 		outputFile.parentFile?.mkdirs()
 
-		// Open file for writing
 		randomAccessFile = RandomAccessFile(outputFile, "rw")
 
-		// We don't know the total chunks yet, so we'll write header at the end
-		// For now, skip past where the header will go
-		// We'll need to rewrite the file structure at close time
+		// Chunks are written starting at offset 0
+		// Index table and trailer will be appended at the end
 		currentChunkDataOffset = 0L
 	}
 
@@ -142,10 +138,11 @@ class ChunkedStreamingEncryptor(
 	override fun close() {
 		if (isClosed) return
 
+		val raf = randomAccessFile ?: return
+
 		// Run flush synchronously if needed
 		if (!isFlushed && bufferPosition > 0) {
 			// Write remaining data synchronously
-			val raf = randomAccessFile ?: return
 			val iv = ByteArray(SecvFileFormat.IV_SIZE)
 			secureRandom.nextBytes(iv)
 
@@ -172,9 +169,19 @@ class ChunkedStreamingEncryptor(
 			bufferPosition = 0
 		}
 
-		// Now rewrite the file with proper structure:
-		// [Header][Index Table][Chunk Data]
-		rewriteWithHeader()
+		// Append index table at current position
+		for (entry in chunkIndexEntries) {
+			raf.write(entry.toByteArray())
+		}
+
+		// Append trailer at end (now we know totalChunks and originalSize)
+		val trailer = SecvFileFormat.SecvTrailer(
+			version = SecvFileFormat.VERSION,
+			chunkSize = chunkSize,
+			totalChunks = chunkIndexEntries.size.toLong(),
+			originalSize = totalBytesWritten
+		)
+		raf.write(trailer.toByteArray())
 
 		randomAccessFile?.close()
 		randomAccessFile = null
@@ -185,76 +192,4 @@ class ChunkedStreamingEncryptor(
 		currentBuffer.fill(0)
 	}
 
-	/**
-	 * Rewrites the file to include header and index table at the beginning.
-	 * This reads all chunk data and rewrites with proper structure.
-	 */
-	private fun rewriteWithHeader() {
-		val raf = randomAccessFile ?: return
-
-		if (chunkIndexEntries.isEmpty()) {
-			// No data written, create empty file with just header
-			val header = SecvFileFormat.SecvHeader(
-				version = SecvFileFormat.VERSION,
-				chunkSize = chunkSize,
-				totalChunks = 0,
-				originalSize = 0
-			)
-			raf.seek(0)
-			raf.write(header.toByteArray())
-			raf.setLength(SecvFileFormat.HEADER_SIZE.toLong())
-			return
-		}
-
-		// Read all chunk data into memory (we need to shift it)
-		val totalChunkDataSize = currentChunkDataOffset
-		val chunkData = ByteArray(totalChunkDataSize.toInt())
-		raf.seek(0)
-		raf.readFully(chunkData)
-
-		// Calculate new offsets for chunks (they'll be shifted by header + index size)
-		val headerAndIndexSize = SecvFileFormat.HEADER_SIZE +
-				(chunkIndexEntries.size * SecvFileFormat.CHUNK_INDEX_ENTRY_SIZE)
-
-		// Update chunk offsets
-		val updatedEntries = chunkIndexEntries.mapIndexed { index, entry ->
-			val originalOffset = if (index == 0) 0L else chunkIndexEntries[index - 1].let {
-				it.offset + it.encryptedSize
-			}
-			entry.copy(offset = headerAndIndexSize + originalOffset)
-		}
-
-		// Write header
-		val header = SecvFileFormat.SecvHeader(
-			version = SecvFileFormat.VERSION,
-			chunkSize = chunkSize,
-			totalChunks = chunkIndexEntries.size.toLong(),
-			originalSize = totalBytesWritten
-		)
-
-		raf.seek(0)
-		raf.write(header.toByteArray())
-
-		// Write index table
-		var indexOffset = SecvFileFormat.HEADER_SIZE.toLong()
-		var dataOffset = headerAndIndexSize.toLong()
-
-		for (i in chunkIndexEntries.indices) {
-			val entry = SecvFileFormat.ChunkIndexEntry(
-				offset = dataOffset,
-				encryptedSize = chunkIndexEntries[i].encryptedSize
-			)
-			raf.seek(indexOffset)
-			raf.write(entry.toByteArray())
-			indexOffset += SecvFileFormat.CHUNK_INDEX_ENTRY_SIZE
-			dataOffset += chunkIndexEntries[i].encryptedSize
-		}
-
-		// Write chunk data at new position
-		raf.seek(headerAndIndexSize.toLong())
-		raf.write(chunkData)
-
-		// Truncate file to exact size
-		raf.setLength(headerAndIndexSize + totalChunkDataSize)
-	}
 }

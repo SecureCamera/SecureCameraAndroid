@@ -48,14 +48,11 @@ file deletion.
 
 ```
 +--------------------------------------------------+
-|                  HEADER (64 bytes)               |
+|              ENCRYPTED CHUNKS                    |
 +--------------------------------------------------+
-| Magic: "SECV"              | 4 bytes             |
-| Version                    | 2 bytes (uint16)    |
-| Chunk Size                 | 4 bytes (uint32)    |
-| Total Chunks               | 8 bytes (uint64)    |
-| Original Size              | 8 bytes (uint64)    |
-| Reserved                   | 38 bytes            |
+| Chunk 0: [IV 12B][Ciphertext][Auth Tag 16B]     |
+| Chunk 1: [IV 12B][Ciphertext][Auth Tag 16B]     |
+| ...                                              |
 +--------------------------------------------------+
 |              CHUNK INDEX TABLE                   |
 |         (12 bytes per chunk)                     |
@@ -65,17 +62,26 @@ file deletion.
 | ...                                              |
 | Chunk N: Offset (8) + Encrypted Size (4)        |
 +--------------------------------------------------+
-|              ENCRYPTED CHUNKS                    |
+|                 TRAILER (64 bytes)               |
 +--------------------------------------------------+
-| Chunk 0: [IV 12B][Ciphertext][Auth Tag 16B]     |
-| Chunk 1: [IV 12B][Ciphertext][Auth Tag 16B]     |
-| ...                                              |
+| Magic: "SECV"              | 4 bytes             |
+| Version                    | 2 bytes (uint16)    |
+| Chunk Size                 | 4 bytes (uint32)    |
+| Total Chunks               | 8 bytes (uint64)    |
+| Original Size              | 8 bytes (uint64)    |
+| Reserved                   | 38 bytes            |
 +--------------------------------------------------+
 ```
 
 ### Design Rationale
 
-**Fixed header size (64 bytes)**: Allows quick validation and metadata extraction without parsing variable-length
+**Trailer format (metadata at end)**: Placing the trailer and index table at the end eliminates the need to rewrite the
+entire file when encryption completes. In the previous approach (v1), chunks were written first, then the entire file
+had to be read back into memory and shifted forward to make room for the header - causing memory spikes and potential
+OOM crashes with large videos (2GB+). With the trailer format, chunks are written starting at offset 0, and metadata is
+simply appended at the end. This makes encryption faster, more memory-efficient, and crash-resistant.
+
+**Fixed trailer size (64 bytes)**: Allows quick validation and metadata extraction without parsing variable-length
 structures.
 
 **Chunk index table**: Enables O(1) seeking. To play from position X, we calculate which chunk contains X, look up its
