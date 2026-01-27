@@ -184,6 +184,6 @@ fun enforceAuth(
 			is ImportPhotos -> ImportPhotos(currentKey.job)
 			else -> Camera
 		}
-		navController.navigate(PinVerification(returnKey)) { launchSingleTop = true }
+		navController.navigateClearingBackStack(PinVerification(returnKey))
 	}
 }

@@ -22,8 +22,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavKey
 import com.darkrockstudios.app.securecamera.R
+import com.darkrockstudios.app.securecamera.navigation.Camera
 import com.darkrockstudios.app.securecamera.navigation.NavController
-import com.darkrockstudios.app.securecamera.navigation.navigateClearingBackStack
+import com.darkrockstudios.app.securecamera.navigation.navigateFromBase
 import com.darkrockstudios.app.securecamera.ui.HandleUiEvents
 import org.koin.androidx.compose.koinViewModel
 
@@ -100,7 +101,7 @@ fun PinVerificationContent(
 					pin = pin,
 					returnKey = returnKey,
 					onNavigate = { destKey ->
-						navController.navigateClearingBackStack(destKey)
+						navController.navigateFromBase(Camera, destKey)
 					},
 					onFailure = { pin = "" }
 				)

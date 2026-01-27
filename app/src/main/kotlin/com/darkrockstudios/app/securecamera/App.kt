@@ -32,7 +32,7 @@ fun App(
 
 			val hasCompletedIntro by preferencesManager.hasCompletedIntro.collectAsState(initial = null)
 
-			VerifySessionOnResume(navController, hasCompletedIntro, authorizationRepository)
+			VerifySessionOnResume(navController, backStack, hasCompletedIntro, authorizationRepository)
 
 			if (hasCompletedIntro != null) {
 				Scaffold(
@@ -56,14 +56,16 @@ fun App(
 @Composable
 private fun VerifySessionOnResume(
 	navController: NavController,
+	backStack: NavBackStack<NavKey>,
 	hasCompletedIntro: Boolean?,
 	authorizationRepository: AuthorizationRepository
 ) {
 	var requireAuthCheck = remember { false }
 	LifecycleResumeEffect(hasCompletedIntro) {
 		if (hasCompletedIntro == true && requireAuthCheck) {
-			// Use the top-of-stack key in Nav3
-			enforceAuth(authorizationRepository, null, navController)
+			// Get the current screen from the top of the back stack
+			val currentKey = backStack.lastOrNull()
+			enforceAuth(authorizationRepository, currentKey, navController)
 		}
 		onPauseOrDispose {
 			requireAuthCheck = true
