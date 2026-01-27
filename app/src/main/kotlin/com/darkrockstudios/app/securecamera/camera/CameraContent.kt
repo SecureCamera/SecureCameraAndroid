@@ -1,6 +1,9 @@
 package com.darkrockstudios.app.securecamera.camera
 
 import android.Manifest
+import android.annotation.SuppressLint
+import android.content.pm.ActivityInfo
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,6 +14,24 @@ import com.darkrockstudios.app.securecamera.navigation.NavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 
+/**
+ * Locks the screen orientation to portrait while this composable is in the composition.
+ * Restores the original orientation when the composable leaves.
+ */
+@SuppressLint("SourceLockedOrientationActivity")
+@Composable
+private fun LockScreenOrientationPortrait() {
+	val activity = LocalActivity.current
+	DisposableEffect(Unit) {
+		activity ?: return@DisposableEffect onDispose { }
+		val originalOrientation = activity.requestedOrientation
+		activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+		onDispose {
+			activity.requestedOrientation = originalOrientation
+		}
+	}
+}
+
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 internal fun CameraContent(
@@ -19,6 +40,7 @@ internal fun CameraContent(
 	modifier: Modifier,
 	paddingValues: PaddingValues,
 ) {
+	LockScreenOrientationPortrait()
 	KeepScreenOnEffect()
 
 	val permissionsState = rememberMultiplePermissionsState(
