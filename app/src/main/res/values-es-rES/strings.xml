@@ -49,6 +49,16 @@
     <string name="share_photo_content_description">Compartir fotos</string>
     <string name="delete_photo_content_description">Eliminar fotos</string>
     <string name="photo_content_none_selected">Ninguna foto seleccionada</string>
+    <string name="media_content_none_selected">Ningún medio seleccionado</string>
+    <!-- View Video Screen -->
+    <string name="video_title">Vídeo</string>
+    <string name="video_not_found">Video no encontrado</string>
+    <string name="video_content_description">Vídeo</string>
+    <string name="video_content_loading">Cargando vídeo…</string>
+    <string name="video_loading">Cargando…</string>
+    <string name="video_load_error">Error al cargar el vídeo</string>
+    <string name="video_playback_error">Error al reproducir el vídeo</string>
+    <string name="video_encrypting">Cifrando vídeo…</string>
     <string name="unauthorized">No autorizado</string>
     <string name="mark_as_decoy">Marcar como señuelo</string>
     <string name="unmark_as_decoy">Desmarcar como señuelo</string>
@@ -85,6 +95,18 @@
     <string name="session_worker_channel_name">Estado de la sesión</string>
     <string name="session_worker_channel_description">Muestra cuando SnapSafe está activo</string>
     <string name="session_worker_notification_close">Cerrar</string>
+    <!-- Video Encryption Service -->
+    <string name="encryption_channel_name">Encriptación de vídeo</string>
+    <string name="encryption_channel_description">Muestra el progreso del cifrado de vídeo</string>
+    <string name="encryption_notification_title">Cifrando vídeo</string>
+    <string name="encryption_notification_title_plural">Cifrando videos</string>
+    <string name="encryption_notification_preparing">Preparando…</string>
+    <string name="encryption_notification_progress">Cifrando: %1$d%%</string>
+    <string name="encryption_notification_queue">%1$d de %2$d - %3$d%%</string>
+    <string name="encryption_error_title">Cifrado fallido</string>
+    <string name="encryption_cancelled_title">Cifrado cancelado</string>
+    <string name="encryption_action_cancel">Cancelar</string>
+    <string name="encryption_action_cancel_all">Cancelar todo</string>
     <!-- Gallery Screen -->
     <string name="gallery_title">Galería</string>
     <string name="gallery_selected_count">%1$d seleccionados</string>
@@ -97,6 +119,7 @@
     <string name="gallery_share_selected_content_description">Compartir seleccionados</string>
     <string name="gallery_select_all_content_description">Seleccionar todo</string>
     <string name="gallery_decoy_indicator">Es Foto señuelo</string>
+    <string name="gallery_video_indicator">Vídeo</string>
     <!-- Camera Screen -->
     <string name="camera_more_options_content_description">Más opciones</string>
     <string name="camera_settings_button">Ajustes</string>
@@ -111,6 +134,13 @@
     <string name="camera_permissions_required">Se requieren permisos de cámara.</string>
     <string name="camera_open_settings">Abrir ajustes</string>
     <string name="camera_shutter_button_desc">Tomar foto</string>
+    <string name="camera_mode_photo">Foto</string>
+    <string name="camera_mode_video">Vídeo</string>
+    <string name="camera_mode_toggle_description">Cambiar modo de captura</string>
+    <string name="camera_start_recording_description">Iniciar grabación</string>
+    <string name="camera_stop_recording_description">Detener grabación</string>
+    <string name="camera_recording_indicator">Grabando</string>
+    <string name="camera_video_permissions_required">Se requiere permiso de grabación de audio para el vídeo.</string>
     <!-- Settings Screen -->
     <string name="settings_title">Ajustes</string>
     <string name="settings_back_description">Atrás</string>
