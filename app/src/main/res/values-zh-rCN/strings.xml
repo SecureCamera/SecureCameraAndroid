@@ -49,6 +49,16 @@
     <string name="share_photo_content_description">分享照片</string>
     <string name="delete_photo_content_description">删除照片</string>
     <string name="photo_content_none_selected">未选择照片</string>
+    <string name="media_content_none_selected">未选择媒体</string>
+    <!-- View Video Screen -->
+    <string name="video_title">视频</string>
+    <string name="video_not_found">未找到视频</string>
+    <string name="video_content_description">视频</string>
+    <string name="video_content_loading">加载视频…</string>
+    <string name="video_loading">正在加载…</string>
+    <string name="video_load_error">加载视频失败</string>
+    <string name="video_playback_error">播放视频出错</string>
+    <string name="video_encrypting">加密视频…</string>
     <string name="unauthorized">未授权</string>
     <string name="mark_as_decoy">标记为装饰</string>
     <string name="unmark_as_decoy">取消标记为装饰</string>
@@ -85,6 +95,18 @@
     <string name="session_worker_channel_name">会话状态</string>
     <string name="session_worker_channel_description">SnapSafe 活动时显示</string>
     <string name="session_worker_notification_close">关闭</string>
+    <!-- Video Encryption Service -->
+    <string name="encryption_channel_name">视频加密</string>
+    <string name="encryption_channel_description">显示视频加密进度</string>
+    <string name="encryption_notification_title">加密视频</string>
+    <string name="encryption_notification_title_plural">加密视频</string>
+    <string name="encryption_notification_preparing">Preparing…</string>
+    <string name="encryption_notification_progress">Encrypting: %1$d%%</string>
+    <string name="encryption_notification_queue">%1$d of %2$d - %3$d%%</string>
+    <string name="encryption_error_title">加密失败</string>
+    <string name="encryption_cancelled_title">加密已取消</string>
+    <string name="encryption_action_cancel">取消</string>
+    <string name="encryption_action_cancel_all">全部取消</string>
     <!-- Gallery Screen -->
     <string name="gallery_title">相册</string>
     <string name="gallery_selected_count">已选择 %1$d</string>
@@ -97,6 +119,7 @@
     <string name="gallery_share_selected_content_description">分享选定的</string>
     <string name="gallery_select_all_content_description">选择所有</string>
     <string name="gallery_decoy_indicator">是诱惑照片</string>
+    <string name="gallery_video_indicator">视频</string>
     <!-- Camera Screen -->
     <string name="camera_more_options_content_description">更多选项</string>
     <string name="camera_settings_button">设置</string>
@@ -111,6 +134,13 @@
     <string name="camera_permissions_required">相机权限是必需的。</string>
     <string name="camera_open_settings">打开设置</string>
     <string name="camera_shutter_button_desc">拍照</string>
+    <string name="camera_mode_photo">照片</string>
+    <string name="camera_mode_video">视频</string>
+    <string name="camera_mode_toggle_description">切换捕获模式</string>
+    <string name="camera_start_recording_description">开始录制</string>
+    <string name="camera_stop_recording_description">停止录制</string>
+    <string name="camera_recording_indicator">录制中</string>
+    <string name="camera_video_permissions_required">视频需要音频录制权限。</string>
     <!-- Settings Screen -->
     <string name="settings_title">设置</string>
     <string name="settings_back_description">后退</string>
