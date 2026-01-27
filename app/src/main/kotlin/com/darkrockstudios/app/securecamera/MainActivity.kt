@@ -35,6 +35,7 @@ class MainActivity : ComponentActivity() {
 	private val preferences: AppSettingsDataSource by inject()
 	private val authorizationRepository: AuthorizationRepository by inject()
 	lateinit var navController: NavController
+	private lateinit var navBackStack: androidx.navigation3.runtime.NavBackStack<androidx.navigation3.runtime.NavKey>
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -53,6 +54,7 @@ class MainActivity : ComponentActivity() {
 			val backStack = rememberNavBackStack(startKey)
 			val controller = remember(backStack) { Nav3CompatController(backStack) }
 			navController = controller
+			navBackStack = backStack
 			App(capturePhoto, backStack, navController)
 		}
 
@@ -84,13 +86,19 @@ class MainActivity : ComponentActivity() {
 	override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
 		return when (keyCode) {
 			KeyEvent.KEYCODE_VOLUME_UP, KeyEvent.KEYCODE_VOLUME_DOWN -> {
-				val curValue = capturePhoto.value
-				capturePhoto.value = if (curValue != null) {
-					!curValue
-				} else {
+				// Only handle volume button as shutter when on Camera screen
+				if (::navBackStack.isInitialized && navBackStack.lastOrNull() == Camera) {
+					val curValue = capturePhoto.value
+					capturePhoto.value = if (curValue != null) {
+						!curValue
+					} else {
+						true
+					}
 					true
+				} else {
+					// Let the system handle volume buttons on other screens
+					super.onKeyDown(keyCode, event)
 				}
-				true
 			}
 
 			else -> super.onKeyDown(keyCode, event)
