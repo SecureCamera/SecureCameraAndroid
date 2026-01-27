@@ -119,7 +119,7 @@
     <string name="settings_sanitize_filename_description">Rimuovere le informazioni identificative dai nomi dei file quando si condividono le foto
 
     </string>
-    <string name="settings_sanitize_metadata">Sanitizza i metadati</string>
+    <string name="settings_sanitize_metadata">Sanitizza i metadati delle foto</string>
     <string name="settings_sanitize_metadata_description">Striscia i metadati (posizione, informazioni sul dispositivo, ecc.) quando si condividono le foto
 
     </string>

@@ -119,7 +119,7 @@
     <string name="settings_sanitize_filename_description">Supprimer les informations d\'identification des noms de fichiers lors du partage de
         photos
     </string>
-    <string name="settings_sanitize_metadata">Nettoyer les métadonnées</string>
+    <string name="settings_sanitize_metadata">Nettoyer les métadonnées des photos</string>
     <string name="settings_sanitize_metadata_description">Retirer les métadonnées (emplacement, infos de l\'appareil, etc.) lors du partage de
         photos
     </string>

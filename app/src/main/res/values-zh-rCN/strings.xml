@@ -119,7 +119,7 @@
     <string name="settings_sanitize_filename_description">Remove identifying information from file names when sharing
         photos
     </string>
-    <string name="settings_sanitize_metadata">卫生化元数据</string>
+    <string name="settings_sanitize_metadata">卫生化照片元数据</string>
     <string name="settings_sanitize_metadata_description">Strip metadata (location, device info, etc.) when sharing
         photos
     </string>

@@ -119,7 +119,7 @@
     <string name="settings_sanitize_filename_description">Entfernen Sie Identifikationsinformationen aus Dateinamen beim Teilen von
         Fotos
     </string>
-    <string name="settings_sanitize_metadata">Metadaten säubern</string>
+    <string name="settings_sanitize_metadata">Foto-Metadaten säubern</string>
     <string name="settings_sanitize_metadata_description">Metadaten entfernen (Standort, Geräteinformationen, etc.) beim Teilen von
         Fotos
     </string>

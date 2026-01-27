@@ -119,7 +119,7 @@
     <string name="settings_sanitize_filename_description">Вилучення інформації з імен файлів при спільному використанні
         фотографій
     </string>
-    <string name="settings_sanitize_metadata">Сантизувати метадані</string>
+    <string name="settings_sanitize_metadata">Сантизувати метадані фото</string>
     <string name="settings_sanitize_metadata_description">Strip metadata (location, device info, etc.) when sharing
         photos
     </string>
