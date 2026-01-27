@@ -149,7 +149,7 @@
     <string name="settings_sanitize_filename_description">Supprimer les informations d\'identification des noms de fichiers lors du partage de
         photos
     </string>
-    <string name="settings_sanitize_metadata">Nettoyer les métadonnées</string>
+    <string name="settings_sanitize_metadata">Nettoyer les métadonnées des photos</string>
     <string name="settings_sanitize_metadata_description">Retirer les métadonnées (emplacement, infos de l\'appareil, etc.) lors du partage de
         photos
     </string>
@@ -169,6 +169,22 @@
     <string name="settings_session_timeout_1_min">1 minute</string>
     <string name="settings_session_timeout_5_min">5 minutes</string>
     <string name="settings_session_timeout_10_min">10 minutes</string>
+    <string name="settings_media_security">Sécurité des médias</string>
+    <string name="settings_media_security_description">Force de sécurité par type de média</string>
+    <string name="media_security_dialog_title">Sécurité des médias</string>
+    <string name="media_security_photos_title">Photos</string>
+    <string name="media_security_photos_rating">10/10</string>
+    <string name="media_security_photos_description">Les photos prises et stockées avec SnapSafe sont aussi sûres que techniquement
+        possible. Ils ne sont jamais écrits sur le disque non chiffrés, même pour de brefs instants.
+    </string>
+    <string name="media_security_videos_title">Vidéos</string>
+    <string name="media_security_videos_rating">9/10</string>
+    <string name="media_security_videos_description">Les vidéos prises avec SnapSafe sont incroyablement sécurisées, cependant, en raison d\'une limitation
+        avec l\'enregistrement vidéo d\'Android, elles sont d\'abord écrites dans le répertoire privé chiffré de SnapSafe
+        pendant qu\'elles sont enregistrées. Immédiatement après la fin de l\'enregistrement, ils sont eux-mêmes chiffrés et sont
+        ensuite aussi sécurisés que les photos prises avec SnapSafe.
+    </string>
+    <string name="media_security_dialog_button">Compris</string>
     <!-- Security Reset -->
     <string name="settings_security_reset">Réinitialisation de la sécurité</string>
     <string name="settings_security_reset_description">Effacer toutes les données et créer un nouveau code PIN</string>
