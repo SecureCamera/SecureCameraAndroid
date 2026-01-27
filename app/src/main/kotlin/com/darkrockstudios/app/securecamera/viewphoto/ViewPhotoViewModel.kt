@@ -39,14 +39,20 @@ class ViewPhotoViewModel(
 		val initialIndex = mediaItems.indexOfFirst { it.mediaName == initialMediaName }
 		val initialMedia = mediaItems.getOrNull(initialIndex)
 
+		// Set mediaItems and currentIndex so they're available immediately
+		_uiState.update {
+			it.copy(
+				mediaItems = mediaItems,
+				currentIndex = if (initialIndex >= 0) initialIndex else 0,
+			)
+		}
+
 		viewModelScope.launch {
 			val hasPoisonPill = pinRepository.hasPoisonPillPin()
 			val isDecoy = (initialMedia as? PhotoDef)?.let { imageManager.isDecoyPhoto(it) } ?: false
 
 			_uiState.update {
 				it.copy(
-					mediaItems = mediaItems,
-					currentIndex = if (initialIndex >= 0) initialIndex else 0,
 					hasPoisonPill = hasPoisonPill,
 					isDecoy = isDecoy
 				)
