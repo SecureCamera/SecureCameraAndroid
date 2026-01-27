@@ -149,7 +149,7 @@
     <string name="settings_sanitize_filename_description">Remove identifying information from file names when sharing
         photos
     </string>
-    <string name="settings_sanitize_metadata">卫生化元数据</string>
+    <string name="settings_sanitize_metadata">卫生化照片元数据</string>
     <string name="settings_sanitize_metadata_description">Strip metadata (location, device info, etc.) when sharing
         photos
     </string>
@@ -169,6 +169,22 @@
     <string name="settings_session_timeout_1_min">1 分钟</string>
     <string name="settings_session_timeout_5_min">5 分钟</string>
     <string name="settings_session_timeout_10_min">10 分钟</string>
+    <string name="settings_media_security">媒体安全</string>
+    <string name="settings_media_security_description">按媒体类型分列的安全强度</string>
+    <string name="media_security_dialog_title">媒体安全</string>
+    <string name="media_security_photos_title">照片</string>
+    <string name="media_security_photos_rating">10/10</string>
+    <string name="media_security_photos_description">Photos taken and stored with SnapSafe are as safe as is technically
+        possible. They are never written to the disk unencrypted, even for brief moments.
+    </string>
+    <string name="media_security_videos_title">视频</string>
+    <string name="media_security_videos_rating">9/10</string>
+    <string name="media_security_videos_description">与 SnapSafe 一起拍摄的视频是令人难以置信的安全性，不过，由于Android的视频录制受到
+        的限制， 他们在被记录时首先被写入SnapSafe的私有加密目录
+        。 录制结束后立即生效。 它们本身是加密的，其后是
+        与SnapSafe拍摄的照片一样安全。
+    </string>
+    <string name="media_security_dialog_button">明白了</string>
     <!-- Security Reset -->
     <string name="settings_security_reset">安全重置</string>
     <string name="settings_security_reset_description">清除所有数据并创建一个新的 PIN</string>
