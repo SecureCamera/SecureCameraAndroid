@@ -49,6 +49,16 @@
     <string name="share_photo_content_description">Fotos teilen</string>
     <string name="delete_photo_content_description">Fotos löschen</string>
     <string name="photo_content_none_selected">Kein Foto ausgewählt</string>
+    <string name="media_content_none_selected">Keine Medien ausgewählt</string>
+    <!-- View Video Screen -->
+    <string name="video_title">Video</string>
+    <string name="video_not_found">Video nicht gefunden</string>
+    <string name="video_content_description">Video</string>
+    <string name="video_content_loading">Video wird geladen…</string>
+    <string name="video_loading">Lade…</string>
+    <string name="video_load_error">Fehler beim Laden des Videos</string>
+    <string name="video_playback_error">Fehler beim Abspielen des Videos</string>
+    <string name="video_encrypting">Video… verschlüsseln</string>
     <string name="unauthorized">Nicht autorisiert</string>
     <string name="mark_as_decoy">Als Decoy markieren</string>
     <string name="unmark_as_decoy">Als Köder aufheben</string>
@@ -85,6 +95,18 @@
     <string name="session_worker_channel_name">Sitzungsstatus</string>
     <string name="session_worker_channel_description">Zeigt an, wenn SnapSafe aktiv ist</string>
     <string name="session_worker_notification_close">Schließen</string>
+    <!-- Video Encryption Service -->
+    <string name="encryption_channel_name">Video-Verschlüsselung</string>
+    <string name="encryption_channel_description">Videoverschlüsselungsfortschritt anzeigen</string>
+    <string name="encryption_notification_title">Video verschlüsseln</string>
+    <string name="encryption_notification_title_plural">Videos verschlüsseln</string>
+    <string name="encryption_notification_preparing">Vorbereitung…</string>
+    <string name="encryption_notification_progress">Verschlüsselung: %1$d%%</string>
+    <string name="encryption_notification_queue">%1$d von %2$d - %3$d%%</string>
+    <string name="encryption_error_title">Verschlüsselung fehlgeschlagen</string>
+    <string name="encryption_cancelled_title">Verschlüsselung abgebrochen</string>
+    <string name="encryption_action_cancel">Abbrechen</string>
+    <string name="encryption_action_cancel_all">Alle abbrechen</string>
     <!-- Gallery Screen -->
     <string name="gallery_title">Galerie</string>
     <string name="gallery_selected_count">%1$d ausgewählt</string>
@@ -97,6 +119,7 @@
     <string name="gallery_share_selected_content_description">Ausgewählte teilen</string>
     <string name="gallery_select_all_content_description">Alle auswählen</string>
     <string name="gallery_decoy_indicator">Ist Decoy Foto</string>
+    <string name="gallery_video_indicator">Video</string>
     <!-- Camera Screen -->
     <string name="camera_more_options_content_description">Weitere Optionen</string>
     <string name="camera_settings_button">Einstellungen</string>
@@ -111,6 +134,13 @@
     <string name="camera_permissions_required">Kamera-Berechtigungen sind erforderlich.</string>
     <string name="camera_open_settings">Einstellungen öffnen</string>
     <string name="camera_shutter_button_desc">Foto machen</string>
+    <string name="camera_mode_photo">Foto</string>
+    <string name="camera_mode_video">Video</string>
+    <string name="camera_mode_toggle_description">Aufnahmemodus wechseln</string>
+    <string name="camera_start_recording_description">Aufnahme starten</string>
+    <string name="camera_stop_recording_description">Aufnahme stoppen</string>
+    <string name="camera_recording_indicator">Aufnahme</string>
+    <string name="camera_video_permissions_required">Die Berechtigung zur Aufnahme von Audio wird für Video benötigt.</string>
     <!-- Settings Screen -->
     <string name="settings_title">Einstellungen</string>
     <string name="settings_back_description">Zurück</string>
