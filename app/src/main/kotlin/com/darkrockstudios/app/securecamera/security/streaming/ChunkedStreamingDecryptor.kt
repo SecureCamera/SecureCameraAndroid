@@ -1,5 +1,6 @@
 package com.darkrockstudios.app.securecamera.security.streaming
 
+import com.darkrockstudios.app.securecamera.security.schemes.EncryptionScheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -19,7 +20,7 @@ import javax.crypto.spec.SecretKeySpec
  */
 class ChunkedStreamingDecryptor(
 	encryptedFile: File,
-	private val keyBytes: ByteArray
+	private val encryptionScheme: EncryptionScheme
 ) : StreamingDecryptor {
 
 	private val mutex = Mutex()
@@ -135,7 +136,7 @@ class ChunkedStreamingDecryptor(
 	 * Decrypts a single chunk from the file.
 	 */
 	private suspend fun decryptChunk(chunkIdx: Long): ByteArray = withContext(Dispatchers.IO) {
-		val raf = randomAccessFile ?: throw IllegalStateException("File not open")
+		val raf = randomAccessFile
 
 		require(chunkIdx < chunkIndex.size) { "Chunk index out of bounds: $chunkIdx" }
 
@@ -146,17 +147,22 @@ class ChunkedStreamingDecryptor(
 		raf.seek(entry.offset)
 		raf.readFully(encryptedData)
 
-		// Extract IV and ciphertext
 		val iv = encryptedData.copyOfRange(0, SecvFileFormat.IV_SIZE)
 		val ciphertext = encryptedData.copyOfRange(SecvFileFormat.IV_SIZE, encryptedData.size)
 
-		// Decrypt
-		val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-		val keySpec = SecretKeySpec(keyBytes, "AES")
-		val gcmSpec = GCMParameterSpec(SecvFileFormat.AUTH_TAG_SIZE * 8, iv)
-		cipher.init(Cipher.DECRYPT_MODE, keySpec, gcmSpec)
+		val keyBytes = encryptionScheme.getDerivedKey()
+		try {
+			// Decrypt
+			val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+			val keySpec = SecretKeySpec(keyBytes, "AES")
+			val gcmSpec = GCMParameterSpec(SecvFileFormat.AUTH_TAG_SIZE * 8, iv)
+			cipher.init(Cipher.DECRYPT_MODE, keySpec, gcmSpec)
 
-		cipher.doFinal(ciphertext)
+			cipher.doFinal(ciphertext)
+		} finally {
+			// Immediately zero key bytes after use
+			keyBytes.fill(0)
+		}
 	}
 
 	override fun close() {
@@ -169,8 +175,5 @@ class ChunkedStreamingDecryptor(
 		cachedChunkData?.fill(0)
 		cachedChunkData = null
 		cachedChunkIndex = -1
-
-		// Zero out key (note: caller should also handle key cleanup)
-		keyBytes.fill(0)
 	}
 }

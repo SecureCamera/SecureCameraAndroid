@@ -5,7 +5,8 @@ import java.io.File
 
 /**
  * Software-based implementation of StreamingEncryptionScheme.
- * Uses the derived encryption key from the parent EncryptionScheme.
+ * Passes the EncryptionScheme to encryptors/decryptors so they can retrieve
+ * key bytes on-demand, minimizing the lifetime of plain-text key material in memory.
  */
 class SoftwareStreamingEncryptionScheme(
 	private val encryptionScheme: EncryptionScheme
@@ -15,19 +16,17 @@ class SoftwareStreamingEncryptionScheme(
 		outputFile: File,
 		chunkSize: Int
 	): StreamingEncryptor {
-		val keyBytes = encryptionScheme.getDerivedKey()
 		return ChunkedStreamingEncryptor(
 			outputFile = outputFile,
-			keyBytes = keyBytes.copyOf(), // Make a copy since encryptor will zero it on close
+			encryptionScheme = encryptionScheme,
 			chunkSize = chunkSize
 		)
 	}
 
 	override suspend fun createStreamingDecryptor(encryptedFile: File): StreamingDecryptor {
-		val keyBytes = encryptionScheme.getDerivedKey()
 		return ChunkedStreamingDecryptor(
 			encryptedFile = encryptedFile,
-			keyBytes = keyBytes.copyOf() // Make a copy since decryptor will zero it on close
+			encryptionScheme = encryptionScheme
 		)
 	}
 }

@@ -1,6 +1,8 @@
 package com.darkrockstudios.app.securecamera.security.streaming
 
+import com.darkrockstudios.app.securecamera.security.schemes.EncryptionScheme
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -23,7 +25,7 @@ import javax.crypto.spec.SecretKeySpec
  */
 class ChunkedStreamingEncryptor(
 	private val outputFile: File,
-	private val keyBytes: ByteArray,
+	private val encryptionScheme: EncryptionScheme,
 	private val chunkSize: Int = SecvFileFormat.DEFAULT_CHUNK_SIZE
 ) : StreamingEncryptor {
 
@@ -109,30 +111,36 @@ class ChunkedStreamingEncryptor(
 		val iv = ByteArray(SecvFileFormat.IV_SIZE)
 		secureRandom.nextBytes(iv)
 
-		// Encrypt the chunk
-		val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-		val keySpec = SecretKeySpec(keyBytes, "AES")
-		val gcmSpec = GCMParameterSpec(SecvFileFormat.AUTH_TAG_SIZE * 8, iv)
-		cipher.init(Cipher.ENCRYPT_MODE, keySpec, gcmSpec)
+		val keyBytes = encryptionScheme.getDerivedKey()
+		try {
+			// Encrypt the chunk
+			val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+			val keySpec = SecretKeySpec(keyBytes, "AES")
+			val gcmSpec = GCMParameterSpec(SecvFileFormat.AUTH_TAG_SIZE * 8, iv)
+			cipher.init(Cipher.ENCRYPT_MODE, keySpec, gcmSpec)
 
-		val plaintext = if (length == data.size) data else data.copyOf(length)
-		val ciphertext = cipher.doFinal(plaintext)
+			val plaintext = if (length == data.size) data else data.copyOf(length)
+			val ciphertext = cipher.doFinal(plaintext)
 
-		// Record the chunk index entry
-		val encryptedSize = SecvFileFormat.IV_SIZE + ciphertext.size
-		chunkIndexEntries.add(
-			SecvFileFormat.ChunkIndexEntry(
-				offset = currentChunkDataOffset,
-				encryptedSize = encryptedSize
+			// Record the chunk index entry
+			val encryptedSize = SecvFileFormat.IV_SIZE + ciphertext.size
+			chunkIndexEntries.add(
+				SecvFileFormat.ChunkIndexEntry(
+					offset = currentChunkDataOffset,
+					encryptedSize = encryptedSize
+				)
 			)
-		)
 
-		// Write IV + ciphertext (which includes auth tag)
-		raf.seek(currentChunkDataOffset)
-		raf.write(iv)
-		raf.write(ciphertext)
+			// Write IV + ciphertext (which includes auth tag)
+			raf.seek(currentChunkDataOffset)
+			raf.write(iv)
+			raf.write(ciphertext)
 
-		currentChunkDataOffset += encryptedSize
+			currentChunkDataOffset += encryptedSize
+		} finally {
+			// Immediately zero key bytes after use
+			keyBytes.fill(0)
+		}
 	}
 
 	override fun close() {
@@ -146,27 +154,33 @@ class ChunkedStreamingEncryptor(
 			val iv = ByteArray(SecvFileFormat.IV_SIZE)
 			secureRandom.nextBytes(iv)
 
-			val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-			val keySpec = SecretKeySpec(keyBytes, "AES")
-			val gcmSpec = GCMParameterSpec(SecvFileFormat.AUTH_TAG_SIZE * 8, iv)
-			cipher.init(Cipher.ENCRYPT_MODE, keySpec, gcmSpec)
+			val keyBytes = runBlocking { encryptionScheme.getDerivedKey() }
+			try {
+				val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+				val keySpec = SecretKeySpec(keyBytes, "AES")
+				val gcmSpec = GCMParameterSpec(SecvFileFormat.AUTH_TAG_SIZE * 8, iv)
+				cipher.init(Cipher.ENCRYPT_MODE, keySpec, gcmSpec)
 
-			val plaintext = currentBuffer.copyOf(bufferPosition)
-			val ciphertext = cipher.doFinal(plaintext)
+				val plaintext = currentBuffer.copyOf(bufferPosition)
+				val ciphertext = cipher.doFinal(plaintext)
 
-			val encryptedSize = SecvFileFormat.IV_SIZE + ciphertext.size
-			chunkIndexEntries.add(
-				SecvFileFormat.ChunkIndexEntry(
-					offset = currentChunkDataOffset,
-					encryptedSize = encryptedSize
+				val encryptedSize = SecvFileFormat.IV_SIZE + ciphertext.size
+				chunkIndexEntries.add(
+					SecvFileFormat.ChunkIndexEntry(
+						offset = currentChunkDataOffset,
+						encryptedSize = encryptedSize
+					)
 				)
-			)
 
-			raf.seek(currentChunkDataOffset)
-			raf.write(iv)
-			raf.write(ciphertext)
-			currentChunkDataOffset += encryptedSize
-			bufferPosition = 0
+				raf.seek(currentChunkDataOffset)
+				raf.write(iv)
+				raf.write(ciphertext)
+				currentChunkDataOffset += encryptedSize
+				bufferPosition = 0
+			} finally {
+				// Immediately zero key bytes after use
+				keyBytes.fill(0)
+			}
 		}
 
 		// Append index table at current position
@@ -187,8 +201,7 @@ class ChunkedStreamingEncryptor(
 		randomAccessFile = null
 		isClosed = true
 
-		// Zero out the key copy and buffer
-		keyBytes.fill(0)
+		// Zero out buffer
 		currentBuffer.fill(0)
 	}
 
