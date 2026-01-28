@@ -6,55 +6,52 @@ import java.nio.ByteOrder
 /**
  * Constants and utilities for the SECV (Secure Encrypted Camera Video) file format.
  *
- * File Format:
- * [Encrypted Chunks]
- *   - Per chunk: [12-byte IV][ciphertext][16-byte auth tag]
- *
- * [Chunk Index Table: 12 bytes per chunk]
- *   - Chunk offset: uint64 (8 bytes)
- *   - Encrypted size: uint32 (4 bytes)
- *
- * [Trailer: 64 bytes] - Located at end of file
+ * File Format (Version 1):
+ * [Header: 64 bytes] - Located at start of file
  *   - Magic: "SECV" (4 bytes)
  *   - Version: uint16 (2 bytes)
  *   - Chunk size: uint32 (4 bytes)
  *   - Total chunks: uint64 (8 bytes)
  *   - Original size: uint64 (8 bytes)
- *   - Reserved: padding to 64 bytes (38 bytes)
+ *   - Final chunk plaintext size: uint32 (4 bytes)
+ *   - Reserved: padding to 64 bytes (34 bytes)
  *
- * The trailer format (chunks first, metadata at end) eliminates the need
- * to rewrite the entire file when encryption completes, preventing memory
- * spikes from loading large videos into RAM.
+ * [Encrypted Chunks]
+ *   - Per chunk: [12-byte IV][ciphertext][16-byte auth tag]
+ *
+ * Design Rationale:
+ * - Chunk offsets calculated arithmetically: offset = 64 + (chunkIndex * (chunkSize + 28))
  */
 object SecvFileFormat {
 	const val MAGIC = "SECV"
 	const val VERSION: Short = 1
-	const val TRAILER_SIZE = 64
-	const val CHUNK_INDEX_ENTRY_SIZE = 12
+	const val HEADER_SIZE = 64
 	const val IV_SIZE = 12
 	const val AUTH_TAG_SIZE = 16
 	const val DEFAULT_CHUNK_SIZE = 1_048_576 // 1MB
 
 	const val FILE_EXTENSION = "secv"
 
-	// Trailer field offsets
+	// Header field offsets
 	private const val OFFSET_MAGIC = 0
 	private const val OFFSET_VERSION = 4
 	private const val OFFSET_CHUNK_SIZE = 6
 	private const val OFFSET_TOTAL_CHUNKS = 10
 	private const val OFFSET_ORIGINAL_SIZE = 18
+	private const val OFFSET_FINAL_CHUNK_SIZE = 26
 
 	/**
-	 * Represents the trailer of a SECV file (metadata at end of file).
+	 * Represents the header of a SECV file (metadata at start of file).
 	 */
-	data class SecvTrailer(
+	data class SecvHeader(
 		val version: Short,
 		val chunkSize: Int,
 		val totalChunks: Long,
-		val originalSize: Long
+		val originalSize: Long,
+		val finalChunkPlaintextSize: Int
 	) {
 		fun toByteArray(): ByteArray {
-			val buffer = ByteBuffer.allocate(TRAILER_SIZE)
+			val buffer = ByteBuffer.allocate(HEADER_SIZE)
 			buffer.order(ByteOrder.LITTLE_ENDIAN)
 
 			// Magic
@@ -67,14 +64,16 @@ object SecvFileFormat {
 			buffer.putLong(totalChunks)
 			// Original size
 			buffer.putLong(originalSize)
+			// Final chunk plaintext size
+			buffer.putInt(finalChunkPlaintextSize)
 			// Reserved (remaining bytes are zero by default)
 
 			return buffer.array()
 		}
 
 		companion object {
-			fun fromByteArray(bytes: ByteArray): SecvTrailer {
-				require(bytes.size >= TRAILER_SIZE) { "Trailer too small" }
+			fun fromByteArray(bytes: ByteArray): SecvHeader {
+				require(bytes.size >= HEADER_SIZE) { "Header too small" }
 
 				val buffer = ByteBuffer.wrap(bytes)
 				buffer.order(ByteOrder.LITTLE_ENDIAN)
@@ -88,39 +87,14 @@ object SecvFileFormat {
 				val chunkSize = buffer.int
 				val totalChunks = buffer.long
 				val originalSize = buffer.long
+				val finalChunkPlaintextSize = buffer.int
 
-				return SecvTrailer(
+				return SecvHeader(
 					version = version,
 					chunkSize = chunkSize,
 					totalChunks = totalChunks,
-					originalSize = originalSize
-				)
-			}
-		}
-	}
-
-	/**
-	 * Represents an entry in the chunk index table.
-	 */
-	data class ChunkIndexEntry(
-		val offset: Long,
-		val encryptedSize: Int
-	) {
-		fun toByteArray(): ByteArray {
-			val buffer = ByteBuffer.allocate(CHUNK_INDEX_ENTRY_SIZE)
-			buffer.order(ByteOrder.LITTLE_ENDIAN)
-			buffer.putLong(offset)
-			buffer.putInt(encryptedSize)
-			return buffer.array()
-		}
-
-		companion object {
-			fun fromByteArray(bytes: ByteArray, offset: Int = 0): ChunkIndexEntry {
-				val buffer = ByteBuffer.wrap(bytes, offset, CHUNK_INDEX_ENTRY_SIZE)
-				buffer.order(ByteOrder.LITTLE_ENDIAN)
-				return ChunkIndexEntry(
-					offset = buffer.long,
-					encryptedSize = buffer.int
+					originalSize = originalSize,
+					finalChunkPlaintextSize = finalChunkPlaintextSize
 				)
 			}
 		}
@@ -135,19 +109,19 @@ object SecvFileFormat {
 	}
 
 	/**
-	 * Calculate the position of the trailer in the file (last 64 bytes).
-	 * For trailer format, trailer is at: fileLength - TRAILER_SIZE
+	 * Calculate the size of a full encrypted chunk.
+	 * Full chunk size = IV (12 bytes) + chunkSize + auth tag (16 bytes) = chunkSize + 28
 	 */
-	fun calculateTrailerPosition(fileLength: Long): Long {
-		return fileLength - TRAILER_SIZE
+	fun calculateFullEncryptedChunkSize(chunkSize: Int): Int {
+		return chunkSize + IV_SIZE + AUTH_TAG_SIZE
 	}
 
 	/**
-	 * Calculate the position of the index table in the file.
-	 * For trailer format, index is at: fileLength - TRAILER_SIZE - (totalChunks * CHUNK_INDEX_ENTRY_SIZE)
+	 * Calculate the file offset for a given chunk index.
+	 * Offset = header (64 bytes) + (chunkIndex * full encrypted chunk size)
 	 */
-	fun calculateIndexTablePosition(fileLength: Long, totalChunks: Long): Long {
-		return fileLength - TRAILER_SIZE - (totalChunks * CHUNK_INDEX_ENTRY_SIZE)
+	fun calculateChunkOffset(chunkIndex: Long, chunkSize: Int): Long {
+		return HEADER_SIZE + (chunkIndex * calculateFullEncryptedChunkSize(chunkSize))
 	}
 
 	/**

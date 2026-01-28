@@ -44,48 +44,58 @@ Post-recording encryption is a pragmatic trade-off. The temp file exists unencry
 storage which is already protected by Android FBE when the device is locked. This is the real security boundary - not
 file deletion.
 
-## SECV File Format
+## SECV File Format (Version 1)
 
 ```
 +--------------------------------------------------+
-|              ENCRYPTED CHUNKS                    |
-+--------------------------------------------------+
-| Chunk 0: [IV 12B][Ciphertext][Auth Tag 16B]     |
-| Chunk 1: [IV 12B][Ciphertext][Auth Tag 16B]     |
-| ...                                              |
-+--------------------------------------------------+
-|              CHUNK INDEX TABLE                   |
-|         (12 bytes per chunk)                     |
-+--------------------------------------------------+
-| Chunk 0: Offset (8) + Encrypted Size (4)        |
-| Chunk 1: Offset (8) + Encrypted Size (4)        |
-| ...                                              |
-| Chunk N: Offset (8) + Encrypted Size (4)        |
-+--------------------------------------------------+
-|                 TRAILER (64 bytes)               |
+|                 HEADER (64 bytes)                |
 +--------------------------------------------------+
 | Magic: "SECV"              | 4 bytes             |
-| Version                    | 2 bytes (uint16)    |
+| Version: 1                 | 2 bytes (uint16)    |
 | Chunk Size                 | 4 bytes (uint32)    |
 | Total Chunks               | 8 bytes (uint64)    |
 | Original Size              | 8 bytes (uint64)    |
-| Reserved                   | 38 bytes            |
+| Final Chunk Size           | 4 bytes (uint32)    |
+| Reserved                   | 34 bytes            |
 +--------------------------------------------------+
+|              ENCRYPTED CHUNKS                    |
++--------------------------------------------------+
+| Chunk 0: [IV 12B][Ciphertext][Auth Tag 16B]      |
+| Chunk 1: [IV 12B][Ciphertext][Auth Tag 16B]      |
+| ...                                              |
+| Chunk N-1 (final): [IV 12B][Ciphertext][Tag]     |
++--------------------------------------------------+
+```
+
+### Chunk Offset Calculation
+
+Since AES-GCM preserves plaintext size (no padding), all full chunks are identical size:
+
+```
+Full chunk encrypted size = chunk_size + 28 bytes (12 IV + 16 auth tag)
+Chunk offset = 64 + (chunk_index × (chunk_size + 28))
+```
+
+Only the final chunk may be smaller (if video size isn't a multiple of chunk_size):
+
+```
+Final chunk encrypted size = final_chunk_plaintext_size + 28 bytes
 ```
 
 ### Design Rationale
 
-**Trailer format (metadata at end)**: Placing the trailer and index table at the end eliminates the need to rewrite the
-entire file when encryption completes. In the previous approach (v1), chunks were written first, then the entire file
-had to be read back into memory and shifted forward to make room for the header - causing memory spikes and potential
-OOM crashes with large videos (2GB+). With the trailer format, chunks are written starting at offset 0, and metadata is
-simply appended at the end. This makes encryption faster, more memory-efficient, and crash-resistant.
+**Header pre-allocation**: The encryptor writes 64 zero bytes at the start, then writes chunks. On close, it seeks back
+to position 0 and fills in the header with final metadata (total chunks, original size, final chunk size). This approach
+allows all writing to happen in-place, no shifting once the chunks are written.
 
-**Fixed trailer size (64 bytes)**: Allows quick validation and metadata extraction without parsing variable-length
+**Fixed header size (64 bytes)**: Allows quick validation and metadata extraction without parsing variable-length
 structures.
 
-**Chunk index table**: Enables O(1) seeking. To play from position X, we calculate which chunk contains X, look up its
-offset in the index, and decrypt just that chunk.
+**Final chunk plaintext size**: Since the last chunk may be smaller, we store its plaintext size in the header. This
+allows the decryptor to read the correct number of bytes for the final chunk.
+
+**O(1) seeking**: To play from position X, we calculate which chunk contains X using `chunk_index = X / chunk_size`,
+calculate its offset using `64 + (chunk_index × (chunk_size + 28))`, and decrypt just that chunk.
 
 **Per-chunk IV**: Each chunk gets a fresh 12-byte IV from `SecureRandom`. This prevents nonce reuse even across millions
 of chunks.
@@ -108,6 +118,31 @@ Each chunk is independently encrypted:
 ```
 ciphertext = AES-GCM-Encrypt(key, iv, plaintext_chunk)
 stored = iv || ciphertext || auth_tag
+```
+
+### Seeking to Position X
+
+To decrypt data at plaintext position X (byte offset):
+
+```kotlin
+// 1. Calculate which chunk contains position X
+chunk_index = X / chunk_size
+offset_in_chunk = X % chunk_size
+
+// 2. Calculate file offset for that chunk
+file_offset = 64 + (chunk_index × (chunk_size+28))
+
+// 3. Determine encrypted size
+if (chunk_index == total_chunks - 1) {
+   // Final chunk
+   encrypted_size = final_chunk_plaintext_size + 28
+} else {
+   // Full chunk
+   encrypted_size = chunk_size + 28
+}
+
+// 4. Read and decrypt chunk at file_offset
+// 5. Extract bytes starting at offset_in_chunk
 ```
 
 ## Playback Architecture

@@ -13,8 +13,8 @@ import javax.crypto.spec.SecretKeySpec
 
 /**
  * Implementation of StreamingDecryptor that decrypts SECV files chunk by chunk.
- * Supports random access for video seeking by using the chunk index table.
- * Reads the trailer format with trailer and index at the end of the file.
+ * Supports random access for video seeking by calculating chunk offsets arithmetically.
+ * Reads the header format with metadata at the start of the file.
  *
  * Thread-safe via mutex for all read operations.
  */
@@ -27,48 +27,31 @@ class ChunkedStreamingDecryptor(
 	private val randomAccessFile: RandomAccessFile
 	private var isClosed = false
 
-	private val trailer: SecvFileFormat.SecvTrailer
-	private val chunkIndex: List<SecvFileFormat.ChunkIndexEntry>
+	private val header: SecvFileFormat.SecvHeader
 
 	// Cache for the most recently decrypted chunk to avoid re-decryption on sequential reads
 	private var cachedChunkIndex: Long = -1
 	private var cachedChunkData: ByteArray? = null
 
 	override val totalSize: Long
-		get() = trailer.originalSize
+		get() = header.originalSize
 
 	override val chunkSize: Int
-		get() = trailer.chunkSize
+		get() = header.chunkSize
 
 	init {
 		require(encryptedFile.exists()) { "Encrypted file does not exist: ${encryptedFile.absolutePath}" }
 
 		randomAccessFile = RandomAccessFile(encryptedFile, "r") ?: error("Failed to open file for reading")
-		val fileLength = randomAccessFile.length()
 
-		// Read trailer from end of file
-		val trailerPosition = SecvFileFormat.calculateTrailerPosition(fileLength)
-		randomAccessFile.seek(trailerPosition)
-		val trailerBytes = ByteArray(SecvFileFormat.TRAILER_SIZE)
-		randomAccessFile.readFully(trailerBytes)
-		trailer = SecvFileFormat.SecvTrailer.fromByteArray(trailerBytes)
+		// Read header from start of file
+		randomAccessFile.seek(0)
+		val headerBytes = ByteArray(SecvFileFormat.HEADER_SIZE)
+		randomAccessFile.readFully(headerBytes)
+		header = SecvFileFormat.SecvHeader.fromByteArray(headerBytes)
 
-		require(trailer.version == SecvFileFormat.VERSION) {
-			"Unsupported SECV version: ${trailer.version}"
-		}
-
-		// Read chunk index table (just before trailer)
-		val indexPosition = SecvFileFormat.calculateIndexTablePosition(fileLength, trailer.totalChunks)
-		randomAccessFile.seek(indexPosition)
-		val indexTableSize = trailer.totalChunks * SecvFileFormat.CHUNK_INDEX_ENTRY_SIZE
-		val indexBytes = ByteArray(indexTableSize.toInt())
-		randomAccessFile.readFully(indexBytes)
-
-		chunkIndex = (0 until trailer.totalChunks).map { i ->
-			SecvFileFormat.ChunkIndexEntry.fromByteArray(
-				indexBytes,
-				(i * SecvFileFormat.CHUNK_INDEX_ENTRY_SIZE).toInt()
-			)
+		require(header.version == SecvFileFormat.VERSION) {
+			"Unsupported SECV version: ${header.version}"
 		}
 	}
 
@@ -77,6 +60,11 @@ class ChunkedStreamingDecryptor(
 		require(offset >= 0) { "Offset must be non-negative" }
 		require(length >= 0) { "Length must be non-negative" }
 		require(offset + length <= buffer.size) { "Offset + length exceeds buffer size" }
+
+		// Reading 0 bytes always succeeds and returns 0
+		if (length == 0) {
+			return 0
+		}
 
 		if (position >= totalSize) {
 			return -1 // EOF
@@ -138,13 +126,22 @@ class ChunkedStreamingDecryptor(
 	private suspend fun decryptChunk(chunkIdx: Long): ByteArray = withContext(Dispatchers.IO) {
 		val raf = randomAccessFile
 
-		require(chunkIdx < chunkIndex.size) { "Chunk index out of bounds: $chunkIdx" }
+		require(chunkIdx < header.totalChunks) { "Chunk index out of bounds: $chunkIdx" }
 
-		val entry = chunkIndex[chunkIdx.toInt()]
+		// Calculate chunk offset arithmetically
+		val chunkOffset = SecvFileFormat.calculateChunkOffset(chunkIdx, header.chunkSize)
+
+		// Determine encrypted size based on whether this is the final chunk
+		val isFinalChunk = (chunkIdx == header.totalChunks - 1)
+		val encryptedSize = if (isFinalChunk) {
+			SecvFileFormat.calculateEncryptedChunkSize(header.finalChunkPlaintextSize)
+		} else {
+			SecvFileFormat.calculateFullEncryptedChunkSize(header.chunkSize)
+		}
 
 		// Read the encrypted chunk data (IV + ciphertext with auth tag)
-		val encryptedData = ByteArray(entry.encryptedSize)
-		raf.seek(entry.offset)
+		val encryptedData = ByteArray(encryptedSize)
+		raf.seek(chunkOffset)
 		raf.readFully(encryptedData)
 
 		val iv = encryptedData.copyOfRange(0, SecvFileFormat.IV_SIZE)
