@@ -52,7 +52,7 @@ fun BottomCameraControls(
 				selected = captureMode == CaptureMode.PHOTO,
 				onClick = { onModeChange(CaptureMode.PHOTO) },
 				enabled = !isRecording && !isLoading,
-				icon = Icons.Filled.Camera,
+				icon = Icons.Filled.Photo,
 				contentDescription = stringResource(R.string.camera_mode_photo),
 				iconRotation = iconRotation,
 			)
