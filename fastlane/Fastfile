@@ -9,7 +9,7 @@ platform :android do
       skip_upload_metadata: false,
       skip_upload_images: false,
       skip_upload_screenshots: false,
-      release_status: 'draft'
+      release_status: 'completed'
     )
   end
 end
