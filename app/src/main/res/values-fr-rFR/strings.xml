@@ -49,6 +49,16 @@
     <string name="share_photo_content_description">Partager des photos</string>
     <string name="delete_photo_content_description">Supprimer les photos</string>
     <string name="photo_content_none_selected">Aucune photo sélectionnée</string>
+    <string name="media_content_none_selected">Aucun média sélectionné</string>
+    <!-- View Video Screen -->
+    <string name="video_title">Vidéo</string>
+    <string name="video_not_found">Vidéo introuvable</string>
+    <string name="video_content_description">Vidéo</string>
+    <string name="video_content_loading">Chargement de la vidéo…</string>
+    <string name="video_loading">Chargement de…</string>
+    <string name="video_load_error">Impossible de charger la vidéo</string>
+    <string name="video_playback_error">Erreur lors de la lecture de la vidéo</string>
+    <string name="video_encrypting">Chiffrement de la vidéo…</string>
     <string name="unauthorized">Non autorisé</string>
     <string name="mark_as_decoy">Marquer comme leurre</string>
     <string name="unmark_as_decoy">Ne pas marquer comme leurre</string>
@@ -85,6 +95,18 @@
     <string name="session_worker_channel_name">Statut de la session</string>
     <string name="session_worker_channel_description">Montre quand SnapSafe est actif</string>
     <string name="session_worker_notification_close">Fermer</string>
+    <!-- Video Encryption Service -->
+    <string name="encryption_channel_name">Chiffrement vidéo</string>
+    <string name="encryption_channel_description">Affiche la progression du cryptage vidéo</string>
+    <string name="encryption_notification_title">Cryptage de la vidéo</string>
+    <string name="encryption_notification_title_plural">Chiffrement des vidéos</string>
+    <string name="encryption_notification_preparing">Préparation de…</string>
+    <string name="encryption_notification_progress">Chiffrement : %1$d%%</string>
+    <string name="encryption_notification_queue">%1$d de %2$d - %3$d%%</string>
+    <string name="encryption_error_title">Échec du cryptage</string>
+    <string name="encryption_cancelled_title">Chiffrement annulé</string>
+    <string name="encryption_action_cancel">Abandonner</string>
+    <string name="encryption_action_cancel_all">Tout annuler</string>
     <!-- Gallery Screen -->
     <string name="gallery_title">Galerie</string>
     <string name="gallery_selected_count">%1$d sélectionné</string>
@@ -97,6 +119,7 @@
     <string name="gallery_share_selected_content_description">Partager la sélection</string>
     <string name="gallery_select_all_content_description">Tout sélectionner</string>
     <string name="gallery_decoy_indicator">Est une photo de leurre</string>
+    <string name="gallery_video_indicator">Vidéo</string>
     <!-- Camera Screen -->
     <string name="camera_more_options_content_description">Plus d\'options</string>
     <string name="camera_settings_button">Réglages</string>
@@ -111,6 +134,13 @@
     <string name="camera_permissions_required">Les autorisations de l\'appareil photo sont requises.</string>
     <string name="camera_open_settings">Ouvrir les paramètres</string>
     <string name="camera_shutter_button_desc">Prendre une photo</string>
+    <string name="camera_mode_photo">Photo</string>
+    <string name="camera_mode_video">Vidéo</string>
+    <string name="camera_mode_toggle_description">Changer de mode de capture</string>
+    <string name="camera_start_recording_description">Démarrer l\'enregistrement</string>
+    <string name="camera_stop_recording_description">Arrêter l\'enregistrement</string>
+    <string name="camera_recording_indicator">Enregistrement en cours</string>
+    <string name="camera_video_permissions_required">L\'autorisation d\'enregistrement audio est requise pour la vidéo.</string>
     <!-- Settings Screen -->
     <string name="settings_title">Réglages</string>
     <string name="settings_back_description">Précédent</string>
@@ -139,6 +169,22 @@
     <string name="settings_session_timeout_1_min">1 minute</string>
     <string name="settings_session_timeout_5_min">5 minutes</string>
     <string name="settings_session_timeout_10_min">10 minutes</string>
+    <string name="settings_media_security">Sécurité des médias</string>
+    <string name="settings_media_security_description">Force de sécurité par type de média</string>
+    <string name="media_security_dialog_title">Sécurité des médias</string>
+    <string name="media_security_photos_title">Photos</string>
+    <string name="media_security_photos_rating">10/10</string>
+    <string name="media_security_photos_description">Les photos prises et stockées avec SnapSafe sont aussi sûres que techniquement
+        possible. Ils ne sont jamais écrits sur le disque non chiffrés, même pour de brefs instants.
+    </string>
+    <string name="media_security_videos_title">Vidéos</string>
+    <string name="media_security_videos_rating">9/10</string>
+    <string name="media_security_videos_description">Les vidéos prises avec SnapSafe sont incroyablement sécurisées, cependant, en raison d\'une limitation
+        avec l\'enregistrement vidéo d\'Android, elles sont d\'abord écrites dans le répertoire privé chiffré de SnapSafe
+        pendant qu\'elles sont enregistrées. Immédiatement après la fin de l\'enregistrement, ils sont eux-mêmes chiffrés et sont
+        ensuite aussi sécurisés que les photos prises avec SnapSafe.
+    </string>
+    <string name="media_security_dialog_button">Compris</string>
     <!-- Security Reset -->
     <string name="settings_security_reset">Réinitialisation de la sécurité</string>
     <string name="settings_security_reset_description">Effacer toutes les données et créer un nouveau code PIN</string>
