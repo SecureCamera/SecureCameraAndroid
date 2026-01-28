@@ -38,7 +38,6 @@ We considered several alternatives:
 
 - **Real-time encryption**: Not possible with CameraX's file-based recording API.
 - **Custom camera implementation**: Would sacrifice quality, stability, and features that CameraX provides.
-- **Memory-mapped encryption**: Still requires the entire file in virtual memory space.
 
 Post-recording encryption is a pragmatic trade-off. The temp file exists unencrypted briefly, but only in app-private
 storage which is already protected by Android FBE when the device is locked. This is the real security boundary - not
