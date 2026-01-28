@@ -1,0 +1,9 @@
+What's New
+ - Video recording with encrypted storage (SECV format)
+ - Video playback and sharing support
+ - New camera controls layout with rotating UI
+
+Fixes
+ - Fixed PIN verification sometimes being disabled
+ - Fixed gallery not showing the correct item when tapped
+ - Fixed app not exiting properly when backing out of PIN screen
