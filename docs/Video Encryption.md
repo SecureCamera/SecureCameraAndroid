@@ -216,7 +216,7 @@ key is never written to disk in plaintext.
 ## File Extension
 
 Encrypted videos use the `.secv` extension (Secure Encrypted Camera Video). The gallery recognizes only `.secv` files
-as ready-to-play videos. It detects unencrypted mp4, and partially encrypted `secv.encryption` files in order to show
+as ready-to-play videos. It detects unencrypted mp4, and partially encrypted `secv.encrypting` files in order to show
 encryption status.
 
 ## Future Considerations
