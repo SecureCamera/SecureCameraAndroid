@@ -125,8 +125,8 @@ class PinVerificationViewModel(
 					onNavigate(returnKey)
 				}
 			} else {
-                val newFailedAttempts = authRepository.getFailedAttempts()
-                val remainingBackoff = authRepository.calculateRemainingBackoffSeconds()
+				val newFailedAttempts = authRepository.getFailedAttempts()
+				val remainingBackoff = authRepository.calculateRemainingBackoffSeconds()
 				val isBackoffActive = remainingBackoff > 0
 
 				withContext(Dispatchers.Main) {

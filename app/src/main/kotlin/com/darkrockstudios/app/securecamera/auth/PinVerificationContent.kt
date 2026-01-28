@@ -101,7 +101,7 @@ fun PinVerificationContent(
 					pin = pin,
 					returnKey = returnKey,
 					onNavigate = { destKey ->
-						navController.navigateFromBase(Camera, destKey)
+						navController.navigateFromBase(Camera, destKey, launchSingleTop = true)
 					},
 					onFailure = { pin = "" }
 				)
