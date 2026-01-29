@@ -40,8 +40,7 @@ We considered several alternatives:
 - **Custom camera implementation**: Would sacrifice quality, stability, and features that CameraX provides.
 
 Post-recording encryption is a pragmatic trade-off. The temp file exists unencrypted briefly, but only in app-private
-storage which is already protected by Android FBE when the device is locked. This is the real security boundary - not
-file deletion.
+storage which is already protected by Android FBE when the device is locked. This should be sufficent as the window of vulnerability is brief. (_Only during recording, the video is encrypted immedately afterward._)
 
 ## SECV File Format (Version 1)
 
