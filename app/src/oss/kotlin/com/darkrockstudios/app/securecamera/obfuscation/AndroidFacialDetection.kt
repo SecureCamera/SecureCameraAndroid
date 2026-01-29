@@ -1,10 +1,6 @@
 package com.darkrockstudios.app.securecamera.obfuscation
 
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.PointF
-import android.graphics.Rect
-import android.graphics.RectF
+import android.graphics.*
 import android.media.FaceDetector
 import androidx.camera.core.ImageProxy
 import androidx.core.graphics.createBitmap
@@ -146,6 +142,7 @@ class AndroidFacialDetection : FacialDetection {
 					rotationDegrees = 0, // already rotated into display basis
 					isFrontCamera = isFrontCamera,
 					previewSizePx = androidx.compose.ui.unit.IntSize(previewWidth, previewHeight),
+					fillScale = false,
 				)
 
 				val rects = ArrayList<RectF>(found)

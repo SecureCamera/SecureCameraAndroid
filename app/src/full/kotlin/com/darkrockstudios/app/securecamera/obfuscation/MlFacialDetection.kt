@@ -89,6 +89,7 @@ class MlFacialDetection : FacialDetection {
 						rotationDegrees = rotation,
 						isFrontCamera = isFrontCamera,
 						previewSizePx = IntSize(previewWidth, previewHeight),
+						fillScale = false,
 					)
 					val rects = foundFaces.map { face ->
 						mapper(RectF(face.boundingBox))
