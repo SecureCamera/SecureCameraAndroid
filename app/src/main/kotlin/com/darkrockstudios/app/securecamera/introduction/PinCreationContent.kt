@@ -5,6 +5,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.filled.Pin
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -85,11 +86,43 @@ fun PinCreationContent(
 				modifier = Modifier.padding(bottom = 24.dp)
 			)
 
+			// Alpha-numeric PIN checkbox row
+			Row(
+				modifier = Modifier
+					.fillMaxWidth()
+					.padding(bottom = 16.dp),
+				verticalAlignment = Alignment.CenterVertically
+			) {
+				Checkbox(
+					checked = uiState.alphanumericPinEnabled,
+					onCheckedChange = { viewModel.toggleAlphanumericPin() },
+					enabled = !uiState.isCreatingPin
+				)
+				Text(
+					text = stringResource(R.string.pin_creation_alphanumeric_label),
+					style = MaterialTheme.typography.bodyMedium,
+					modifier = Modifier.weight(1f)
+				)
+				IconButton(
+					onClick = { viewModel.setShowAlphanumericHelpDialog(true) }
+				) {
+					Icon(
+						imageVector = Icons.AutoMirrored.Outlined.HelpOutline,
+						contentDescription = stringResource(R.string.pin_creation_alphanumeric_help_description)
+					)
+				}
+			}
+
 			// PIN input
 			OutlinedTextField(
 				value = pin,
 				onValueChange = { newPin ->
-					if (newPin.length <= uiState.pinSize.max() && newPin.all { char -> char.isDigit() }) {
+					val isValid = if (uiState.alphanumericPinEnabled) {
+						newPin.all { char -> char.isLetterOrDigit() }
+					} else {
+						newPin.all { char -> char.isDigit() }
+					}
+					if (newPin.length <= uiState.pinSize.max() && isValid) {
 						pin = newPin
 					}
 				},
@@ -97,7 +130,7 @@ fun PinCreationContent(
 				label = { Text(stringResource(R.string.pin_creation_hint)) },
 				visualTransformation = if (pinVisible) VisualTransformation.None else PasswordVisualTransformation(),
 				keyboardOptions = KeyboardOptions(
-					keyboardType = KeyboardType.NumberPassword,
+					keyboardType = if (uiState.alphanumericPinEnabled) KeyboardType.Password else KeyboardType.NumberPassword,
 					imeAction = ImeAction.Next
 				),
 				trailingIcon = {
@@ -117,11 +150,27 @@ fun PinCreationContent(
 					.padding(bottom = 16.dp)
 			)
 
+			// Short PIN warning
+			if (pin.isNotEmpty() && pin.length < 6) {
+				Text(
+					text = stringResource(R.string.pin_creation_short_warning),
+					style = MaterialTheme.typography.bodySmall,
+					color = MaterialTheme.colorScheme.error,
+					textAlign = TextAlign.Center,
+					modifier = Modifier.padding(bottom = 8.dp)
+				)
+			}
+
 			// Confirm PIN input
 			OutlinedTextField(
 				value = confirmPin,
 				onValueChange = { newConfirmPin ->
-					if (newConfirmPin.length <= uiState.pinSize.max() && newConfirmPin.all { char -> char.isDigit() }) {
+					val isValid = if (uiState.alphanumericPinEnabled) {
+						newConfirmPin.all { char -> char.isLetterOrDigit() }
+					} else {
+						newConfirmPin.all { char -> char.isDigit() }
+					}
+					if (newConfirmPin.length <= uiState.pinSize.max() && isValid) {
 						confirmPin = newConfirmPin
 					}
 				},
@@ -129,7 +178,7 @@ fun PinCreationContent(
 				label = { Text(stringResource(R.string.pin_creation_confirm_hint)) },
 				visualTransformation = PasswordVisualTransformation(),
 				keyboardOptions = KeyboardOptions(
-					keyboardType = KeyboardType.NumberPassword,
+					keyboardType = if (uiState.alphanumericPinEnabled) KeyboardType.Password else KeyboardType.NumberPassword,
 					imeAction = ImeAction.Done
 				),
 				singleLine = true,
@@ -185,5 +234,32 @@ fun PinCreationContent(
 	NotificationPermissionRationale(
 		title = R.string.pin_create_notification_rationale_title,
 		text = R.string.pin_create_notification_rationale_text,
+	)
+
+	// Alpha-numeric PIN help dialog
+	if (uiState.showAlphanumericHelpDialog) {
+		AlphanumericPinHelpDialog(
+			onDismiss = { viewModel.setShowAlphanumericHelpDialog(false) }
+		)
+	}
+}
+
+@Composable
+private fun AlphanumericPinHelpDialog(
+	onDismiss: () -> Unit
+) {
+	AlertDialog(
+		onDismissRequest = onDismiss,
+		title = {
+			Text(text = stringResource(R.string.pin_alphanumeric_help_title))
+		},
+		text = {
+			Text(text = stringResource(R.string.pin_alphanumeric_help_message))
+		},
+		confirmButton = {
+			TextButton(onClick = onDismiss) {
+				Text(stringResource(R.string.ok_button))
+			}
+		}
 	)
 }

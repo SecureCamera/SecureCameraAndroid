@@ -73,4 +73,55 @@ class PinStrengthCheckUseCaseTest {
 		assertFalse(pinStrengthCheckUseCase.isPinStrongEnough("1212"))
 		assertFalse(pinStrengthCheckUseCase.isPinStrongEnough("6969"))
 	}
+
+	// Alphanumeric PIN tests
+
+	@Test
+	fun `test valid alphanumeric PINs`() {
+		assertTrue(pinStrengthCheckUseCase.isPinStrongEnough("1337zjew", isAlphanumeric = true))
+		assertTrue(pinStrengthCheckUseCase.isPinStrongEnough("MyP1n123", isAlphanumeric = true))
+		assertTrue(pinStrengthCheckUseCase.isPinStrongEnough("abcd", isAlphanumeric = true))
+		assertTrue(pinStrengthCheckUseCase.isPinStrongEnough("Test1", isAlphanumeric = true))
+		// Numeric patterns are OK when part of alphanumeric
+		assertTrue(pinStrengthCheckUseCase.isPinStrongEnough("1234abcd", isAlphanumeric = true))
+	}
+
+	@Test
+	fun `test invalid alphanumeric PINs - blacklisted passwords`() {
+		assertFalse(pinStrengthCheckUseCase.isPinStrongEnough("password", isAlphanumeric = true))
+		assertFalse(pinStrengthCheckUseCase.isPinStrongEnough("PASSWORD", isAlphanumeric = true))
+		assertFalse(pinStrengthCheckUseCase.isPinStrongEnough("Password", isAlphanumeric = true))
+		assertFalse(pinStrengthCheckUseCase.isPinStrongEnough("qwerty", isAlphanumeric = true))
+		assertFalse(pinStrengthCheckUseCase.isPinStrongEnough("abc123", isAlphanumeric = true))
+		assertFalse(pinStrengthCheckUseCase.isPinStrongEnough("letmein", isAlphanumeric = true))
+		assertFalse(pinStrengthCheckUseCase.isPinStrongEnough("admin", isAlphanumeric = true))
+		assertFalse(pinStrengthCheckUseCase.isPinStrongEnough("welcome", isAlphanumeric = true))
+		assertFalse(pinStrengthCheckUseCase.isPinStrongEnough("monkey", isAlphanumeric = true))
+		assertFalse(pinStrengthCheckUseCase.isPinStrongEnough("dragon", isAlphanumeric = true))
+		assertFalse(pinStrengthCheckUseCase.isPinStrongEnough("master", isAlphanumeric = true))
+		assertFalse(pinStrengthCheckUseCase.isPinStrongEnough("login", isAlphanumeric = true))
+	}
+
+	@Test
+	fun `test invalid alphanumeric PINs - too short`() {
+		assertFalse(pinStrengthCheckUseCase.isPinStrongEnough("abc", isAlphanumeric = true))
+		assertFalse(pinStrengthCheckUseCase.isPinStrongEnough("ab", isAlphanumeric = true))
+		assertFalse(pinStrengthCheckUseCase.isPinStrongEnough("a", isAlphanumeric = true))
+		assertFalse(pinStrengthCheckUseCase.isPinStrongEnough("", isAlphanumeric = true))
+	}
+
+	@Test
+	fun `test invalid alphanumeric PINs - all same character`() {
+		assertFalse(pinStrengthCheckUseCase.isPinStrongEnough("aaaa", isAlphanumeric = true))
+		assertFalse(pinStrengthCheckUseCase.isPinStrongEnough("AAAA", isAlphanumeric = true))
+		assertFalse(pinStrengthCheckUseCase.isPinStrongEnough("AaAa", isAlphanumeric = true))
+		assertFalse(pinStrengthCheckUseCase.isPinStrongEnough("1111", isAlphanumeric = true))
+	}
+
+	@Test
+	fun `test invalid alphanumeric PINs - special characters`() {
+		assertFalse(pinStrengthCheckUseCase.isPinStrongEnough("pass!", isAlphanumeric = true))
+		assertFalse(pinStrengthCheckUseCase.isPinStrongEnough("test@123", isAlphanumeric = true))
+		assertFalse(pinStrengthCheckUseCase.isPinStrongEnough("my-pin", isAlphanumeric = true))
+	}
 }

@@ -20,6 +20,8 @@ private class DummyIntroductionViewModel(initial: IntroductionUiState) : Introdu
 	override fun createPin(pin: String, confirmPin: String) {}
 	override fun toggleBiometricsRequired() {}
 	override fun toggleEphemeralKey() {}
+	override fun toggleAlphanumericPin() {}
+	override fun setShowAlphanumericHelpDialog(show: Boolean) {}
 }
 
 @Preview(name = "Pin Creation", showBackground = true)

@@ -118,7 +118,7 @@ fun PinVerificationContent(
 				visualTransformation = PasswordVisualTransformation(),
 				singleLine = true,
 				keyboardOptions = KeyboardOptions(
-					keyboardType = KeyboardType.NumberPassword,
+					keyboardType = if (uiState.isAlphanumericPinEnabled) KeyboardType.Password else KeyboardType.NumberPassword,
 					imeAction = ImeAction.Done
 				),
 				keyboardActions = KeyboardActions(

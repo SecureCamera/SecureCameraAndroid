@@ -36,6 +36,7 @@ class PreferencesAppSettingsDataSource(
 		private val SANITIZE_FILE_NAME = booleanPreferencesKey("sanitize_file_name")
 		private val SANITIZE_METADATA = booleanPreferencesKey("sanitize_metadata")
 		private val FACE_TRACKING_ENABLED = booleanPreferencesKey("face_tracking_enabled")
+		private val ALPHANUMERIC_PIN_ENABLED = booleanPreferencesKey("alphanumeric_pin_enabled")
 		private val FAILED_PIN_ATTEMPTS = stringPreferencesKey("failed_pin_attempts")
 		private val LAST_FAILED_ATTEMPT_TIMESTAMP = stringPreferencesKey("last_failed_attempt_timestamp")
 		private val SESSION_TIMEOUT = stringPreferencesKey("session_timeout")
@@ -102,6 +103,15 @@ class PreferencesAppSettingsDataSource(
 	override val enableFaceTrackingDefault = true
 
 	/**
+	 * Enable alpha-numeric PIN preference
+	 */
+	override val alphanumericPinEnabled: Flow<Boolean> = dataStore.data
+		.map { preferences ->
+			preferences[ALPHANUMERIC_PIN_ENABLED] ?: alphanumericPinEnabledDefault
+		}
+	override val alphanumericPinEnabledDefault = false
+
+	/**
 	 * Get the session timeout preference
 	 */
 	override val sessionTimeout: Flow<Long> = dataStore.data
@@ -153,6 +163,15 @@ class PreferencesAppSettingsDataSource(
 	override suspend fun setEnableFaceTracking(enable: Boolean) {
 		dataStore.edit { preferences ->
 			preferences[FACE_TRACKING_ENABLED] = enable
+		}
+	}
+
+	/**
+	 * Set the alpha-numeric PIN enabled preference
+	 */
+	override suspend fun setAlphanumericPinEnabled(enabled: Boolean) {
+		dataStore.edit { preferences ->
+			preferences[ALPHANUMERIC_PIN_ENABLED] = enabled
 		}
 	}
 

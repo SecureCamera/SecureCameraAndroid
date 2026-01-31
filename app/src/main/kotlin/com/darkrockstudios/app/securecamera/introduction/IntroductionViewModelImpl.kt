@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.lifecycle.viewModelScope
 import com.darkrockstudios.app.securecamera.BaseViewModel
 import com.darkrockstudios.app.securecamera.R
+import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
 import com.darkrockstudios.app.securecamera.security.HardwareSchemeConfig
 import com.darkrockstudios.app.securecamera.security.SecurityLevel
 import com.darkrockstudios.app.securecamera.security.SecurityLevelDetector
@@ -27,6 +28,7 @@ class IntroductionViewModelImpl(
 	private val pinStrengthCheck: PinStrengthCheckUseCase,
 	private val createPinUseCase: CreatePinUseCase,
 	private val pinSizeUseCase: PinSizeUseCase,
+	private val appSettingsDataSource: AppSettingsDataSource,
 ) : BaseViewModel<IntroductionUiState>(), IntroductionViewModel {
 
 	override fun createState() = IntroductionUiState(
@@ -106,7 +108,7 @@ class IntroductionViewModelImpl(
 			return
 		}
 
-		val strongPin = pinStrengthCheck.isPinStrongEnough(pin)
+		val strongPin = pinStrengthCheck.isPinStrongEnough(pin, uiState.value.alphanumericPinEnabled)
 		if (strongPin.not()) {
 			_uiState.update { it.copy(errorMessage = appContext.getString(R.string.pin_creation_error_weak_pin)) }
 			return
@@ -130,5 +132,17 @@ class IntroductionViewModelImpl(
 
 	override fun toggleEphemeralKey() {
 		_uiState.update { it.copy(ephemeralKey = it.ephemeralKey.not()) }
+	}
+
+	override fun toggleAlphanumericPin() {
+		val newValue = !uiState.value.alphanumericPinEnabled
+		_uiState.update { it.copy(alphanumericPinEnabled = newValue) }
+		viewModelScope.launch {
+			appSettingsDataSource.setAlphanumericPinEnabled(newValue)
+		}
+	}
+
+	override fun setShowAlphanumericHelpDialog(show: Boolean) {
+		_uiState.update { it.copy(showAlphanumericHelpDialog = show) }
 	}
 }

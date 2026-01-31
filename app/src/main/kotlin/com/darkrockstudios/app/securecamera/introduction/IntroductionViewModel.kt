@@ -15,6 +15,8 @@ interface IntroductionViewModel {
     fun createPin(pin: String, confirmPin: String)
     fun toggleBiometricsRequired()
     fun toggleEphemeralKey()
+    fun toggleAlphanumericPin()
+    fun setShowAlphanumericHelpDialog(show: Boolean)
 }
 
 data class IntroductionUiState(
@@ -27,4 +29,6 @@ data class IntroductionUiState(
     val currentPage: Int = 0,
     val isCreatingPin: Boolean = false,
     val pinSize: IntRange,
+    val alphanumericPinEnabled: Boolean = false,
+    val showAlphanumericHelpDialog: Boolean = false,
 )

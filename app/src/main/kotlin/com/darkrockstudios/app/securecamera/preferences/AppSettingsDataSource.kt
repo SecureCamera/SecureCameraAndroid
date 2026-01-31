@@ -28,6 +28,12 @@ interface AppSettingsDataSource {
 	val enableFaceTrackingDefault: Boolean
 
 	/**
+	 * Enable alpha-numeric PINs (letters + digits instead of digits only)
+	 */
+	val alphanumericPinEnabled: Flow<Boolean>
+	val alphanumericPinEnabledDefault: Boolean
+
+	/**
 	 * Get the session timeout preference
 	 */
 	val sessionTimeout: Flow<Long>
@@ -59,6 +65,11 @@ interface AppSettingsDataSource {
 	 * Set the enable face tracking preference
 	 */
 	suspend fun setEnableFaceTracking(enable: Boolean)
+
+	/**
+	 * Set the alpha-numeric PIN enabled preference
+	 */
+	suspend fun setAlphanumericPinEnabled(enabled: Boolean)
 
 	/**
 	 * Get the current failed PIN attempts count

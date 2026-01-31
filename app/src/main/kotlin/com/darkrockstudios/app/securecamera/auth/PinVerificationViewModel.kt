@@ -8,12 +8,14 @@ import com.darkrockstudios.app.securecamera.R
 import com.darkrockstudios.app.securecamera.encryption.VideoEncryptionService
 import com.darkrockstudios.app.securecamera.gallery.vibrateDevice
 import com.darkrockstudios.app.securecamera.navigation.Introduction
+import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
 import com.darkrockstudios.app.securecamera.usecases.InvalidateSessionUseCase
 import com.darkrockstudios.app.securecamera.usecases.PinSizeUseCase
 import com.darkrockstudios.app.securecamera.usecases.SecurityResetUseCase
 import com.darkrockstudios.app.securecamera.usecases.VerifyPinUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -25,6 +27,7 @@ class PinVerificationViewModel(
 	private val securityResetUseCase: SecurityResetUseCase,
 	private val verifyPinUseCase: VerifyPinUseCase,
 	private val pinSizeUseCase: PinSizeUseCase,
+	private val appSettingsDataSource: AppSettingsDataSource,
 ) : BaseViewModel<PinVerificationUiState>() {
 
 	override fun createState() = PinVerificationUiState()
@@ -40,12 +43,15 @@ class PinVerificationViewModel(
 			val remainingBackoff = authRepository.calculateRemainingBackoffSeconds()
 			val isBackoffActive = remainingBackoff > 0
 
+			val isAlphanumericEnabled = appSettingsDataSource.alphanumericPinEnabled.first()
+
 			_uiState.update {
 				it.copy(
 					failedAttempts = failedAttempts,
 					remainingBackoffSeconds = remainingBackoff,
 					isBackoffActive = isBackoffActive,
-					error = if (isBackoffActive) PinVerificationError.INVALID_PIN else PinVerificationError.NONE
+					error = if (isBackoffActive) PinVerificationError.INVALID_PIN else PinVerificationError.NONE,
+					isAlphanumericPinEnabled = isAlphanumericEnabled
 				)
 			}
 
@@ -76,7 +82,13 @@ class PinVerificationViewModel(
 
 	fun validatePin(newPin: String): Boolean {
 		val pinSize = pinSizeUseCase.getPinSizeRange()
-		return if (newPin.length <= pinSize.max() && newPin.all { char -> char.isDigit() }) {
+		val isAlphanumeric = uiState.value.isAlphanumericPinEnabled
+		val isValid = if (isAlphanumeric) {
+			newPin.all { it.isLetterOrDigit() }
+		} else {
+			newPin.all { it.isDigit() }
+		}
+		return if (newPin.length <= pinSize.max() && isValid) {
 			clearError()
 			true
 		} else {
@@ -173,5 +185,6 @@ data class PinVerificationUiState(
 	val isVerifying: Boolean = false,
 	val failedAttempts: Int = 0,
 	val isBackoffActive: Boolean = false,
-	val remainingBackoffSeconds: Int = 0
+	val remainingBackoffSeconds: Int = 0,
+	val isAlphanumericPinEnabled: Boolean = false
 )
