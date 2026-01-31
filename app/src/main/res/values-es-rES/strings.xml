@@ -315,6 +315,12 @@
     <string name="pin_creating_vault">Creando bóveda de fotos…</string>
     <string name="pin_show_description">Mostrar PIN</string>
     <string name="pin_hide_description">Ocultar PIN</string>
+    <!-- Alpha-numeric PIN -->
+    <string name="pin_creation_alphanumeric_label">Habilitar PIN alfa numérico</string>
+    <string name="pin_creation_alphanumeric_help_description">Aprende sobre los PINs alfa numéricos</string>
+    <string name="pin_creation_short_warning">Los PINs cortos son menos seguros. Considere usar más de 6 caracteres.</string>
+    <string name="pin_alphanumeric_help_title">PINs alfanuméricos</string>
+    <string name="pin_alphanumeric_help_message">Los PIN alfa numérico permiten letras (a-z, A-Z) además de los dígitos (0-9).\n\nEsto aumenta dramáticamente la seguridad:\n\n- Un PIN numérico de 4 dígitos tiene 10, 00 posibles combinaciones\n- Un PIN alfanumérico de 4 caracteres tiene más de 14 millones de combinaciones\n\nEl uso de letras y números juntos hace que tu PIN sea mucho más difícil de adivinar o de fuerza bruta.</string>
     <string name="pin_create_notification_rationale_title">Permitir notificaciones</string>
     <string name="pin_create_notification_rationale_text">SnapSafe only uses notifications to keep you in control of
         work it may be doing in the background, or to inform you of the current security status. It is strongly
