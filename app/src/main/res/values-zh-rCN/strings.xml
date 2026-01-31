@@ -315,6 +315,12 @@
     <string name="pin_creating_vault">创建照片保险库…</string>
     <string name="pin_show_description">显示 PIN 码</string>
     <string name="pin_hide_description">隐藏 PIN</string>
+    <!-- Alpha-numeric PIN -->
+    <string name="pin_creation_alphanumeric_label">启用字母数字PIN</string>
+    <string name="pin_creation_alphanumeric_help_description">学习字母数字PIN</string>
+    <string name="pin_creation_short_warning">短的 PIN 不安全。请考虑使用 6 + 个字符。</string>
+    <string name="pin_alphanumeric_help_title">Alpha-numeric PIN</string>
+    <string name="pin_alphanumeric_help_message">Alpha-numeric PINs allow letters (a-z, A-Z) in addition to digits (0-9).\n\nThis dramatically increases security:\n\n- A 4-digit numeric PIN has 10,000 possible combinations\n- A 4-character alpha-numeric PIN has over 14 million combinations\n\nUsing letters and numbers together makes your PIN much harder to guess or brute-force.</string>
     <string name="pin_create_notification_rationale_title">允许通知</string>
     <string name="pin_create_notification_rationale_text">SnapSafe 只能使用通知让您控制
         在后台可能做的工作。 或通知您当前的安全状态。 强烈的

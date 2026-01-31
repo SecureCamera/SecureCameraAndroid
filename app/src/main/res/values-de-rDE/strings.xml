@@ -315,6 +315,12 @@
     <string name="pin_creating_vault">Foto Tresor… erstellen</string>
     <string name="pin_show_description">PIN anzeigen</string>
     <string name="pin_hide_description">PIN ausblenden</string>
+    <!-- Alpha-numeric PIN -->
+    <string name="pin_creation_alphanumeric_label">alpha-numerische PIN aktivieren</string>
+    <string name="pin_creation_alphanumeric_help_description">Erfahren Sie mehr über alpha-numerische PINs</string>
+    <string name="pin_creation_short_warning">Kurze PINs sind weniger sicher. Erwägen Sie 6+ Zeichen.</string>
+    <string name="pin_alphanumeric_help_title">Alpha-numerische PINs</string>
+    <string name="pin_alphanumeric_help_message">Alpha-numerische PINs erlauben Buchstaben (a-z, A-Z) neben Ziffern (0-9).\n\nDies erhöht die Sicherheit:\n\n- Eine 4-stellige numerische PIN hat 10, 00 mögliche Kombinationen\n- Eine vierstellige alpha-numerische PIN hat mehr als 14 Millionen Kombinationen\n\nDie Verwendung von Buchstaben und Zahlen erschwert deine PIN viel schwerer zu erraten oder zu erzwingen.</string>
     <string name="pin_create_notification_rationale_title">Benachrichtigungen erlauben</string>
     <string name="pin_create_notification_rationale_text">SnapSafe verwendet nur Benachrichtigungen, um die Kontrolle über
         im Hintergrund zu behalten, oder um Sie über den aktuellen Sicherheitsstatus zu informieren. Es wird dringend

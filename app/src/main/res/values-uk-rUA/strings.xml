@@ -315,6 +315,12 @@
     <string name="pin_creating_vault">Створення сховища фотографій…</string>
     <string name="pin_show_description">Показати PIN-код</string>
     <string name="pin_hide_description">Сховати PIN-код</string>
+    <!-- Alpha-numeric PIN -->
+    <string name="pin_creation_alphanumeric_label">Ввімкнути PIN-код алфавіту</string>
+    <string name="pin_creation_alphanumeric_help_description">Дізнатися про ідентифікатори для альфа-цифр</string>
+    <string name="pin_creation_short_warning">Короткі PIN-коди менш безпечні. Спробуйте використати 6+ символів.</string>
+    <string name="pin_alphanumeric_help_title">Альфа-цифрові PIN-коди</string>
+    <string name="pin_alphanumeric_help_message">Alpha-numeric PINs allow letters (a-z, A-Z) in addition to digits (0-9).\n\nThis dramatically increases security:\n\n- A 4-digit numeric PIN has 10,000 possible combinations\n- A 4-character alpha-numeric PIN has over 14 million combinations\n\nUsing letters and numbers together makes your PIN much harder to guess or brute-force.</string>
     <string name="pin_create_notification_rationale_title">Дозволити сповіщення</string>
     <string name="pin_create_notification_rationale_text">SnapSafe only uses notifications to keep you in control of
         work it may be doing in the background, or to inform you of the current security status. It is strongly
