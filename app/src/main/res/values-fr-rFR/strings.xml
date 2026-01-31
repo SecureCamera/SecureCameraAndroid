@@ -315,6 +315,12 @@
     <string name="pin_creating_vault">Création du coffre photo…</string>
     <string name="pin_show_description">Afficher le code PIN</string>
     <string name="pin_hide_description">Masquer le code PIN</string>
+    <!-- Alpha-numeric PIN -->
+    <string name="pin_creation_alphanumeric_label">Activer le code PIN alpha-numérique</string>
+    <string name="pin_creation_alphanumeric_help_description">En savoir plus sur les codes PIN alphanumériques</string>
+    <string name="pin_creation_short_warning">Les codes PIN courts sont moins sécurisés. Pensez à utiliser plus de 6 caractères.</string>
+    <string name="pin_alphanumeric_help_title">Chiffres alphanumériques</string>
+    <string name="pin_alphanumeric_help_message">Les codes PIN alphanumériques autorisent les lettres (a-z, A-Z) en plus des chiffres (0-9).\n\nCeci augmente considérablement la sécurité :\n\n- Un code PIN à 4 chiffres a 10, 00 combinaisons possibles\n- Un code PIN alpha-numérique de 4 caractères a plus de 14 millions de combinaisons\n\nL\'utilisation de lettres et de chiffres ensemble rend votre code PIN beaucoup plus difficile à deviner ou à forcer.</string>
     <string name="pin_create_notification_rationale_title">Autoriser les notifications</string>
     <string name="pin_create_notification_rationale_text">SnapSafe n\'utilise que les notifications pour vous garder en contrôle sur le travail
         qu\'il peut faire en arrière-plan, ou pour vous informer de l\'état actuel de la sécurité. Il est fortement
