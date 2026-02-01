@@ -712,7 +712,9 @@ class SecureImageRepository(
 
 		getDecoyFiles().forEach { file ->
 			val targetFile = File(galleryDir, file.name)
-			file.renameTo(targetFile)
+			if (file.renameTo(targetFile)) {
+				fileTimestampObfuscator.obfuscate(targetFile)
+			}
 		}
 		getDecoyDirectory().deleteRecursively()
 	}
