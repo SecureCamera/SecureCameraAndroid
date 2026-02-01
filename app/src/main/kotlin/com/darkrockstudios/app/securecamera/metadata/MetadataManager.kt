@@ -147,7 +147,8 @@ class MetadataManager(
 		capacity = header.getInt()
 
 		// Initialize cache
-		cachedEntries = mutableMapOf()
+		val newEntries = mutableMapOf<String, Pair<Int, MediaMetadataEntry>>()
+		cachedEntries = newEntries
 		freeSlots = mutableListOf()
 
 		// Read all entries
@@ -168,7 +169,7 @@ class MetadataManager(
 					SecmFileFormat.STATUS_ACTIVE -> {
 						val entry = MediaMetadataEntry.fromBytes(plaintext)
 						if (entry != null) {
-							cachedEntries!![entry.filename] = slot to entry
+							newEntries[entry.filename] = slot to entry
 						}
 					}
 
@@ -183,7 +184,7 @@ class MetadataManager(
 			}
 		}
 
-		Timber.d("Loaded metadata index: ${cachedEntries!!.size} entries, ${freeSlots.size} free slots")
+		Timber.d("Loaded metadata index: ${newEntries.size} entries, ${freeSlots.size} free slots")
 	}
 
 	/**
@@ -191,10 +192,10 @@ class MetadataManager(
 	 */
 	suspend fun addEntry(entry: MediaMetadataEntry) {
 		mutex.withLock {
-			ensureLoaded()
+			val entries = requireLoaded()
 
 			// Check for duplicate filename
-			if (cachedEntries!!.containsKey(entry.filename)) {
+			if (entries.containsKey(entry.filename)) {
 				Timber.w("Entry already exists for filename: ${entry.filename}")
 				return@withLock
 			}
@@ -206,7 +207,7 @@ class MetadataManager(
 			}
 
 			writeEntryToDisk(slot, entry)
-			cachedEntries!![entry.filename] = slot to entry
+			entries[entry.filename] = slot to entry
 
 			// Update counts
 			when (entry.mediaType) {
@@ -222,9 +223,9 @@ class MetadataManager(
 	 */
 	suspend fun removeEntry(filename: String) {
 		mutex.withLock {
-			ensureLoaded()
+			val entries = requireLoaded()
 
-			val (slot, entry) = cachedEntries!!.remove(filename) ?: return@withLock
+			val (slot, entry) = entries.remove(filename) ?: return@withLock
 
 			markSlotDeleted(slot)
 			freeSlots.add(slot)
@@ -243,12 +244,12 @@ class MetadataManager(
 	 */
 	suspend fun updateEntry(oldFilename: String, newEntry: MediaMetadataEntry) {
 		mutex.withLock {
-			ensureLoaded()
+			val entries = requireLoaded()
 
-			val (slot, oldEntry) = cachedEntries!!.remove(oldFilename) ?: return@withLock
+			val (slot, oldEntry) = entries.remove(oldFilename) ?: return@withLock
 
 			writeEntryToDisk(slot, newEntry)
-			cachedEntries!![newEntry.filename] = slot to newEntry
+			entries[newEntry.filename] = slot to newEntry
 
 			// Update counts if media type changed (unlikely but handle it)
 			if (oldEntry.mediaType != newEntry.mediaType) {
@@ -445,10 +446,8 @@ class MetadataManager(
 	/**
 	 * Ensures the index is loaded before operations.
 	 */
-	private fun ensureLoaded() {
-		if (cachedEntries == null) {
-			error("Metadata index not loaded. Call loadIndex() first.")
-		}
+	private fun requireLoaded(): MutableMap<String, Pair<Int, MediaMetadataEntry>> {
+		return cachedEntries ?: error("Metadata index not loaded. Call loadIndex() first.")
 	}
 
 	/**
