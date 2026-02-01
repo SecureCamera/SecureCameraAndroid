@@ -12,26 +12,30 @@ import com.ashampoo.kim.common.convertToPhotoMetadata
 import com.ashampoo.kim.model.GpsCoordinates
 import com.ashampoo.kim.model.MetadataUpdate
 import com.ashampoo.kim.model.TiffOrientation
+import com.darkrockstudios.app.securecamera.metadata.MediaMetadataEntry
+import com.darkrockstudios.app.securecamera.metadata.MetadataManager
+import com.darkrockstudios.app.securecamera.security.FileTimestampObfuscator
 import com.darkrockstudios.app.securecamera.security.schemes.EncryptionScheme
 import com.darkrockstudios.app.securecamera.security.streaming.SecvFileFormat
 import com.darkrockstudios.app.securecamera.security.streaming.StreamingDecryptor
 import com.darkrockstudios.app.securecamera.security.streaming.StreamingEncryptionScheme
 import com.darkrockstudios.app.securecamera.security.streaming.VideoEncryptionHelper
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
-import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.time.toJavaInstant
 
 
 class SecureImageRepository(
 	private val appContext: Context,
 	internal val thumbnailCache: ThumbnailCache,
 	private val encryptionScheme: EncryptionScheme,
+	private val metadataManager: MetadataManager,
+	private val fileTimestampObfuscator: FileTimestampObfuscator,
 ) {
 	fun getGalleryDirectory(): File = File(appContext.filesDir, PHOTOS_DIR)
 
@@ -39,14 +43,19 @@ class SecureImageRepository(
 		return File(appContext.filesDir, DECOYS_DIR)
 	}
 
-	fun evictKey() = encryptionScheme.evictKey()
+	fun evictKey() {
+		encryptionScheme.evictKey()
+		metadataManager.evict()
+	}
 
 	/**
 	 * Resets all security-related data when a security failure occurs.
 	 * Deletes all images, videos, temp files, thumbnails, and evicts all in-memory data.
 	 */
 	fun securityFailureReset() {
-		deleteAllImages()
+		runBlocking {
+			deleteAllImages()
+		}
 		deleteAllVideos()
 		clearAllThumbnails()
 		evictKey()
@@ -189,8 +198,8 @@ class SecureImageRepository(
 			dir.mkdirs()
 		}
 
-		val dateFormat = SimpleDateFormat("yyyyMMdd_HHmmss_SS", Locale.US)
-		val finalImageName: String = "photo_" + dateFormat.format(Date.from(image.timestamp.toJavaInstant())) + ".jpg"
+		val finalImageName = generateRandomFilename(MediaType.PHOTO, "jpg")
+		val timestamp = image.timestamp.toEpochMilliseconds()
 
 		val photoFile = File(dir, finalImageName)
 		val tempFile = File(dir, "$finalImageName.tmp")
@@ -204,6 +213,15 @@ class SecureImageRepository(
 		val updatedBytes =
 			applyImageMetadata(jpgBytes, latLng, applyRotation, image.rotationDegrees)
 		encryptAndSaveImage(updatedBytes, tempFile, photoFile)
+		fileTimestampObfuscator.obfuscate(photoFile)
+
+		val entry = MediaMetadataEntry(
+			filename = finalImageName,
+			originalTimestamp = timestamp,
+			mediaType = MediaType.PHOTO,
+			fileSize = photoFile.length()
+		)
+		metadataManager.addEntry(entry)
 
 		return photoFile
 	}
@@ -236,16 +254,28 @@ class SecureImageRepository(
 		val updatedBytes = processImageWithMetadata(bitmap, jpgBytes, quality)
 
 		val dir = getGalleryDirectory()
-		val newImageName = generateCopyName(dir, photoDef.photoName)
+		val newImageName = generateRandomFilename(MediaType.PHOTO, "jpg")
 		val newPhotoFile = File(dir, newImageName)
 		val tempFile = File(dir, "$newImageName.tmp")
 
 		encryptAndSaveImage(updatedBytes, tempFile, newPhotoFile)
 
+		val timestamp = photoDef.metadataTimestamp ?: photoDef.dateTaken().time
+
+		val entry = MediaMetadataEntry(
+			filename = newImageName,
+			originalTimestamp = timestamp,
+			mediaType = MediaType.PHOTO,
+			originalFilename = photoDef.photoName,
+			fileSize = newPhotoFile.length()
+		)
+		metadataManager.addEntry(entry)
+
 		val newPhotoDef = PhotoDef(
 			photoName = newImageName,
 			photoFormat = "jpg",
-			photoFile = newPhotoFile
+			photoFile = newPhotoFile,
+			metadataTimestamp = timestamp
 		)
 
 		return newPhotoDef
@@ -313,6 +343,7 @@ class SecureImageRepository(
 				plain = thumbnailBytes,
 				targetFile = thumbFile,
 			)
+			fileTimestampObfuscator.obfuscate(thumbFile)
 
 			thumbnailBitmap
 		}
@@ -335,10 +366,12 @@ class SecureImageRepository(
 			?.map { file ->
 				val name = file.name
 				val format = name.substringAfterLast('.', "jpg")
+				val metadataEntry = metadataManager.getEntry(name)
 				PhotoDef(
 					photoName = name,
 					photoFormat = format,
-					photoFile = file
+					photoFile = file,
+					metadataTimestamp = metadataEntry?.originalTimestamp
 				)
 			} ?: emptyList()
 	}
@@ -369,10 +402,12 @@ class SecureImageRepository(
 			?.map { file ->
 				val name = file.name
 				val format = name.substringAfterLast('.', "mp4")
+				val metadataEntry = metadataManager.getEntry(name)
 				VideoDef(
 					videoName = name,
 					videoFormat = format,
-					videoFile = file
+					videoFile = file,
+					metadataTimestamp = metadataEntry?.originalTimestamp
 				)
 			} ?: emptyList()
 	}
@@ -398,10 +433,12 @@ class SecureImageRepository(
 		}
 
 		val format = videoName.substringAfterLast('.', SecvFileFormat.FILE_EXTENSION)
+		val metadataEntry = metadataManager.getEntry(videoName)
 		return VideoDef(
 			videoName = videoName,
 			videoFormat = format,
-			videoFile = videoFile
+			videoFile = videoFile,
+			metadataTimestamp = metadataEntry?.originalTimestamp
 		)
 	}
 
@@ -445,6 +482,7 @@ class SecureImageRepository(
 					plain = thumbnailBytes,
 					targetFile = thumbFile,
 				)
+				fileTimestampObfuscator.obfuscate(thumbFile)
 
 				scaledBitmap
 			}
@@ -554,9 +592,11 @@ class SecureImageRepository(
 		return File(dir, video.videoName + ".thumb")
 	}
 
-	fun deleteVideo(video: VideoDef): Boolean {
+	suspend fun deleteVideo(video: VideoDef): Boolean {
 		thumbnailCache.evictThumbnail(video)
 		getVideoThumbnail(video).delete()
+
+		metadataManager.removeEntry(video.videoName)
 
 		return if (video.videoFile.exists()) {
 			video.videoFile.delete()
@@ -565,7 +605,7 @@ class SecureImageRepository(
 		}
 	}
 
-	fun deleteVideos(videos: List<VideoDef>): Boolean {
+	suspend fun deleteVideos(videos: List<VideoDef>): Boolean {
 		return videos.map { deleteVideo(it) }.all { it }
 	}
 
@@ -604,7 +644,7 @@ class SecureImageRepository(
 	/**
 	 * Deletes a media item (photo or video) based on its type.
 	 */
-	fun deleteMediaItem(mediaItem: MediaItem): Boolean {
+	suspend fun deleteMediaItem(mediaItem: MediaItem): Boolean {
 		return when (mediaItem) {
 			is PhotoDef -> deleteImage(mediaItem)
 			is VideoDef -> deleteVideo(mediaItem)
@@ -614,7 +654,7 @@ class SecureImageRepository(
 	/**
 	 * Deletes multiple media items (photos and videos).
 	 */
-	fun deleteMediaItems(items: List<MediaItem>): Boolean {
+	suspend fun deleteMediaItems(items: List<MediaItem>): Boolean {
 		return items.map { deleteMediaItem(it) }.all { it }
 	}
 
@@ -635,11 +675,13 @@ class SecureImageRepository(
 		return getPhotoByName(mediaName) ?: getVideoByName(mediaName)
 	}
 
-	fun deleteImage(photoDef: PhotoDef, deleteDecoy: Boolean = true): Boolean {
+	suspend fun deleteImage(photoDef: PhotoDef, deleteDecoy: Boolean = true): Boolean {
 		thumbnailCache.evictThumbnail(photoDef)
 		if (deleteDecoy && isDecoyPhoto(photoDef)) {
 			getDecoyFile(photoDef).delete()
 		}
+
+		metadataManager.removeEntry(photoDef.photoName)
 
 		return if (photoDef.photoFile.exists()) {
 			getThumbnail(photoDef).delete()
@@ -649,11 +691,11 @@ class SecureImageRepository(
 		}
 	}
 
-	fun deleteImages(photos: List<PhotoDef>, deleteDecoy: Boolean = true): Boolean {
+	suspend fun deleteImages(photos: List<PhotoDef>, deleteDecoy: Boolean = true): Boolean {
 		return photos.map { deleteImage(it, deleteDecoy) }.all { it }
 	}
 
-	fun deleteAllImages(deleteDecoy: Boolean = true) {
+	suspend fun deleteAllImages(deleteDecoy: Boolean = true) {
 		val photos = getPhotos()
 		deleteImages(photos, deleteDecoy)
 	}
@@ -687,10 +729,12 @@ class SecureImageRepository(
 		}
 
 		val format = photoName.substringAfterLast('.', "jpg")
+		val metadataEntry = metadataManager.getEntry(photoName)
 		return PhotoDef(
 			photoName = photoName,
 			photoFormat = format,
-			photoFile = photoFile
+			photoFile = photoFile,
+			metadataTimestamp = metadataEntry?.originalTimestamp
 		)
 	}
 
@@ -749,6 +793,7 @@ class SecureImageRepository(
 				keyBytes = keyBytes,
 				targetFile = decoyFile
 			)
+			fileTimestampObfuscator.obfuscate(decoyFile)
 
 			true
 		} else {
@@ -790,5 +835,19 @@ class SecureImageRepository(
             }
             return candidate
         }
+
+		/**
+		 * Generates a random UUID-based filename.
+		 * Photos: img_{uuid}.{ext}
+		 * Videos: vid_{uuid}.{ext}
+		 */
+		fun generateRandomFilename(type: MediaType, extension: String): String {
+			val uuid = UUID.randomUUID().toString().replace("-", "")
+			val prefix = when (type) {
+				MediaType.PHOTO -> "img"
+				MediaType.VIDEO -> "vid"
+			}
+			return "${prefix}_${uuid}.$extension"
+		}
 	}
 }

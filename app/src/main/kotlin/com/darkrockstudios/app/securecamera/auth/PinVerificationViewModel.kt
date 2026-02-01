@@ -7,6 +7,8 @@ import com.darkrockstudios.app.securecamera.BaseViewModel
 import com.darkrockstudios.app.securecamera.R
 import com.darkrockstudios.app.securecamera.encryption.VideoEncryptionService
 import com.darkrockstudios.app.securecamera.gallery.vibrateDevice
+import com.darkrockstudios.app.securecamera.metadata.MetadataManager
+import com.darkrockstudios.app.securecamera.metadata.MetadataMigrationManager
 import com.darkrockstudios.app.securecamera.navigation.Introduction
 import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
 import com.darkrockstudios.app.securecamera.usecases.InvalidateSessionUseCase
@@ -28,6 +30,8 @@ class PinVerificationViewModel(
 	private val verifyPinUseCase: VerifyPinUseCase,
 	private val pinSizeUseCase: PinSizeUseCase,
 	private val appSettingsDataSource: AppSettingsDataSource,
+	private val metadataManager: MetadataManager,
+	private val metadataMigrationManager: MetadataMigrationManager,
 ) : BaseViewModel<PinVerificationUiState>() {
 
 	override fun createState() = PinVerificationUiState()
@@ -123,6 +127,12 @@ class PinVerificationViewModel(
 			val isValid = verifyPinUseCase.verifyPin(pin)
 
 			if (isValid) {
+				metadataManager.loadIndex()
+
+				if (metadataMigrationManager.needsMigration()) {
+					runDataMigration()
+				}
+
 				// Recover any stranded temp video files immediately after auth
 				// This ensures unencrypted videos are encrypted ASAP
 				VideoEncryptionService.recoverStrandedFiles(appContext)
@@ -171,6 +181,37 @@ class PinVerificationViewModel(
 		}
 	}
 
+	private suspend fun runDataMigration() {
+		val totalFiles = metadataMigrationManager.countFilesToMigrate()
+		withContext(Dispatchers.Main) {
+			_uiState.update {
+				it.copy(
+					isMigrating = true,
+					migrationProgress = 0,
+					migrationTotal = totalFiles
+				)
+			}
+		}
+
+		// Run migration with progress updates
+		metadataMigrationManager.executeMigration { current, total ->
+			withContext(Dispatchers.Main) {
+				_uiState.update {
+					it.copy(
+						migrationProgress = current,
+						migrationTotal = total
+					)
+				}
+			}
+		}
+
+		withContext(Dispatchers.Main) {
+			_uiState.update {
+				it.copy(isMigrating = false)
+			}
+		}
+	}
+
 	fun invalidateSession() = invalidateSessionUseCase.invalidateSession()
 }
 
@@ -186,5 +227,8 @@ data class PinVerificationUiState(
 	val failedAttempts: Int = 0,
 	val isBackoffActive: Boolean = false,
 	val remainingBackoffSeconds: Int = 0,
-	val isAlphanumericPinEnabled: Boolean = false
+	val isAlphanumericPinEnabled: Boolean = false,
+	val isMigrating: Boolean = false,
+	val migrationProgress: Int = 0,
+	val migrationTotal: Int = 0
 )

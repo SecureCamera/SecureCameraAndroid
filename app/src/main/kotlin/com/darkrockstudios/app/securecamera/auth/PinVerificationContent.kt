@@ -19,6 +19,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavKey
 import com.darkrockstudios.app.securecamera.R
@@ -196,5 +198,68 @@ fun PinVerificationContent(
 		}
 	}
 
+	// Migration progress dialog - blocks user interaction until complete
+	if (uiState.isMigrating) {
+		DataMigrationDialog(uiState)
+	}
+
 	HandleUiEvents(viewModel.events, snackbarHostState, navController)
+}
+
+@Composable
+private fun DataMigrationDialog(uiState: PinVerificationUiState) {
+	Dialog(
+		onDismissRequest = { /* Non-dismissible */ },
+		properties = DialogProperties(
+			dismissOnBackPress = false,
+			dismissOnClickOutside = false
+		)
+	) {
+		Card(
+			modifier = Modifier
+				.fillMaxWidth()
+				.padding(16.dp),
+			shape = MaterialTheme.shapes.large
+		) {
+			Column(
+				modifier = Modifier
+					.padding(24.dp)
+					.fillMaxWidth(),
+				horizontalAlignment = Alignment.CenterHorizontally,
+				verticalArrangement = Arrangement.spacedBy(16.dp)
+			) {
+				Text(
+					text = stringResource(R.string.migration_dialog_title),
+					style = MaterialTheme.typography.titleLarge
+				)
+
+				Text(
+					text = stringResource(
+						R.string.migration_dialog_progress,
+						uiState.migrationProgress,
+						uiState.migrationTotal
+					),
+					style = MaterialTheme.typography.bodyMedium
+				)
+
+				val progress = if (uiState.migrationTotal > 0) {
+					uiState.migrationProgress.toFloat() / uiState.migrationTotal.toFloat()
+				} else {
+					0f
+				}
+
+				LinearProgressIndicator(
+					progress = { progress },
+					modifier = Modifier.fillMaxWidth()
+				)
+
+				Text(
+					text = stringResource(R.string.migration_dialog_warning),
+					style = MaterialTheme.typography.bodySmall,
+					color = MaterialTheme.colorScheme.onSurfaceVariant,
+					textAlign = TextAlign.Center
+				)
+			}
+		}
+	}
 }

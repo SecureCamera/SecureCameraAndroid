@@ -10,6 +10,7 @@ data class VideoEncryptionJob(
 	val tempFile: File,
 	val outputFile: File,
 	val createdAt: Long,
+	val recordingTimestamp: Long,
 	val status: JobStatus = JobStatus.Pending
 )
 

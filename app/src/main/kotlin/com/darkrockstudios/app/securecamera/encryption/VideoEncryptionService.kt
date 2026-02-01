@@ -10,6 +10,11 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.darkrockstudios.app.securecamera.MainActivity
 import com.darkrockstudios.app.securecamera.R
+import com.darkrockstudios.app.securecamera.camera.MediaType
+import com.darkrockstudios.app.securecamera.camera.SecureImageRepository.Companion.generateRandomFilename
+import com.darkrockstudios.app.securecamera.metadata.MediaMetadataEntry
+import com.darkrockstudios.app.securecamera.metadata.MetadataManager
+import com.darkrockstudios.app.securecamera.security.FileTimestampObfuscator
 import com.darkrockstudios.app.securecamera.security.schemes.EncryptionScheme
 import com.darkrockstudios.app.securecamera.security.streaming.SecvFileFormat
 import com.darkrockstudios.app.securecamera.security.streaming.VideoEncryptionHelper
@@ -32,6 +37,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 class VideoEncryptionService : Service() {
 
 	private val encryptionScheme: EncryptionScheme by inject()
+	private val metadataManager: MetadataManager by inject()
+	private val fileTimestampObfuscator: FileTimestampObfuscator by inject()
 
 	private val serviceScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 	private var encryptionJob: Job? = null
@@ -53,6 +60,7 @@ class VideoEncryptionService : Service() {
 		private const val EXTRA_TEMP_FILE = "extra_temp_file"
 		private const val EXTRA_OUTPUT_FILE = "extra_output_file"
 		private const val EXTRA_JOB_ID = "extra_job_id"
+		private const val EXTRA_TIMESTAMP = "extra_timestamp"
 
 		/**
 		 * Observable state of all encryption jobs.
@@ -89,8 +97,14 @@ class VideoEncryptionService : Service() {
 
 		/**
 		 * Enqueue a video file for encryption.
+		 * @param timestamp The timestamp when the video was recorded, used for metadata
 		 */
-		fun enqueueEncryption(context: Context, tempFile: File, outputFile: File) {
+		fun enqueueEncryption(
+			context: Context,
+			tempFile: File,
+			outputFile: File,
+			timestamp: Long = System.currentTimeMillis()
+		) {
 			val jobId = UUID.randomUUID().toString()
 			// Add to state immediately as "queued" (null progress)
 			updateProgress(outputFile.name, null)
@@ -99,6 +113,7 @@ class VideoEncryptionService : Service() {
 				putExtra(EXTRA_TEMP_FILE, tempFile.absolutePath)
 				putExtra(EXTRA_OUTPUT_FILE, outputFile.absolutePath)
 				putExtra(EXTRA_JOB_ID, jobId)
+				putExtra(EXTRA_TIMESTAMP, timestamp)
 			}
 			context.startService(intent)
 		}
@@ -161,14 +176,13 @@ class VideoEncryptionService : Service() {
 
 			Timber.w("Found ${tempFiles.size} stranded temp file(s), recovering...")
 
-			// Get set of files currently being processed
 			val currentlyProcessing = _encryptionState.value.keys
 
 			tempFiles.forEach { tempFile ->
-				// Derive the expected output file name
-				val outputName = tempFile.name
-					.replace("temp_", "video_")
-					.replace(".mp4", ".${SecvFileFormat.FILE_EXTENSION}")
+				val outputName = generateRandomFilename(
+					MediaType.VIDEO,
+					SecvFileFormat.FILE_EXTENSION
+				)
 				val outputFile = File(videosDir, outputName)
 
 				// Skip if already being processed
@@ -177,14 +191,11 @@ class VideoEncryptionService : Service() {
 					return@forEach
 				}
 
-				// Delete any existing partial output (shouldn't exist if .encrypting is used, but safety check)
-				if (outputFile.exists()) {
-					Timber.w("Deleting existing partial output: ${outputFile.name}")
-					outputFile.delete()
-				}
+				// Use file's last modified time as the recording timestamp
+				val timestamp = tempFile.lastModified()
 
 				Timber.i("Recovering stranded video: ${tempFile.name} -> ${outputFile.name}")
-				enqueueEncryption(context, tempFile, outputFile)
+				enqueueEncryption(context, tempFile, outputFile, timestamp)
 			}
 		}
 	}
@@ -199,7 +210,7 @@ class VideoEncryptionService : Service() {
 	private fun initializeEncryptionHelper() {
 		val streamingScheme = encryptionScheme.getStreamingCapability()
 		if (streamingScheme != null) {
-			videoEncryptionHelper = VideoEncryptionHelper(streamingScheme)
+			videoEncryptionHelper = VideoEncryptionHelper(streamingScheme, fileTimestampObfuscator)
 		} else {
 			Timber.e("Streaming encryption not available")
 		}
@@ -213,13 +224,15 @@ class VideoEncryptionService : Service() {
 				val tempFilePath = intent.getStringExtra(EXTRA_TEMP_FILE)
 				val outputFilePath = intent.getStringExtra(EXTRA_OUTPUT_FILE)
 				val jobId = intent.getStringExtra(EXTRA_JOB_ID) ?: UUID.randomUUID().toString()
+				val timestamp = intent.getLongExtra(EXTRA_TIMESTAMP, System.currentTimeMillis())
 
 				if (tempFilePath != null && outputFilePath != null) {
 					val job = VideoEncryptionJob(
 						jobId = jobId,
 						tempFile = File(tempFilePath),
 						outputFile = File(outputFilePath),
-						createdAt = System.currentTimeMillis()
+						createdAt = System.currentTimeMillis(),
+						recordingTimestamp = timestamp
 					)
 					enqueueJob(job)
 				}
@@ -364,6 +377,21 @@ class VideoEncryptionService : Service() {
 		// Delete temp file
 		if (job.tempFile.exists()) {
 			job.tempFile.delete()
+		}
+
+		serviceScope.launch {
+			try {
+				val entry = MediaMetadataEntry(
+					filename = job.outputFile.name,
+					originalTimestamp = job.recordingTimestamp,
+					mediaType = MediaType.VIDEO,
+					fileSize = job.outputFile.length()
+				)
+				metadataManager.addEntry(entry)
+				Timber.d("Added metadata entry for video: ${job.outputFile.name}")
+			} catch (e: Exception) {
+				Timber.e(e, "Failed to add metadata entry for video: ${job.outputFile.name}")
+			}
 		}
 	}
 

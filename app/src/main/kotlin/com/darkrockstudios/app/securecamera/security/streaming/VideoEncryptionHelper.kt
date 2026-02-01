@@ -1,5 +1,6 @@
 package com.darkrockstudios.app.securecamera.security.streaming
 
+import com.darkrockstudios.app.securecamera.security.FileTimestampObfuscator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +15,8 @@ import java.io.RandomAccessFile
  * Handles the post-recording encryption flow and secure temp file deletion.
  */
 class VideoEncryptionHelper(
-	private val streamingScheme: StreamingEncryptionScheme
+	private val streamingScheme: StreamingEncryptionScheme,
+	private val fileTimestampObfuscator: FileTimestampObfuscator,
 ) {
 	private val _encryptionProgress = MutableStateFlow<EncryptionProgress>(EncryptionProgress.Idle)
 	val encryptionProgress: StateFlow<EncryptionProgress> = _encryptionProgress.asStateFlow()
@@ -98,6 +100,7 @@ class VideoEncryptionHelper(
 				encryptingFile.delete()
 				return@withContext false
 			}
+			fileTimestampObfuscator.obfuscate(outputFile)
 
 			tempFile.delete()
 

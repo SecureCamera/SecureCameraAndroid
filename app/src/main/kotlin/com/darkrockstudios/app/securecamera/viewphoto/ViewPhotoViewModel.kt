@@ -143,7 +143,9 @@ class ViewPhotoViewModel(
 
 	fun deleteCurrentMedia() {
 		val currentMedia = getCurrentMedia() ?: return
-		imageManager.deleteMediaItem(currentMedia)
+		viewModelScope.launch {
+			imageManager.deleteMediaItem(currentMedia)
+		}
 		_uiState.update { it.copy(mediaDeleted = true) }
 	}
 

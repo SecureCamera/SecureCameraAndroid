@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.coroutineScope
+import com.darkrockstudios.app.securecamera.camera.SecureImageRepository.Companion.generateRandomFilename
 import com.darkrockstudios.app.securecamera.encryption.VideoEncryptionService
 import com.darkrockstudios.app.securecamera.obfuscation.FacialDetection
 import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
@@ -258,6 +259,7 @@ class CameraState internal constructor(
 	 * 1. CameraX writes to a temporary .mp4 file
 	 * 2. On recording complete, the temp file is encrypted to .secv format
 	 * 3. The temp file is securely deleted after encryption
+	 * 4. Metadata entry is added to the encrypted sidecar
 	 */
 	@SuppressLint("MissingPermission")
 	fun startRecording(context: Context): File? {
@@ -277,15 +279,17 @@ class CameraState internal constructor(
 			videosDir.mkdirs()
 		}
 
-		val timestamp = java.text.SimpleDateFormat(
-			"yyyyMMdd_HHmmss",
-			java.util.Locale.US
-		).format(System.currentTimeMillis())
+		val recordingTimestamp = System.currentTimeMillis()
+
+		val randomFilename = generateRandomFilename(
+			MediaType.VIDEO,
+			SecvFileFormat.FILE_EXTENSION
+		)
 
 		// Temp file for CameraX recording (unencrypted)
-		val tempFile = File(videosDir, "temp_$timestamp.mp4")
+		val tempFile = File(videosDir, "temp_${randomFilename.removeSuffix(".${SecvFileFormat.FILE_EXTENSION}")}.mp4")
 		// Final encrypted output file
-		val outputFile = File(videosDir, "video_$timestamp.${SecvFileFormat.FILE_EXTENSION}")
+		val outputFile = File(videosDir, randomFilename)
 
 		pendingTempFile = tempFile
 		pendingOutputFile = outputFile
@@ -319,8 +323,8 @@ class CameraState internal constructor(
 							pendingOutputFile = null
 						} else {
 							Timber.i("Recording complete, enqueueing encryption...")
-							// Enqueue encryption via ForegroundService
-							enqueueVideoEncryption(context, tempFile, outputFile)
+							// Enqueue encryption via ForegroundService (metadata will be added after encryption)
+							enqueueVideoEncryption(context, tempFile, outputFile, recordingTimestamp)
 						}
 					}
 				}
@@ -333,9 +337,9 @@ class CameraState internal constructor(
 	 * Enqueues the recorded video for encryption via the ForegroundService.
 	 * The service handles encryption in the background with progress notifications.
 	 */
-	private fun enqueueVideoEncryption(context: Context, tempFile: File, outputFile: File) {
+	private fun enqueueVideoEncryption(context: Context, tempFile: File, outputFile: File, timestamp: Long) {
 		Timber.i("Enqueueing video encryption: ${tempFile.name} -> ${outputFile.name}")
-		VideoEncryptionService.enqueueEncryption(context, tempFile, outputFile)
+		VideoEncryptionService.enqueueEncryption(context, tempFile, outputFile, timestamp)
 		pendingTempFile = null
 		pendingOutputFile = null
 	}

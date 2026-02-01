@@ -88,10 +88,14 @@ class GalleryViewModel(
 	}
 
 	fun deleteSelectedMedia() {
-		val mediaItems = uiState.value.selectedMedia.mapNotNull { imageManager.getMediaItemByName(it) }
-		imageManager.deleteMediaItems(mediaItems)
+		val selectedNames = uiState.value.selectedMedia
+		val mediaItems = selectedNames.mapNotNull { imageManager.getMediaItemByName(it) }
 
-		val updatedMedia = uiState.value.mediaItems.filter { it.mediaName !in uiState.value.selectedMedia }
+		viewModelScope.launch {
+			imageManager.deleteMediaItems(mediaItems)
+		}
+
+		val updatedMedia = uiState.value.mediaItems.filter { it.mediaName !in selectedNames }
 		_uiState.update {
 			it.copy(
 				mediaItems = updatedMedia,

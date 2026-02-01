@@ -11,10 +11,13 @@ import com.darkrockstudios.app.securecamera.gallery.GalleryViewModel
 import com.darkrockstudios.app.securecamera.import.ImportPhotosViewModel
 import com.darkrockstudios.app.securecamera.introduction.IntroductionViewModel
 import com.darkrockstudios.app.securecamera.introduction.IntroductionViewModelImpl
+import com.darkrockstudios.app.securecamera.metadata.MetadataManager
+import com.darkrockstudios.app.securecamera.metadata.MetadataMigrationManager
 import com.darkrockstudios.app.securecamera.obfuscation.ObfuscatePhotoViewModel
 import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
 import com.darkrockstudios.app.securecamera.preferences.PreferencesAppSettingsDataSource
 import com.darkrockstudios.app.securecamera.security.DeviceInfoDataSource
+import com.darkrockstudios.app.securecamera.security.FileTimestampObfuscator
 import com.darkrockstudios.app.securecamera.security.SecurityLevel
 import com.darkrockstudios.app.securecamera.security.SecurityLevelDetector
 import com.darkrockstudios.app.securecamera.security.pin.PinCrypto
@@ -39,8 +42,11 @@ val appModule = module {
 	factory { Clock.System } bind Clock::class
 	factory<AppSettingsDataSource> { PreferencesAppSettingsDataSource(context = get()) }
     factoryOf(::DeviceInfoDataSource)
+	singleOf(::FileTimestampObfuscator)
 
     singleOf(::SecureImageRepository)
+	singleOf(::MetadataManager)
+	singleOf(::MetadataMigrationManager)
 	single {
 		AuthorizationRepository(
 			preferences = get(),
