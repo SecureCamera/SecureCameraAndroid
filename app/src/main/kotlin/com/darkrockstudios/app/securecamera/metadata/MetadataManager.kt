@@ -332,24 +332,63 @@ class MetadataManager(
 	}
 
 	/**
-	 * Allocates a new slot at the end of the file.
+	 * Allocates a new slot by growing the file in chunks.
+	 *
+	 * @return The first newly allocated slot (for immediate use)
 	 */
 	private suspend fun allocateNewSlot(): Int {
-		val newSlot = capacity
-		capacity++
+		val currentCapacity = capacity
+		val firstNewSlot = currentCapacity
 
-		// Update header capacity
-		withContext(Dispatchers.IO) {
-			indexFile?.let { raf ->
-				raf.seek(SecmFileFormat.HEADER_OFFSET_CAPACITY.toLong())
-				val buffer = ByteBuffer.allocate(4)
-				buffer.order(ByteOrder.LITTLE_ENDIAN)
-				buffer.putInt(capacity)
-				raf.write(buffer.array())
-			}
+		// Calculate growth: double current capacity, bounded by min/max
+		val growthAmount = when {
+			currentCapacity == 0 -> MIN_GROWTH_SLOTS
+			currentCapacity < MAX_GROWTH_SLOTS -> currentCapacity.coerceAtLeast(MIN_GROWTH_SLOTS)
+			else -> MAX_GROWTH_SLOTS
 		}
 
-		return newSlot
+		val newCapacity = currentCapacity + growthAmount
+
+		withContext(Dispatchers.IO) {
+			val raf = indexFile ?: error("Index file not open")
+			val keyBytes = encryptionScheme.getDerivedKey()
+
+			// Write empty encrypted entries for all new slots
+			for (slot in currentCapacity until newCapacity) {
+				val plaintext = MediaMetadataEntry.emptyEntryBytes()
+				val encrypted = encryptEntry(plaintext, keyBytes)
+				raf.seek(SecmFileFormat.entryOffset(slot))
+				raf.write(encrypted)
+			}
+
+			// Update header capacity
+			raf.seek(SecmFileFormat.HEADER_OFFSET_CAPACITY.toLong())
+			val buffer = ByteBuffer.allocate(4)
+			buffer.order(ByteOrder.LITTLE_ENDIAN)
+			buffer.putInt(newCapacity)
+			raf.write(buffer.array())
+
+			obfuscateIndexTimestamp()
+		}
+
+		// Add all new slots except the first one to free list
+		for (slot in (firstNewSlot + 1) until newCapacity) {
+			freeSlots.add(slot)
+		}
+
+		capacity = newCapacity
+
+		Timber.d("Grew metadata capacity from $currentCapacity to $newCapacity (+$growthAmount slots)")
+
+		return firstNewSlot
+	}
+
+	companion object {
+		/** Minimum number of slots to allocate at once */
+		private const val MIN_GROWTH_SLOTS = 64
+
+		/** Maximum number of slots to add in a single growth operation */
+		private const val MAX_GROWTH_SLOTS = 512
 	}
 
 	/**

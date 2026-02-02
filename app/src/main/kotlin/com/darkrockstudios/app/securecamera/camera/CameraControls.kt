@@ -111,7 +111,7 @@ fun CameraControls(
 				cameraController.stopRecording()
 				vibrateDevice(context)
 			} else {
-				val outputFile = cameraController.startRecording(context)
+				val outputFile = cameraController.startRecording(context, cameraRotation.toInt())
 				if (outputFile != null) {
 					Timber.i("Recording to: ${outputFile.absolutePath}")
 					vibrateDevice(context)

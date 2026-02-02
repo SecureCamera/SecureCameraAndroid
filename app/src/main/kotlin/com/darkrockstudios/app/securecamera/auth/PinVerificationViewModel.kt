@@ -7,7 +7,6 @@ import com.darkrockstudios.app.securecamera.BaseViewModel
 import com.darkrockstudios.app.securecamera.R
 import com.darkrockstudios.app.securecamera.encryption.VideoEncryptionService
 import com.darkrockstudios.app.securecamera.gallery.vibrateDevice
-import com.darkrockstudios.app.securecamera.metadata.MetadataManager
 import com.darkrockstudios.app.securecamera.metadata.MetadataMigrationManager
 import com.darkrockstudios.app.securecamera.navigation.Introduction
 import com.darkrockstudios.app.securecamera.preferences.AppSettingsDataSource
@@ -30,7 +29,6 @@ class PinVerificationViewModel(
 	private val verifyPinUseCase: VerifyPinUseCase,
 	private val pinSizeUseCase: PinSizeUseCase,
 	private val appSettingsDataSource: AppSettingsDataSource,
-	private val metadataManager: MetadataManager,
 	private val metadataMigrationManager: MetadataMigrationManager,
 ) : BaseViewModel<PinVerificationUiState>() {
 
@@ -127,8 +125,6 @@ class PinVerificationViewModel(
 			val isValid = verifyPinUseCase.verifyPin(pin)
 
 			if (isValid) {
-				metadataManager.loadIndex()
-
 				if (metadataMigrationManager.needsMigration()) {
 					runDataMigration()
 				}

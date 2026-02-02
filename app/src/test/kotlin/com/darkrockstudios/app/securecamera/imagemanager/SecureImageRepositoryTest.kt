@@ -6,7 +6,9 @@ import android.graphics.BitmapFactory
 import com.ashampoo.kim.model.GpsCoordinates
 import com.darkrockstudios.app.securecamera.auth.AuthorizationRepository
 import com.darkrockstudios.app.securecamera.camera.*
+import com.darkrockstudios.app.securecamera.metadata.MetadataManager
 import com.darkrockstudios.app.securecamera.preferences.HashedPin
+import com.darkrockstudios.app.securecamera.security.FileTimestampObfuscator
 import com.darkrockstudios.app.securecamera.security.pin.PinRepository
 import com.darkrockstudios.app.securecamera.security.schemes.EncryptionScheme
 import io.mockk.*
@@ -34,6 +36,8 @@ class SecureImageRepositoryTest {
 	private lateinit var secureImageRepository: SecureImageRepository
 	private lateinit var thumbnailCache: ThumbnailCache
 	private lateinit var encryptionScheme: EncryptionScheme
+	private lateinit var metadataManager: MetadataManager
+	private lateinit var fileTimestampObfuscator: FileTimestampObfuscator
 
 	@Before
 	fun setup() {
@@ -42,6 +46,8 @@ class SecureImageRepositoryTest {
 		authorizationRepository = mockk(relaxed = true)
 		thumbnailCache = mockk(relaxed = true)
 		encryptionScheme = mockk()
+		metadataManager = mockk(relaxed = true)
+		fileTimestampObfuscator = mockk(relaxed = true)
 
 		// Mock the filesDir and cacheDir
 		val filesDir = tempFolder.newFolder("files")
@@ -98,6 +104,8 @@ class SecureImageRepositoryTest {
 			appContext = context,
 			thumbnailCache = thumbnailCache,
 			encryptionScheme = encryptionScheme,
+			metadataManager = metadataManager,
+			fileTimestampObfuscator = fileTimestampObfuscator,
 		)
 	}
 
@@ -176,7 +184,7 @@ class SecureImageRepositoryTest {
 	}
 
 	@Test
-	fun `deleteImage should remove the photo file and thumbnail`() {
+	fun `deleteImage should remove the photo file and thumbnail`() = runTest {
 		// Given
 		val galleryDir = secureImageRepository.getGalleryDirectory()
 		galleryDir.mkdirs()
@@ -199,7 +207,7 @@ class SecureImageRepositoryTest {
 	}
 
 	@Test
-	fun `deleteImage should return false when photo does not exist`() {
+	fun `deleteImage should return false when photo does not exist`() = runTest {
 		// Given
 		val galleryDir = secureImageRepository.getGalleryDirectory()
 		galleryDir.mkdirs()
@@ -442,7 +450,7 @@ class SecureImageRepositoryTest {
 	}
 
 	@Test
-	fun `deleteAllImages should delete all photos`() {
+	fun `deleteAllImages should delete all photos`() = runTest {
 		// Given
 		val galleryDir = secureImageRepository.getGalleryDirectory()
 		galleryDir.mkdirs()

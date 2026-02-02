@@ -2,6 +2,7 @@ package com.darkrockstudios.app.securecamera.usecases
 
 import com.darkrockstudios.app.securecamera.auth.AuthorizationRepository
 import com.darkrockstudios.app.securecamera.camera.SecureImageRepository
+import com.darkrockstudios.app.securecamera.metadata.MetadataManager
 import com.darkrockstudios.app.securecamera.security.pin.PinRepository
 import com.darkrockstudios.app.securecamera.security.schemes.EncryptionScheme
 import io.mockk.*
@@ -21,6 +22,7 @@ class VerifyPinUseCaseTest {
 	private lateinit var verifyPinUseCase: VerifyPinUseCase
 	private lateinit var encryptionScheme: EncryptionScheme
 	private lateinit var authorizePinUseCase: AuthorizePinUseCase
+	private lateinit var metadataManager: MetadataManager
 
 	@Before
 	fun setup() {
@@ -29,12 +31,14 @@ class VerifyPinUseCaseTest {
 		pinRepository = mockk()
 		authorizePinUseCase = mockk()
 		encryptionScheme = mockk(relaxed = true)
+		metadataManager = mockk(relaxed = true)
 		verifyPinUseCase = VerifyPinUseCase(
 			authRepository = authManager,
 			imageRepository = imageManager,
 			pinRepository = pinRepository,
 			encryptionScheme = encryptionScheme,
 			authorizePinUseCase = authorizePinUseCase,
+			metadataManager = metadataManager,
 		)
 	}
 

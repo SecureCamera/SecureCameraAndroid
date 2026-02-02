@@ -3,6 +3,7 @@ package com.darkrockstudios.app.securecamera.camera
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.RectF
+import android.view.Surface
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.video.*
@@ -260,9 +261,12 @@ class CameraState internal constructor(
 	 * 2. On recording complete, the temp file is encrypted to .secv format
 	 * 3. The temp file is securely deleted after encryption
 	 * 4. Metadata entry is added to the encrypted sidecar
+	 *
+	 * @param context The application context
+	 * @param deviceRotation The current device rotation in degrees (0, 90, 180, 270) from accelerometer
 	 */
 	@SuppressLint("MissingPermission")
-	fun startRecording(context: Context): File? {
+	fun startRecording(context: Context, deviceRotation: Int = 0): File? {
 		val videoCapture = this.videoCapture ?: run {
 			Timber.e("VideoCapture not initialized")
 			return null
@@ -272,6 +276,14 @@ class CameraState internal constructor(
 			Timber.w("Recording already in progress")
 			return null
 		}
+
+		val surfaceRotation = when (deviceRotation) {
+			90 -> Surface.ROTATION_90
+			180 -> Surface.ROTATION_180
+			270 -> Surface.ROTATION_270
+			else -> Surface.ROTATION_0
+		}
+		videoCapture.targetRotation = surfaceRotation
 
 		// Create output directories
 		val videosDir = File(context.filesDir, "videos")

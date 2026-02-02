@@ -149,6 +149,18 @@ data class MediaMetadataEntry(
 		}
 
 		/**
+		 * Creates an "empty" entry for pre-allocated slots.
+		 * The entry will have STATUS_EMPTY and all other fields zeroed.
+		 */
+		fun emptyEntryBytes(): ByteArray {
+			val buffer = ByteBuffer.allocate(SecmFileFormat.ENTRY_PLAINTEXT_SIZE)
+			buffer.order(ByteOrder.LITTLE_ENDIAN)
+			buffer.put(SecmFileFormat.STATUS_EMPTY)
+			// Rest is already zero-filled
+			return buffer.array()
+		}
+
+		/**
 		 * Extracts just the status byte from an entry's plaintext.
 		 */
 		fun getStatus(bytes: ByteArray): Byte {
