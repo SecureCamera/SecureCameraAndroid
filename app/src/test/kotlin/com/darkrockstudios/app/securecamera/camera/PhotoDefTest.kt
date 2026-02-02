@@ -1,60 +1,53 @@
 package com.darkrockstudios.app.securecamera.camera
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
-import java.text.SimpleDateFormat
 import java.util.*
 
 class PhotoDefTest {
 
 	@Test
-	fun `dateTaken parses valid photoName correctly`() {
-		// Create a known date
-		val calendar = Calendar.getInstance()
-		calendar.set(2023, Calendar.JANUARY, 15, 10, 30, 45)
-		calendar.set(Calendar.MILLISECOND, 500)
-		val expectedDate = calendar.time
+	fun `dateTaken returns date from metadataTimestamp when provided`() {
+		// Create a known timestamp
+		val expectedTimestamp = 1673782245500L // 2023-01-15 10:30:45.500 UTC
 
-		// Format the date as it would be in a photoName
-		val dateFormat = SimpleDateFormat("yyyyMMdd_HHmmss_SS", Locale.US)
-		val dateString = dateFormat.format(expectedDate)
-		val photoName = "photo_$dateString.jpg"
-
-		// Create a PhotoDef with this photoName
+		// Create a PhotoDef with UUID-based filename and metadata timestamp
 		val photoDef = PhotoDef(
-			photoName = photoName,
+			photoName = "img_550e8400e29b41d4a716446655440000.jpg",
 			photoFormat = "jpg",
-			photoFile = File("dummy/path")
+			photoFile = File("dummy/path"),
+			metadataTimestamp = expectedTimestamp
 		)
 
-		// Get the parsed date
-		val parsedDate = photoDef.dateTaken()
+		// Get the date
+		val result = photoDef.dateTaken()
 
-		// Compare the dates (using string representation to avoid millisecond precision issues)
-		assertEquals(dateFormat.format(expectedDate), dateFormat.format(parsedDate))
+		// Verify the timestamp matches
+		assertEquals(expectedTimestamp, result.time)
 	}
 
 	@Test
-	fun `dateTaken handles invalid photoName gracefully`() {
-		// Create a PhotoDef with an invalid photoName
+	fun `dateTaken returns current date when metadataTimestamp is null`() {
+		// Create a PhotoDef without metadata timestamp
 		val photoDef = PhotoDef(
-			photoName = "invalid_photo_name.jpg",
+			photoName = "img_550e8400e29b41d4a716446655440000.jpg",
 			photoFormat = "jpg",
-			photoFile = File("dummy/path")
+			photoFile = File("dummy/path"),
+			metadataTimestamp = null
 		)
 
 		// Get the current time before calling dateTaken
 		val beforeTime = Date()
 
-		// Call dateTaken which should return current date for invalid format
-		val parsedDate = photoDef.dateTaken()
+		// Call dateTaken which should return current date
+		val result = photoDef.dateTaken()
 
 		// Get the current time after calling dateTaken
 		val afterTime = Date()
 
 		// Verify the returned date is between beforeTime and afterTime
-		// This is a loose check since we can't predict the exact time it will use
-		assert(parsedDate.time >= beforeTime.time - 1000 && parsedDate.time <= afterTime.time + 1000)
+		assertTrue(result.time >= beforeTime.time - 1000 && result.time <= afterTime.time + 1000)
 	}
 }
