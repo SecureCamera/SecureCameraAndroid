@@ -154,7 +154,7 @@ class MetadataManager(
 		// Read all entries
 		val keyBytes = encryptionScheme.getDerivedKey()
 
-		for (slot in 0..capacity) {
+		for (slot in 0 until capacity) {
 			val offset = SecmFileFormat.entryOffset(slot)
 			raf.seek(offset)
 
