@@ -723,7 +723,7 @@ class SecureImageRepositoryTest {
 		val galleryDir = secureImageRepository.getGalleryDirectory()
 		galleryDir.mkdirs()
 
-		val photoName = "photo_20230101_120000_00.jpg"
+		val photoName = "img_550e8400e29b41d4a716446655440000.jpg"
 		val photoFile = File(galleryDir, photoName)
 
 		// Create an encrypted file
@@ -733,10 +733,14 @@ class SecureImageRepositoryTest {
 			targetFile = photoFile,
 		)
 
+		// Timestamp for 2023-01-01 12:00:00 UTC
+		val expectedTimestamp = 1672574400000L
+
 		val photoDef = PhotoDef(
 			photoName = photoName,
 			photoFormat = "jpg",
-			photoFile = photoFile
+			photoFile = photoFile,
+			metadataTimestamp = expectedTimestamp
 		)
 
 		// When
@@ -744,13 +748,8 @@ class SecureImageRepositoryTest {
 
 		// Then
 		assertEquals(photoName, result.name)
-		// The date should be parsed from the photo name
-		assertEquals(2023, result.dateTaken.year + 1900) // Java Date year is offset by 1900
-		assertEquals(0, result.dateTaken.month) // Java Date month is 0-based (0 = January)
-		assertEquals(1, result.dateTaken.date) // day of month
-		assertEquals(12, result.dateTaken.hours)
-		assertEquals(0, result.dateTaken.minutes)
-		assertEquals(0, result.dateTaken.seconds)
+		// The date should come from the metadataTimestamp
+		assertEquals(expectedTimestamp, result.dateTaken.time)
 		// Check the new properties
 		assertNull(result.orientation)
 		assertNull(result.location)
