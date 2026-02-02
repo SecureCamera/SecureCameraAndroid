@@ -441,4 +441,9 @@
         BE LOST!
     </string>
 
+    <!-- Migration Dialog -->
+    <string name="migration_dialog_title">Upgrading Security</string>
+    <string name="migration_dialog_progress">Migrating %1$d of %2$d files…</string>
+    <string name="migration_dialog_warning">Please wait. Do not close the app.</string>
+
 </resources>
