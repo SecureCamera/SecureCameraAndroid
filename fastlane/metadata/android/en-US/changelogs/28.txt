@@ -1,0 +1,3 @@
+- Improved security around photo metadata
+- Allow alphanumeric PINs
+- Fix landscape photos and videos orientation
