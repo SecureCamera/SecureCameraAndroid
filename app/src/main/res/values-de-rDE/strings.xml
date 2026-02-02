@@ -389,4 +389,8 @@
     <string name="pin_verification_wipe_warning">%1$d fehlgeschlagene Versuche werden zu einer vollständigen Datenlöschung führen.\nALLE PHOTOS WERDEN
         VERLUSS!
     </string>
+    <!-- Migration Dialog -->
+    <string name="migration_dialog_title">Sicherheit wird aktualisiert</string>
+    <string name="migration_dialog_progress">Migration %1$d von %2$d Dateien…</string>
+    <string name="migration_dialog_warning">Bitte warten. Schließen Sie die App nicht.</string>
 </resources>
