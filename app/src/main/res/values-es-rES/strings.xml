@@ -389,4 +389,8 @@
     <string name="pin_verification_wipe_warning">%1$d failed attempts will result in a full data wipe.\nALL PHOTOS WILL
         BE LOST!
     </string>
+    <!-- Migration Dialog -->
+    <string name="migration_dialog_title">Actualizando seguridad</string>
+    <string name="migration_dialog_progress">Migrando %1$d de archivos %2$d…</string>
+    <string name="migration_dialog_warning">Por favor espere. No cierre la aplicación.</string>
 </resources>
