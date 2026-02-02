@@ -190,6 +190,7 @@ class SecureImageRepository(
 		image: CapturedImage,
 		latLng: GpsCoordinates?,
 		applyRotation: Boolean,
+		deviceRotation: Int = 0,
 		quality: Int = 90,
 	): File {
 		val dir = getGalleryDirectory()
@@ -206,7 +207,8 @@ class SecureImageRepository(
 
 		var rawSensorBitmap = image.sensorBitmap
 		if (applyRotation) {
-			rawSensorBitmap = rawSensorBitmap.rotate(image.rotationDegrees)
+			val effectiveRotation = (image.rotationDegrees - deviceRotation) % 360
+			rawSensorBitmap = rawSensorBitmap.rotate(effectiveRotation)
 		}
 
 		val jpgBytes = compressBitmapToJpeg(rawSensorBitmap, quality)

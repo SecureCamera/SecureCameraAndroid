@@ -144,7 +144,7 @@ internal fun CameraContent(
 				capturePhoto = capturePhoto,
 				navController = navController,
 				paddingValues = paddingValues,
-				iconRotation = deviceRotation,
+				cameraRotation = deviceRotation,
 			)
 		} else {
 			NoCameraPermission(navController, permissionsState)

@@ -48,7 +48,7 @@ fun CameraControls(
 	capturePhoto: MutableState<Boolean?>,
 	navController: NavController,
 	paddingValues: PaddingValues,
-	iconRotation: Float = 0f,
+	cameraRotation: Float = 0f,
 ) {
 	val scope = rememberCoroutineScope()
 	var isFlashOn by rememberSaveable(cameraController.flashMode) { mutableStateOf(cameraController.flashMode == ImageCapture.FLASH_MODE_ON) }
@@ -89,6 +89,7 @@ fun CameraControls(
 						location = location,
 						isFlashOn = isFlashOn,
 						context = context,
+						deviceRotation = cameraRotation.toInt(),
 					)
 				} finally {
 					activeJobs =
@@ -142,14 +143,14 @@ fun CameraControls(
 			modifier = Modifier
 				.align(Alignment.TopCenter)
 				.padding(top = paddingValues.calculateTopPadding().plus(64.dp)),
-			textRotation = iconRotation,
+			textRotation = cameraRotation,
 		)
 
 		LevelIndicator(
 			modifier = Modifier
 				.align(Alignment.Center)
 				.padding(top = paddingValues.calculateTopPadding().plus(16.dp)),
-			deviceRotation = iconRotation,
+			deviceRotation = cameraRotation,
 		)
 
 		if (isRecording) {
@@ -175,7 +176,7 @@ fun CameraControls(
 				Icon(
 					imageVector = Icons.Filled.MoreVert,
 					contentDescription = stringResource(id = R.string.camera_more_options_content_description),
-					modifier = Modifier.rotate(iconRotation),
+					modifier = Modifier.rotate(cameraRotation),
 				)
 			}
 		}
@@ -207,7 +208,7 @@ fun CameraControls(
 				onLensToggle = { cameraController.toggleLens() },
 				onClose = { isTopControlsVisible = false },
 				paddingValues = paddingValues,
-				iconRotation = iconRotation,
+				iconRotation = cameraRotation,
 			)
 		}
 
@@ -222,7 +223,7 @@ fun CameraControls(
 			onCapture = { doCapturePhoto() },
 			onToggleRecording = { doToggleRecording() },
 			onModeChange = { mode -> cameraController.switchCaptureMode(mode) },
-			iconRotation = iconRotation,
+			iconRotation = cameraRotation,
 		)
 	}
 }
@@ -234,6 +235,7 @@ private suspend fun handleImageCapture(
 	context: Context,
 	location: Location?,
 	isFlashOn: Boolean,
+	deviceRotation: Int,
 ) {
 	val gpsCoordinates = location?.let {
 		GpsCoordinates(
@@ -251,6 +253,7 @@ private suspend fun handleImageCapture(
 		val path = imageSaver.saveImage(
 			image = image,
 			applyRotation = true,
+			deviceRotation = deviceRotation,
 			latLng = gpsCoordinates,
 		)
 		Timber.i("Image saved at: $path")
