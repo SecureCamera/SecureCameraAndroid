@@ -125,6 +125,7 @@ fun CameraControls(
 	LaunchedEffect(capturePhoto.value) {
 		if (capturePhoto.value != null) {
 			doCapturePhoto()
+			capturePhoto.value = null
 		}
 	}
 
