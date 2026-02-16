@@ -1,17 +1,24 @@
 package com.darkrockstudios.app.securecamera.navigation
 
+import android.os.Build
+import android.view.RoundedCorner
+import androidx.compose.animation.*
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
-import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
-import androidx.navigation3.runtime.entryProvider
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.navigation3.runtime.*
 import androidx.navigation3.ui.NavDisplay
 import com.darkrockstudios.app.securecamera.R
 import com.darkrockstudios.app.securecamera.about.AboutContent
@@ -26,6 +33,26 @@ import com.darkrockstudios.app.securecamera.obfuscation.ObfuscatePhotoContent
 import com.darkrockstudios.app.securecamera.settings.SettingsContent
 import com.darkrockstudios.app.securecamera.viewphoto.ViewPhotoContent
 import kotlin.io.encoding.ExperimentalEncodingApi
+
+@Composable
+private fun rememberScreenCornerRadius(): Dp {
+	val view = LocalView.current
+	val density = LocalDensity.current
+	return remember {
+		val radius = 16.dp
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+			val insets = view.rootWindowInsets
+			val corner = insets?.getRoundedCorner(RoundedCorner.POSITION_TOP_LEFT)
+			if (corner != null) {
+				with(density) { corner.radius.toDp() }
+			} else {
+				radius
+			}
+		} else {
+			radius
+		}
+	}
+}
 
 @OptIn(ExperimentalEncodingApi::class)
 @Composable
@@ -43,10 +70,39 @@ fun AppNavHost(
 
 	LaunchedEffect(Unit) { authManager.checkSessionValidity() }
 
+	val cornerRadius = rememberScreenCornerRadius()
+	val roundedCornerDecorator = remember(cornerRadius) {
+		NavEntryDecorator<Any> { entry ->
+			Box(
+				modifier = Modifier
+					.fillMaxSize()
+					.clip(RoundedCornerShape(cornerRadius))
+			) {
+				entry.Content()
+			}
+		}
+	}
+
 	NavDisplay(
 		backStack = backStack,
 		onBack = { if (backStack.isNotEmpty()) backStack.removeAt(backStack.lastIndex) },
 		modifier = modifier,
+		entryDecorators = listOf(
+			rememberSaveableStateHolderNavEntryDecorator(),
+			roundedCornerDecorator,
+		),
+		transitionSpec = {
+			(slideInHorizontally { it } + fadeIn()) togetherWith
+					(slideOutHorizontally { -it } + fadeOut())
+		},
+		popTransitionSpec = {
+			(slideInHorizontally { -it } + fadeIn()) togetherWith
+					(slideOutHorizontally { it } + fadeOut())
+		},
+		predictivePopTransitionSpec = {
+			(slideInHorizontally { -it / 10 } + fadeIn()) togetherWith
+					(scaleOut(targetScale = 0.9f) + fadeOut())
+		},
 		entryProvider = entryProvider {
 			entry<Introduction> {
 				IntroductionContent(
