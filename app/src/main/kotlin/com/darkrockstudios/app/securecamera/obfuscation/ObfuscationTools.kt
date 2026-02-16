@@ -6,9 +6,9 @@ import android.renderscript.Allocation
 import android.renderscript.Element
 import android.renderscript.RenderScript
 import android.renderscript.ScriptIntrinsicBlur
+import androidx.core.graphics.createBitmap
 import androidx.core.graphics.scale
 import java.security.SecureRandom
-import androidx.core.graphics.createBitmap
 
 enum class MaskMode {
 	BLACKOUT,
@@ -43,12 +43,13 @@ fun coerceRectToBitmap(rect: Rect, bitmap: Bitmap): Rect {
 fun maskFace(bitmap: Bitmap, region: Region, context: Context, vararg modes: MaskMode) {
 	val rect = region.rect
 	val safeRect = coerceRectToBitmap(rect, bitmap)
+	val useOvalMask = region is FaceRegion
 	modes.forEach { mode ->
 		when (mode) {
-			MaskMode.BLACKOUT -> blackout(bitmap, safeRect)
-			MaskMode.PIXELATE -> pixelate(bitmap, safeRect, region)
-			MaskMode.NOISE -> noise(bitmap, safeRect)
-			MaskMode.BLUR -> blur(bitmap, safeRect, context)
+			MaskMode.BLACKOUT -> blackout(bitmap, safeRect, useOvalMask)
+			MaskMode.PIXELATE -> pixelate(bitmap, safeRect, region, useOvalMask = useOvalMask)
+			MaskMode.NOISE -> noise(bitmap, safeRect, useOvalMask)
+			MaskMode.BLUR -> blur(bitmap, safeRect, context, useOvalMask = useOvalMask)
 		}
 	}
 }
@@ -73,7 +74,7 @@ private fun applyOvalMask(sourceBitmap: Bitmap, rect: Rect): Bitmap {
 	return maskedBitmap
 }
 
-private fun blackout(bitmap: Bitmap, rect: Rect) {
+private fun blackout(bitmap: Bitmap, rect: Rect, useOvalMask: Boolean) {
 	val safeRect = coerceRectToBitmap(rect, bitmap)
 
 	val blackBitmap = createBitmap(safeRect.width(), safeRect.height())
@@ -81,13 +82,20 @@ private fun blackout(bitmap: Bitmap, rect: Rect) {
 	val paint = Paint().apply { color = Color.BLACK }
 	blackCanvas.drawRect(0f, 0f, safeRect.width().toFloat(), safeRect.height().toFloat(), paint)
 
-	val maskedBlack = applyOvalMask(blackBitmap, safeRect)
+	val finalBitmap = if (useOvalMask) applyOvalMask(blackBitmap, safeRect) else blackBitmap
 
 	val canvas = Canvas(bitmap)
-	canvas.drawBitmap(maskedBlack, safeRect.left.toFloat(), safeRect.top.toFloat(), null)
+	canvas.drawBitmap(finalBitmap, safeRect.left.toFloat(), safeRect.top.toFloat(), null)
 }
 
-private fun pixelate(bitmap: Bitmap, rect: Rect, region: Region, targetBlockSize: Int = 8, addNoise: Boolean = true) {
+private fun pixelate(
+	bitmap: Bitmap,
+	rect: Rect,
+	region: Region,
+	targetBlockSize: Int = 8,
+	addNoise: Boolean = true,
+	useOvalMask: Boolean = true
+) {
 	val faceBitmap = Bitmap.createBitmap(bitmap, rect.left, rect.top, rect.width(), rect.height())
 
 	val small = faceBitmap.scale(targetBlockSize, targetBlockSize, false)
@@ -164,13 +172,20 @@ private fun pixelate(bitmap: Bitmap, rect: Rect, region: Region, targetBlockSize
 	}
 
 	val pixelated = small.scale(rect.width(), rect.height(), false)
-	val maskedPixelated = applyOvalMask(pixelated, rect)
+	val finalBitmap = if (useOvalMask) applyOvalMask(pixelated, rect) else pixelated
 
 	val canvas = Canvas(bitmap)
-	canvas.drawBitmap(maskedPixelated, rect.left.toFloat(), rect.top.toFloat(), null)
+	canvas.drawBitmap(finalBitmap, rect.left.toFloat(), rect.top.toFloat(), null)
 }
 
-private fun blur(bitmap: Bitmap, rect: Rect, context: Context, radius: Float = 25f, rounds: Int = 10) {
+private fun blur(
+	bitmap: Bitmap,
+	rect: Rect,
+	context: Context,
+	radius: Float = 25f,
+	rounds: Int = 10,
+	useOvalMask: Boolean = true
+) {
 	val safeRect = coerceRectToBitmap(rect, bitmap)
 	val faceBitmap = Bitmap.createBitmap(bitmap, safeRect.left, safeRect.top, safeRect.width(), safeRect.height())
 
@@ -199,13 +214,13 @@ private fun blur(bitmap: Bitmap, rect: Rect, context: Context, radius: Float = 2
 	script.destroy()
 	rs.destroy()
 
-	val maskedBlurred = applyOvalMask(faceBitmap, safeRect)
+	val finalBitmap = if (useOvalMask) applyOvalMask(faceBitmap, safeRect) else faceBitmap
 
 	val canvas = Canvas(bitmap)
-	canvas.drawBitmap(maskedBlurred, safeRect.left.toFloat(), safeRect.top.toFloat(), null)
+	canvas.drawBitmap(finalBitmap, safeRect.left.toFloat(), safeRect.top.toFloat(), null)
 }
 
-private fun noise(bitmap: Bitmap, rect: Rect) {
+private fun noise(bitmap: Bitmap, rect: Rect, useOvalMask: Boolean) {
 	val safeRect = coerceRectToBitmap(rect, bitmap)
 
 	val noiseBitmap = createBitmap(safeRect.width(), safeRect.height())
@@ -220,8 +235,8 @@ private fun noise(bitmap: Bitmap, rect: Rect) {
 		}
 	}
 
-	val maskedNoise = applyOvalMask(noiseBitmap, safeRect)
+	val finalBitmap = if (useOvalMask) applyOvalMask(noiseBitmap, safeRect) else noiseBitmap
 
 	val canvas = Canvas(bitmap)
-	canvas.drawBitmap(maskedNoise, safeRect.left.toFloat(), safeRect.top.toFloat(), null)
+	canvas.drawBitmap(finalBitmap, safeRect.left.toFloat(), safeRect.top.toFloat(), null)
 }
