@@ -77,16 +77,21 @@ fun PoisonPillPinCreationDialog(
 				// PIN input
 				OutlinedTextField(
 					value = pin,
-					onValueChange = {
-						if (it.length <= uiState.pinSize.max() && it.all { char -> char.isDigit() }) {
-							pin = it
+					onValueChange = { newPin ->
+						val isValid = if (uiState.alphanumericPinEnabled) {
+							newPin.all { char -> char.isLetterOrDigit() }
+						} else {
+							newPin.all { char -> char.isDigit() }
+						}
+						if (newPin.length <= uiState.pinSize.max() && isValid) {
+							pin = newPin
 							showError = null
 						}
 					},
 					label = { Text(stringResource(R.string.pin_creation_hint)) },
 					visualTransformation = PasswordVisualTransformation(),
 					keyboardOptions = KeyboardOptions(
-						keyboardType = KeyboardType.NumberPassword,
+						keyboardType = if (uiState.alphanumericPinEnabled) KeyboardType.Password else KeyboardType.NumberPassword,
 						imeAction = ImeAction.Next
 					),
 					singleLine = true,
@@ -98,16 +103,21 @@ fun PoisonPillPinCreationDialog(
 				// Confirm PIN input
 				OutlinedTextField(
 					value = confirmPin,
-					onValueChange = {
-						if (it.length <= uiState.pinSize.max() && it.all { char -> char.isDigit() }) {
-							confirmPin = it
+					onValueChange = { newConfirmPin ->
+						val isValid = if (uiState.alphanumericPinEnabled) {
+							newConfirmPin.all { char -> char.isLetterOrDigit() }
+						} else {
+							newConfirmPin.all { char -> char.isDigit() }
+						}
+						if (newConfirmPin.length <= uiState.pinSize.max() && isValid) {
+							confirmPin = newConfirmPin
 							showError = null
 						}
 					},
 					label = { Text(stringResource(R.string.pin_creation_confirm_hint)) },
 					visualTransformation = PasswordVisualTransformation(),
 					keyboardOptions = KeyboardOptions(
-						keyboardType = KeyboardType.NumberPassword,
+						keyboardType = if (uiState.alphanumericPinEnabled) KeyboardType.Password else KeyboardType.NumberPassword,
 						imeAction = ImeAction.Done
 					),
 					singleLine = true,

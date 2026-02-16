@@ -65,6 +65,12 @@ class SettingsViewModel(
 				_uiState.update { it.copy(locationPermissionStatus = status) }
 			}
 		}
+
+		viewModelScope.launch {
+			preferences.alphanumericPinEnabled.collect { enabled ->
+				_uiState.update { it.copy(alphanumericPinEnabled = enabled) }
+			}
+		}
 	}
 
 	private fun checkPoisonPillStatus() {
@@ -193,7 +199,7 @@ class SettingsViewModel(
 	}
 
 	suspend fun validatePoisonPillPin(pin: String, confirmPin: String): String? {
-		val strongPin = pinStrengthCheck.isPinStrongEnough(pin)
+		val strongPin = pinStrengthCheck.isPinStrongEnough(pin, uiState.value.alphanumericPinEnabled)
 		return if (pin != confirmPin || (pin.length in uiState.value.pinSize).not()) {
 			appContext.getString(R.string.pin_creation_error)
 		} else if (isSameAsAuthPin(pin)) {
@@ -223,4 +229,5 @@ data class SettingsUiState(
 	val poisonPillRemoved: Boolean = false,
 	val securityLevel: SecurityLevel = SecurityLevel.SOFTWARE,
 	val pinSize: IntRange,
+	val alphanumericPinEnabled: Boolean = false,
 )
