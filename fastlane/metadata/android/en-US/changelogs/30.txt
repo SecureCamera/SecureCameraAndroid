@@ -1,0 +1,3 @@
+- Fix: Face blurring oval not covering all faces
+- Fix: Poison Pill PIN now supports alphanumeric PINs
+- Improved predictive back animations
