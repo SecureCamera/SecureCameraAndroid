@@ -61,12 +61,14 @@ private fun applyOvalMask(sourceBitmap: Bitmap, rect: Rect): Bitmap {
 	val paint = Paint(Paint.ANTI_ALIAS_FLAG)
 	paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
 
-	val ovalWidth = rect.width().toFloat()
-	val ovalHeight = ovalWidth / 1.6f
+	val scaleFactor = 1.2f
+	val ovalHeight = rect.height().toFloat() * scaleFactor
+	val ovalWidth = ovalHeight / 1.6f
 
+	val leftOffset = (rect.width() - ovalWidth) / 2f
 	val topOffset = (rect.height() - ovalHeight) / 2f
 
-	val ovalRect = RectF(0f, topOffset.coerceAtLeast(0f), ovalWidth, topOffset.coerceAtLeast(0f) + ovalHeight)
+	val ovalRect = RectF(leftOffset, topOffset, leftOffset + ovalWidth, topOffset + ovalHeight)
 	maskCanvas.drawOval(ovalRect, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.WHITE })
 
 	maskCanvas.drawBitmap(sourceBitmap, 0f, 0f, paint)
