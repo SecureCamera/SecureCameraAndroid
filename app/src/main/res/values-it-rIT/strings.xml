@@ -315,6 +315,12 @@
     <string name="pin_creating_vault">Creazione cassaforte foto…</string>
     <string name="pin_show_description">Mostra PIN</string>
     <string name="pin_hide_description">Nascondi PIN</string>
+    <!-- Alpha-numeric PIN -->
+    <string name="pin_creation_alphanumeric_label">Abilita PIN alfanumerico</string>
+    <string name="pin_creation_alphanumeric_help_description">Informazioni sui PIN alfanumerici</string>
+    <string name="pin_creation_short_warning">I PIN corti sono meno sicuri. Considera di usare 6+ caratteri.</string>
+    <string name="pin_alphanumeric_help_title">PIN Alfanumerici</string>
+    <string name="pin_alphanumeric_help_message">I PIN alfanumerici consentono lettere (a-z, A-Z) in aggiunta alle cifre (0-9).\n\nQuesto aumenta notevolmente la sicurezza:\n\n- Un PIN numerico a 4 cifre ha 10, 00 possibili combinazioni\n- Un PIN alfanumerico a 4 caratteri ha oltre 14 milioni di combinazioni\n\nL\'utilizzo di lettere e numeri insieme rende il tuo PIN molto più difficile da indovinare o brute-forza.</string>
     <string name="pin_create_notification_rationale_title">Consenti Notifiche</string>
     <string name="pin_create_notification_rationale_text">SnapSafe utilizza solo le notifiche per mantenere il controllo di
         lavoro che può essere fatto in background, o per informarti dello stato di sicurezza attuale. È fortemente
@@ -383,4 +389,8 @@
     <string name="pin_verification_wipe_warning">%1$d failed attempts will result in a full data wipe.\nALL PHOTOS WILL
         BE LOST!
     </string>
+    <!-- Migration Dialog -->
+    <string name="migration_dialog_title">Aggiornamento Sicurezza</string>
+    <string name="migration_dialog_progress">Migrating %1$d of %2$d files…</string>
+    <string name="migration_dialog_warning">Attendere prego. Non chiudere l\'app.</string>
 </resources>
