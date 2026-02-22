@@ -81,6 +81,7 @@ class SessionService : Service() {
 	override fun onTaskRemoved(rootIntent: Intent?) {
 		Timber.d("App task removed, clearing notification and stopping service")
 		invalidateSessionUseCase.invalidateSession()
+		dismissNotification()
 		stopSelf()
 		super.onTaskRemoved(rootIntent)
 	}
@@ -92,6 +93,7 @@ class SessionService : Service() {
 					if (!authRepository.checkSessionValidity()) {
 						Timber.d("Session is no longer valid, invalidating session")
 						invalidateSessionUseCase.invalidateSession()
+						dismissNotification()
 						stopSelf()
 						break
 					}
@@ -100,6 +102,7 @@ class SessionService : Service() {
 			} catch (e: Exception) {
 				Timber.e(e, "Error in SessionService")
 			} finally {
+				dismissNotification()
 				stopSelf()
 			}
 		}
