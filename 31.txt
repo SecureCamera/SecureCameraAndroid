@@ -1,0 +1,3 @@
+- Localization updates
+- Remove READ_PHONE_STATE permission
+- Properly clear session notifications
