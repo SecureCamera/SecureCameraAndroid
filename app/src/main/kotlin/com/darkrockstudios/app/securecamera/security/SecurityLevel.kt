@@ -47,11 +47,13 @@ class SecurityLevelDetector {
 			SecurityLevel.STRONGBOX
 		} catch (_: Exception) {
 			createProbeKey()
-			if(isKeyInHardware(probeKeyAlias)) {
-				SecurityLevel.TEE
-			} else {
-				SecurityLevel.SOFTWARE
-			}
+synchronized (object) {
+    if(isKeyInHardware(probeKeyAlias)) {
+        SecurityLevel.TEE
+    } else {
+        SecurityLevel.SOFTWARE
+    }
+}
 		} finally {
 			deleteProbKey()
 		}
