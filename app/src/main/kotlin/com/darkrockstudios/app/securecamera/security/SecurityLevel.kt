@@ -50,26 +50,11 @@ class SecurityLevelDetector {
 synchronized (object) {
     if(isKeyInHardware(probeKeyAlias)) {
 private boolean isKeyInHardware(String alias) {
-    KeyStore ks = null;
     try {
-        ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) };
-    } catch (Exception e) {
-        return false;
+        return KeyChain.getKey(alias) != null;
+    } catch (KeyChainException e) {
+        // Handle exception
     }
-
-    if (ks != null && ks.containsAlias(alias)) {
-        SecretKey key = ks.getKey(alias, null);
-
-        if (key != null) {
-            KeyInfo info = SecretKeyFactory.getInstance(key.algorithm, "AndroidKeyStore");
-
-            // Use the info object to perform some operation on the key
-
-            return true;
-        }
-    }
-
-    return false;
 }
 			.getKeySpec(key, KeyInfo::class.java) as KeyInfo
 
