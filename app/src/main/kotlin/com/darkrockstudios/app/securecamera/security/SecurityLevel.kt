@@ -49,26 +49,28 @@ class SecurityLevelDetector {
 			createProbeKey()
 synchronized (object) {
     if(isKeyInHardware(probeKeyAlias)) {
-        SecurityLevel.TEE
-    } else {
-        SecurityLevel.SOFTWARE
+private boolean isKeyInHardware(String alias) {
+    KeyStore ks = null;
+    try {
+        ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) };
+    } catch (Exception e) {
+        return false;
     }
+
+    if (ks != null && ks.containsAlias(alias)) {
+        SecretKey key = ks.getKey(alias, null);
+
+        if (key != null) {
+            KeyInfo info = SecretKeyFactory.getInstance(key.algorithm, "AndroidKeyStore");
+
+            // Use the info object to perform some operation on the key
+
+            return true;
+        }
+    }
+
+    return false;
 }
-		} finally {
-			deleteProbKey()
-		}
-	}
-
-	private fun isKeyInHardware(alias: String): Boolean {
-		val ks = try {
-			KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
-		} catch (_: Exception) {
-			return false
-		}
-
-		val key = ks.getKey(alias, null) as SecretKey
-
-		val info: KeyInfo = SecretKeyFactory.getInstance(key.algorithm, "AndroidKeyStore")
 			.getKeySpec(key, KeyInfo::class.java) as KeyInfo
 
 		return info.isInsideSecureHardware
