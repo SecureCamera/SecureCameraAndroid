@@ -125,7 +125,7 @@
     <string name="camera_settings_button">Réglages</string>
     <string name="camera_toggle_content_description">Activer/désactiver la caméra</string>
     <string name="camera_close_controls_content_description">Fermer les contrôles</string>
-    <string name="camera_flash_text">Clignoter</string>
+    <string name="camera_flash_text">Flash</string>
     <string name="camera_face_tracking">Auto-Focus</string>
     <string name="camera_capture_content_description">Capturer</string>
     <string name="camera_gallery_content_description">Galerie</string>
@@ -253,7 +253,7 @@
     <!-- Display variants of URLs -->
     <!-- Location Dialog -->
     <string name="location_dialog_title_denied">Demander l\'autorisation de localisation</string>
-    <string name="location_dialog_title_coarse">Demander un emplacement précis</string>
+    <string name="location_dialog_title_coarse">Demander la Position précise</string>
     <string name="location_dialog_title_fine">Supprimer l\'autorisation de localisation</string>
     <string name="location_dialog_message_denied">Autoriser l\'application à accéder à votre position ?</string>
     <string name="location_dialog_message_coarse">Autoriser l\'application à accéder à votre position précise ?</string>
