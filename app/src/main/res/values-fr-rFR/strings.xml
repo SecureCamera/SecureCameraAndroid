@@ -344,27 +344,26 @@
         This is generally not required for most users, but is an optional level of security if your threat model demands
         it.
     </string>
-    <string name="security_intro_string_ephemeral_label">Clé de cryptage éphémère</string>
-    <string name="security_intro_string_ephemeral_explainer">As an optional layer of security, we can offer you an
-        ephemeral Key.
+    <string name="security_intro_string_ephemeral_label">Clé de chiffrement éphémère</string>
+    <string name="security_intro_string_ephemeral_explainer">En tant que couche de sécurité optionnelle, nous pouvons vous proposer une
+        clé éphémère.
         \n\n
-        With this option your Data Encryption Key will never be saved to disk, even in the heavily encrypted form we
-        normally use. Instead, it is
-        derived purely in memory every time you authenticate with the app.
+        Avec cette option  votre Clé de Chiffrement de Données ne sera jamais sauvegardée sur disque, même sous sa forme fortement chiffrée que nous
+        utilisons habituellement. À la place, elle est
+        purement dérivée en mémoire à chaque fois que vous vous authentifiez dans l\'application.
         \n\n
-        The trade off is authenticating with the app will be much slower each time.
+        La contre-partie est que toute authentification dans l\'application sera plus lente.
         \n\n
-        This is generally not required for most users, but is an optional layer of security if your threat model demands
-        it.
+        Ce n\'est généralement pas requis pour la plupart des utilisateurs, mais c\'est une couche de sécurité optionnelle si votre modèle de menace 
+        l\'exige.
     </string>
     <string name="security_intro_string_biometric_checkbox">Nécessite biométrique + PIN</string>
     <string name="security_intro_advanced_section">Avancé</string>
     <string name="security_intro_expand">Développer les options avancées</string>
     <string name="security_intro_collapse">Réduire les options avancées</string>
     <string name="security_intro_security_level_normal">Normale</string>
-    <string name="security_intro_security_level_normal_explainer">Your encryption keys are stored in your chips Trusted
-        Execution Environment on this device. This is the reasonable level of security for all but the highest risk
-        threat models.
+    <string name="security_intro_security_level_normal_explainer">Votre clé de chiffrement est stockée dans cos puces Trusted
+        Execution Environment sur cet appareil. C\'est un niveau de sécurité raisonnable pour tous les modèles de menace à l\'exception des plus élevés reat models.
     </string>
     <string name="security_intro_security_level_weak">Faible</string>
     <string name="security_intro_security_level_weak_explainer">Your device lacks any hardware-backed key storage. While
