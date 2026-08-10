@@ -244,6 +244,11 @@
     <string name="about_privacy_policy_description">SnapSafe stores all data locally on your device. No data is
         transmitted to external servers.
     </string>
+    <string name="about_studio">Темні скельні студії</string>
+    <string name="about_studio_description">SnapSafe is made by Dark Rock Studios, along with a family of other
+        privacy-respecting open source apps.
+    </string>
+    <string name="about_studio_button">Більше від темних скельних студій</string>
     <string name="about_report_bugs">Повідомити про помилку</string>
     <string name="about_report_bugs_description">Знайшли помилку? Доповісти про це на GitHub:</string>
     <string name="about_community">Приєднайтеся до нашої спільноти</string>
