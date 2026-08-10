@@ -38,6 +38,7 @@ zoomable = "2.12.0"
 media3 = "1.10.1"
 camerax = "1.6.1"
 foundation = "1.11.2"
+cairn = "0.2.2"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
@@ -75,6 +76,7 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+cairn = { module = "com.darkrockstudios:cairn", version.ref = "cairn" }
 kim = { module = "com.ashampoo:kim", version.ref = "kim" }
 koin-android-test = { module = "io.insert-koin:koin-android-test" }
 koin-androidx-compose-navigation = { module = "io.insert-koin:koin-androidx-compose-navigation" }
