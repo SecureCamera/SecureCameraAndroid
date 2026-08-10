@@ -267,6 +267,11 @@
     <string translatable="false" name="about_privacy_policy_url">
         https://github.com/SecureCamera/SecureCameraAndroid/blob/main/PRIVACY.md
     </string>
+    <string name="about_studio">Dark Rock Studios</string>
+    <string name="about_studio_description">SnapSafe is made by Dark Rock Studios, along with a family of other
+        privacy-respecting open source apps.
+    </string>
+    <string name="about_studio_button">More from Dark Rock Studios</string>
     <string name="about_report_bugs">Report Bugs</string>
     <string name="about_report_bugs_description">Found a bug? Report it on GitHub:</string>
     <string translatable="false" name="about_report_bugs_url">

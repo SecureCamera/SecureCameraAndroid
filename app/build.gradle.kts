@@ -104,6 +104,7 @@ dependencies {
 	implementation(libs.androidx.lifecycle.viewmodel.navigation3)
 	//implementation(libs.androidx.material3.navigation3)
 	implementation(libs.timber)
+	implementation(libs.cairn)
 	implementation(libs.kim)
 	implementation(project.dependencies.platform(libs.koin.bom))
 	implementation(libs.koin.core)
