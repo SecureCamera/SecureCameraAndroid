@@ -244,6 +244,11 @@
     <string name="about_privacy_policy_description">SnapSafe 在您的设备上本地存储所有数据。没有
         数据传输到外部服务器。
     </string>
+    <string name="about_studio">暗岩石工作室</string>
+    <string name="about_studio_description">SnapSafe is made by Dark Rock Studios, along with a family of other
+        privacy-respecting open source apps.
+    </string>
+    <string name="about_studio_button">更多来自 Dark Rock Studios</string>
     <string name="about_report_bugs">报告错误</string>
     <string name="about_report_bugs_description">发现错误？在 GitHub 上报告它：</string>
     <string name="about_community">加入我们的社区</string>
