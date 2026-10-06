@@ -244,6 +244,11 @@
     <string name="about_privacy_policy_description">SnapSafe almacena todos los datos localmente en tu dispositivo. Ningún dato es
         transmitido a servidores externos.
     </string>
+    <string name="about_studio">Estudios de roca oscura</string>
+    <string name="about_studio_description">SnapSafe está hecho por Dark Rock Studios, junto con una familia de otras
+        aplicaciones de código abierto.
+    </string>
+    <string name="about_studio_button">Más de los Estudios de Rock Oscuro</string>
     <string name="about_report_bugs">Reporte de bugs</string>
     <string name="about_report_bugs_description">¿Encontrado un error? Reportarlo en GitHub:</string>
     <string name="about_community">Únete a nuestra comunidad</string>
