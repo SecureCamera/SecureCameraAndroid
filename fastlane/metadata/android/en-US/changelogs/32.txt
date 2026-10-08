@@ -1,0 +1,3 @@
+- Localization updates
+- New Dark Rock Studios section on the About screen
+- Library upgrades
