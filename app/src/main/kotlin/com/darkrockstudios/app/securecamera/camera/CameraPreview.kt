@@ -35,7 +35,7 @@ fun rememberCameraState(
 	initialFlashMode: Int = ImageCapture.FLASH_MODE_OFF,
 ): CameraState {
 	val context = androidx.compose.ui.platform.LocalContext.current
-	val lifecycleOwner = androidx.compose.ui.platform.LocalLifecycleOwner.current
+	val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
 
 	return remember {
 		val providerFuture = ProcessCameraProvider.getInstance(context).get()
