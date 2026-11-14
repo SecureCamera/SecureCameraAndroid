@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SnapSafe</string>
+    <string name="app_name" translatable="false">SnapSafe</string>
 
     <!-- Delete Photo Dialog -->
     <string name="delete_photo_title_singular">Delete Photo</string>
@@ -311,7 +311,7 @@
     <!-- Introduction Slides -->
     <string name="intro_slide_icon">Slide Icon</string>
 
-    <string name="intro_slide0_title">SnapSafe</string>
+    <string name="intro_slide0_title" translatable="false">SnapSafe</string>
     <string name="intro_slide0_description">Welcome to SnapSafe! A free and open source app designed to protect
         your privacy.\n\nAlong with strong encryption, every measure is taken to safeguard your photos from prying eyes
         even if your phone is confiscated and searched.
