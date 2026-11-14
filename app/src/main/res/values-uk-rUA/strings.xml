@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Снаперф</string>
+    <string name="app_name">SnapSafe</string>
     <!-- Delete Photo Dialog -->
     <string name="delete_photo_title_singular">Видалити</string>
     <string name="delete_photo_title_plural">Видалити фото</string>
@@ -273,7 +273,7 @@
     <string name="intro_finish">Закінчити</string>
     <!-- Introduction Slides -->
     <string name="intro_slide_icon">Ковзання значка</string>
-    <string name="intro_slide0_title">Снаперф</string>
+    <string name="intro_slide0_title">SnapSafe</string>
     <string name="intro_slide0_description">Welcome to SnapSafe! A free and open source app designed to protect
         your privacy.\n\nAlong with strong encryption, every measure is taken to safeguard your photos from prying eyes
         even if your phone is confiscated and searched.
