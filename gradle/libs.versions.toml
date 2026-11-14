@@ -3,12 +3,12 @@ versionCode = "32"
 versionName = "4.2.0"
 
 targetSdk = "36"
-compileSdk = "36"
+compileSdk = "37"
 minSdk = "29"
 
 javaVersion = "17"
-agp = "8.13.2"
-workManager = "2.11.2"
+agp = "9.5.1"
+workManager = "2.12.0"
 argon2kt = "1.6.0"
 bcrypt = "0.10.2"
 faceDetection = "16.1.7"
@@ -16,31 +16,32 @@ kotlinxCoroutinesTest = "1.11.0"
 rules = "1.7.0"
 accompanistPermissions = "0.37.3"
 coreSplashscreen = "1.2.0"
-lifecycleViewModel = "2.10.0"
+lifecycleViewModel = "2.11.0"
 materialIconsExtended = "1.7.8"
-mockk = "1.14.9"
+mockk = "1.14.12"
 kim = "0.26.2"
-kotlin = "2.3.21"
-kotlinx-serialization = "1.11.0"
-runtimeLivedata = "1.11.2"
-coreKtx = "1.18.0"
+kotlin = "2.4.21"
+kotlinx-serialization = "1.13.0"
+runtimeLivedata = "1.12.1"
+coreKtx = "1.19.1"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 activityCompose = "1.13.0"
-composeBom = "2026.05.01"
-navigation3 = "1.1.2"
-lifecycleViewmodelNav3 = "2.10.0"
-koin-bom = "4.2.1"
+composeBom = "2026.09.00"
+navigation3 = "1.2.1"
+lifecycleViewmodelNav3 = "2.11.0"
+koin-bom = "4.2.2"
 cryptographyBom = "0.6.0"
-datastorePreferences = "1.2.1"
+datastorePreferences = "1.3.0"
 timber = "5.0.1"
-zoomable = "2.12.0"
-media3 = "1.10.1"
-camerax = "1.6.1"
-foundation = "1.11.2"
-cairn = "0.2.2"
+zoomable = "2.16.0"
+media3 = "1.11.1"
+camerax = "1.6.2"
+foundation = "1.12.1"
+cairn = "0.4.0"
 
 [libraries]
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
 androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "camerax" }
 androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "camerax" }
@@ -105,6 +106,5 @@ androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", vers
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
